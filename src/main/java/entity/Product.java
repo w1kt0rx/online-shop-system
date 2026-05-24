@@ -11,13 +11,13 @@ import lombok.Setter;
 import java.math.BigDecimal;
 
 @Getter
-
+@EqualsAndHashCode
 public abstract class Product {
-    private final Long id;
-    private final String name;
+    protected final Long id;
+    protected final String name;
     @Setter
-    private BigDecimal basePrice;
-    private int quantity;
+    protected BigDecimal basePrice;
+    protected int quantity;
 
     public Product(Long id, String name, BigDecimal price, int quantity) {
         validateId(id);
@@ -29,6 +29,10 @@ public abstract class Product {
         this.name = name;
         this.basePrice = price;
         this.quantity = quantity;
+    }
+
+    public BigDecimal getPrice() {
+        return basePrice;
     }
 
     public void decreaseQuantity(int amount) {

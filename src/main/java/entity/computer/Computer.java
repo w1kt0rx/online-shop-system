@@ -22,6 +22,7 @@ public class Computer extends Product {
         computerConfiguration.configure(processor, ram, storage, graphicsCard);
     }
 
+    @Override
     public BigDecimal getPrice() {
         return basePrice.add(computerConfiguration.calculatePrice());
     }

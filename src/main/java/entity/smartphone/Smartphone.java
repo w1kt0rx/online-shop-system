@@ -16,6 +16,7 @@ public class Smartphone extends Product {
         configuration = new SmartphoneConfiguration();
     }
 
+    @Override
     public BigDecimal getPrice() {
         return basePrice.add(configuration.calculateAdditionalPrice());
     }
