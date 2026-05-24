@@ -13,12 +13,11 @@ import java.math.BigDecimal;
 @Getter
 
 public abstract class Product {
-    protected final Long id;
-    protected final String name;
+    private final Long id;
+    private final String name;
     @Setter
-    protected BigDecimal basePrice;
-    @Setter
-    protected int quantity;
+    private BigDecimal basePrice;
+    private int quantity;
 
     public Product(Long id, String name, BigDecimal price, int quantity) {
         validateId(id);
@@ -30,6 +29,22 @@ public abstract class Product {
         this.name = name;
         this.basePrice = price;
         this.quantity = quantity;
+    }
+
+    public void decreaseQuantity(int amount) {
+        if(amount > quantity || amount < 0) {
+            throw new InvalidQuantityException("Quantity cannot be negative");
+        } else {
+            quantity -= amount;
+        }
+    }
+
+    public void increaseQuantity(int amount) {
+        if(amount <= 0) {
+            throw new IllegalArgumentException("Amount added must be bigger than 0");
+        } else {
+            quantity += amount;
+        }
     }
 
     public boolean isAvailable() {
