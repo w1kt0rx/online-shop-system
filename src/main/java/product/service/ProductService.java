@@ -11,50 +11,48 @@ import product.model.computer.configuration.ComputerConfiguration;
 import product.model.electronics.Electronics;
 import product.model.smartphone.Smartphone;
 import product.model.smartphone.configuration.SmartphoneConfiguration;
-import product.repository.impl.InMemoryComputerRepository;
-import product.repository.impl.InMemoryElectronicsRepository;
-import product.repository.impl.InMemorySmartphoneRepository;
+import product.repository.ComputerRepository;
+import product.repository.ElectronicsRepository;
+import product.repository.SmartphoneRepository;
 
 import java.util.List;
 
 @RequiredArgsConstructor
 public class ProductService {
 
-    private final InMemoryComputerRepository computerRepository;
-    private final InMemorySmartphoneRepository smartphoneRepository;
-    private final InMemoryElectronicsRepository electronicsRepository;
+    private final ComputerRepository computerRepository;
+    private final SmartphoneRepository smartphoneRepository;
+    private final ElectronicsRepository electronicsRepository;
 
     public ComputerDto createComputer(CreateComputerRequest request) {
+        ComputerConfiguration configuration = new ComputerConfiguration();
+        configuration.configure(request.processor(), request.ram(), request.storageType(), request.graphicsCard());
         Computer computer = new Computer(
                 computerRepository.getNextId(),
                 request.name(),
                 request.basePrice(),
                 request.quantity(),
-                new ComputerConfiguration());
+                configuration);
 
         return ComputerMapper.toDTO(computerRepository.save(computer));
     }
 
     public ComputerDto updateComputer(Long id, UpdateComputerRequest request) {
-        computerRepository.findById(id)
+        Computer computer = computerRepository.findById(id)
                 .orElseThrow(() -> new ProductNotFoundException("Computer with id " + id + " not found"));
 
-        ComputerConfiguration configuration = new ComputerConfiguration();
-        configuration.configure(
+        computer.updateName(request.name());
+        computer.updatePrice(request.basePrice());
+        computer.updateQuantity(request.quantity());
+
+        computer.getComputerConfiguration().configure(
                 request.processor(),
                 request.ram(),
                 request.storageType(),
                 request.graphicsCard()
         );
 
-        Computer updatedComputer = new Computer(
-                id,
-                request.name(),
-                request.basePrice(),
-                request.quantity(),
-                configuration
-        );
-        return ComputerMapper.toDTO(computerRepository.save(updatedComputer));
+        return ComputerMapper.toDTO(computerRepository.save(computer));
     }
 
     public ComputerDto getComputerById(Long id) {
@@ -71,38 +69,40 @@ public class ProductService {
     }
 
     public void deleteComputer(Long id) {
+        computerRepository.findById(id)
+                .orElseThrow(() -> new ProductNotFoundException("Computer not found"));
+
         computerRepository.delete(id);
     }
 
     public SmartphoneDto createSmartphone(CreateSmartphoneRequest request) {
+        SmartphoneConfiguration configuration = new SmartphoneConfiguration();
+        configuration.configure(request.color(), request.batteryCapacity(), request.accessory());
         Smartphone smartphone = new Smartphone(
                 smartphoneRepository.getNextId(),
                 request.name(),
                 request.basePrice(),
                 request.quantity(),
-                new SmartphoneConfiguration());
+                configuration);
 
         return SmartphoneMapper.toDTO(smartphoneRepository.save(smartphone));
     }
 
     public SmartphoneDto updateSmartphone(Long id, UpdateSmartphoneRequest request) {
-        smartphoneRepository.findById(id)
+        Smartphone smartphone = smartphoneRepository.findById(id)
                 .orElseThrow(() -> new ProductNotFoundException("Smartphone with id " + id + " not found"));
 
-        SmartphoneConfiguration configuration = new SmartphoneConfiguration();
-        configuration.configure(
+        smartphone.updateName(request.name());
+        smartphone.updatePrice(request.basePrice());
+        smartphone.updateQuantity(request.quantity());
+
+        smartphone.getSmartphoneConfiguration().configure(
                 request.color(),
                 request.batteryCapacity(),
                 request.accessory()
         );
-        Smartphone updatedSmartphone = new Smartphone(
-                id,
-                request.name(),
-                request.basePrice(),
-                request.quantity(),
-                configuration
-        );
-        return SmartphoneMapper.toDTO(smartphoneRepository.save(updatedSmartphone));
+
+        return SmartphoneMapper.toDTO(smartphoneRepository.save(smartphone));
     }
 
     public SmartphoneDto getSmartphoneById(Long id) {
@@ -119,6 +119,8 @@ public class ProductService {
     }
 
     public void deleteSmartphone(Long id) {
+        smartphoneRepository.findById(id)
+                .orElseThrow(() -> new ProductNotFoundException("Smartphone not found"));
         smartphoneRepository.delete(id);
     }
 
@@ -133,16 +135,14 @@ public class ProductService {
     }
 
     public ElectronicsDto updateElectronics(Long id, UpdateElectronicsRequest request) {
-        electronicsRepository.findById(id)
+        Electronics electronics = electronicsRepository.findById(id)
                 .orElseThrow(() -> new ProductNotFoundException("Electronics with id " + id + " not found"));
 
-        Electronics updatedElectronics = new Electronics(
-                id,
-                request.name(),
-                request.basePrice(),
-                request.quantity()
-        );
-        return ElectronicsMapper.toDTO(electronicsRepository.save(updatedElectronics));
+        electronics.updateName(request.name());
+        electronics.updatePrice(request.basePrice());
+        electronics.updateQuantity(request.quantity());
+
+        return ElectronicsMapper.toDTO(electronicsRepository.save(electronics));
     }
 
     public ElectronicsDto getElectronicsById(Long id) {
@@ -159,6 +159,8 @@ public class ProductService {
     }
 
     public void deleteElectronics(Long id) {
+        electronicsRepository.findById(id)
+                .orElseThrow(() -> new ProductNotFoundException("Electronics not found"));
         electronicsRepository.delete(id);
     }
 }

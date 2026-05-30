@@ -13,9 +13,8 @@ public class Computer extends Product {
     private final ComputerConfiguration computerConfiguration;
 
     public Computer(Long id, String name, BigDecimal basePrice, Integer quantity, ComputerConfiguration computerConfiguration) {
-        super(id, name, basePrice, quantity);
+        super(id, name, basePrice, quantity, ProductType.COMPUTER);
         this.computerConfiguration = computerConfiguration;
-        productType = ProductType.COMPUTER;
 
     }
 

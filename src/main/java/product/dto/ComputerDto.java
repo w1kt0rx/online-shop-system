@@ -8,7 +8,8 @@ import java.math.BigDecimal;
 public record ComputerDto(Long id,
                           String name,
                           BigDecimal basePrice,
+                          BigDecimal totalPrice,
                           Integer quantity,
                           ProductType productType,
-                          ComputerConfiguration computerConfiguration) {
+                          ComputerConfigurationDto computerConfiguration) {
 }

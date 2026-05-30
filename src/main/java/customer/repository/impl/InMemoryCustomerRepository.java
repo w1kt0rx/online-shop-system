@@ -13,7 +13,7 @@ public class InMemoryCustomerRepository implements CustomerRepository {
 
     @Override
     public Customer save(Customer entity) {
-        database.putIfAbsent(entity.getId(), entity);
+        database.put(entity.getId(), entity);
         return entity;
     }
 

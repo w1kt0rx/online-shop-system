@@ -14,13 +14,13 @@ public class InMemoryComputerRepository implements ComputerRepository {
 
     @Override
     public Computer save(Computer entity) {
-        database.putIfAbsent(entity.getId(), entity);
+        database.put(entity.getId(), entity);
         return entity;
     }
 
     @Override
     public void delete(Long id) {
-
+        database.remove(id);
     }
 
     @Override
@@ -30,7 +30,7 @@ public class InMemoryComputerRepository implements ComputerRepository {
 
     @Override
     public List<Computer> getAll() {
-        return List.of();
+        return database.values().stream().toList();
     }
 
     @Override

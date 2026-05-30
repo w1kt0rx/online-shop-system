@@ -30,7 +30,7 @@ class ProductServiceTest {
     private ProductService productService;
 
     @BeforeEach
-    void setUp() {
+    void setup() {
         InMemoryComputerRepository computerRepository = new InMemoryComputerRepository();
         InMemorySmartphoneRepository smartphoneRepository = new InMemorySmartphoneRepository();
         InMemoryElectronicsRepository electronicsRepository = new InMemoryElectronicsRepository();

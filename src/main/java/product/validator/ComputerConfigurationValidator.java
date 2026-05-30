@@ -24,7 +24,6 @@ public final class ComputerConfigurationValidator {
         if(!errors.isEmpty()) {
             throw new InvalidConfigurationException(String.join(", ", errors));
         }
-
     }
 
     private static void validateProcessor(Processor processor, List<String> errors) {
@@ -50,4 +49,30 @@ public final class ComputerConfigurationValidator {
             errors.add("Graphics card cannot be null");
         }
     }
+
+    public static void validateProcessor(Processor processor) {
+        if (processor == null) {
+            throw new InvalidConfigurationException("Processor cannot be null");
+        }
+    }
+
+    public static void validateRam(Ram ram) {
+        if (ram == null) {
+            throw new InvalidConfigurationException("Ram cannot be null");
+        }
+    }
+
+    public static void validateStorageType(StorageType storageType) {
+        if (storageType == null) {
+            throw new InvalidConfigurationException("Storage type cannot be null");
+        }
+    }
+
+    public static void validateGraphicsCard(GraphicsCard graphicsCard) {
+        if (graphicsCard == null) {
+            throw new InvalidConfigurationException("Graphics card cannot be null");
+        }
+    }
+
+
 }

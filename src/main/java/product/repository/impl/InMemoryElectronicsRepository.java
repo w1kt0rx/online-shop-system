@@ -14,7 +14,7 @@ public class InMemoryElectronicsRepository implements ElectronicsRepository {
 
     @Override
     public Electronics save(Electronics entity) {
-        database.putIfAbsent(entity.getId(), entity);
+        database.put(entity.getId(), entity);
         return entity;
     }
 

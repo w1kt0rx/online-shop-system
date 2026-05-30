@@ -9,10 +9,21 @@ import lombok.NoArgsConstructor;
 public final class ComputerMapper {
 
     public static ComputerDto toDTO(Computer computer) {
-        return new ComputerDto(computer.getId(), computer.getName(), computer.getBasePrice(), computer.getQuantity(), computer.getProductType(), computer.getComputerConfiguration());
+        return new ComputerDto(
+                computer.getId(),
+                computer.getName(),
+                computer.getBasePrice(),
+                computer.getPrice(),
+                computer.getQuantity(),
+                computer.getProductType(),
+                ComputerConfigurationMapper.toDto(computer.getComputerConfiguration()));
     }
 
     public static Computer toEntity(ComputerDto computerDto) {
-        return new Computer(computerDto.id(), computerDto.name(), computerDto.basePrice(), computerDto.quantity(), computerDto.computerConfiguration());
+        return new Computer(computerDto.id(),
+                computerDto.name(),
+                computerDto.basePrice(),
+                computerDto.quantity(),
+                ComputerConfigurationMapper.toEntity(computerDto.computerConfiguration()));
     }
 }

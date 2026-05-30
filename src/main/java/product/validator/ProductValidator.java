@@ -43,8 +43,32 @@ public final class ProductValidator {
     }
 
     private static void validateQuantity(Integer quantity, List<String> errors) {
-        if (quantity < 0) {
-            errors.add("Quantity cannot be negative");
+        if (quantity == null || quantity < 0) {
+            errors.add("Quantity cannot be negative or null");
+        }
+    }
+
+    public static void validateId(Long id){
+        if (id == null || id < 0) {
+            throw new InvalidProductException("Id cannot be null or negative");
+        }
+    }
+
+    public static void validateName(String name) {
+        if (name == null || name.isBlank()) {
+            throw new InvalidProductException("Name cannot be blank");
+        }
+    }
+
+    public static void validatePrice(BigDecimal price) {
+        if (price == null || price.compareTo(BigDecimal.ZERO) < 0) {
+            throw new InvalidProductException("Price cannot be negative");
+        }
+    }
+
+    public static void validateQuantity(Integer quantity) {
+        if (quantity == null || quantity < 0) {
+            throw new InvalidProductException("Quantity cannot be negative or null");
         }
     }
 }

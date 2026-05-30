@@ -9,10 +9,17 @@ import lombok.NoArgsConstructor;
 public final class ElectronicsMapper {
 
     public static ElectronicsDto toDTO(Electronics electronics) {
-        return new ElectronicsDto(electronics.getId(), electronics.getName(), electronics.getBasePrice(), electronics.getQuantity(), electronics.getProductType());
+        return new ElectronicsDto(electronics.getId(),
+                electronics.getName(),
+                electronics.getBasePrice(),
+                electronics.getQuantity(),
+                electronics.getProductType());
     }
 
     public static Electronics toEntity(ElectronicsDto electronicsDto) {
-        return new Electronics(electronicsDto.id(), electronicsDto.name(), electronicsDto.basePrice(), electronicsDto.quantity());
+        return new Electronics(electronicsDto.id(),
+                electronicsDto.name(),
+                electronicsDto.basePrice(),
+                electronicsDto.quantity());
     }
 }

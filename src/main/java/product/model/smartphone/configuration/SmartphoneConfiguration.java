@@ -1,5 +1,6 @@
 package product.model.smartphone.configuration;
 
+import lombok.Getter;
 import product.model.computer.configuration.GraphicsCard;
 import product.model.computer.configuration.Processor;
 import product.model.computer.configuration.Ram;
@@ -11,6 +12,7 @@ import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Set;
 
+@Getter
 public class SmartphoneConfiguration {
     private Color color;
     private BatteryCapacity batteryCapacity;
@@ -23,18 +25,19 @@ public class SmartphoneConfiguration {
     }
 
     public void configure(Color color, BatteryCapacity batteryCapacity, Set<Accessory> accessories) {
+        SmartphoneConfigurationValidator.validate(color, batteryCapacity, accessories);
         this.color = color;
         this.batteryCapacity = batteryCapacity;
         this.accessories = accessories;
     }
 
-    public void selectColor(Color color) {
+    public void updateColor(Color color) {
         SmartphoneConfigurationValidator.validateColor(color);
 
         this.color = color;
     }
 
-    public void selectBatteryCapacity(BatteryCapacity batteryCapacity) {
+    public void updateBatteryCapacity(BatteryCapacity batteryCapacity) {
         SmartphoneConfigurationValidator.validateBattery(batteryCapacity);
 
         this.batteryCapacity = batteryCapacity;

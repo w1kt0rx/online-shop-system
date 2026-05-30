@@ -1,6 +1,10 @@
 package customer.dto;
 
+import cart.dto.CartDto;
 import cart.model.Cart;
 
-public record CustomerDto(String name, Cart cart) {
-}
+public record CustomerDto(
+        Long id,
+        String name,
+        CartDto cart
+) {}

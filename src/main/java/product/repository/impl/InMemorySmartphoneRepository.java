@@ -14,7 +14,7 @@ public class InMemorySmartphoneRepository implements SmartphoneRepository {
 
     @Override
     public Smartphone save(Smartphone entity) {
-        database.putIfAbsent(entity.getId(), entity);
+        database.put(entity.getId(), entity);
         return entity;
     }
 

@@ -1,4 +1,16 @@
 package order.validator;
 
-public class OrderValidator {
+import cart.model.Cart;
+import exception.EmptyCardException;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public final class OrderValidator {
+
+    public static void validateCart(Cart cart) {
+        if ((cart == null) || cart.getProducts().isEmpty()) {
+            throw new EmptyCardException("Cannot place an order with an empty cart");
+        }
+    }
 }

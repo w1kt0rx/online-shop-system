@@ -34,4 +34,24 @@ public class ComputerConfiguration {
                 .add(storageType.getPrice())
                 .add(graphicsCard.getPrice());
     }
+
+    public void updateProcessor(Processor processor) {
+        ComputerConfigurationValidator.validateProcessor(processor);
+        this.processor = processor;
+    }
+
+    public void updateRam(Ram ram) {
+        ComputerConfigurationValidator.validateRam(ram);
+        this.ram = ram;
+    }
+
+    public void updateStorageType(StorageType storageType) {
+        ComputerConfigurationValidator.validateStorageType(storageType);
+        this.storageType = storageType;
+    }
+
+    public void updateGraphicsCard(GraphicsCard graphicsCard) {
+        ComputerConfigurationValidator.validateGraphicsCard(graphicsCard);
+        this.graphicsCard = graphicsCard;
+    }
 }

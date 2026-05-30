@@ -11,20 +11,20 @@ import java.math.BigDecimal;
 @Getter
 @EqualsAndHashCode
 public abstract class Product {
-    protected final Long id;
-    protected final String name;
-    @Setter
+    protected Long id;
+    protected String name;
     protected BigDecimal basePrice;
     protected Integer quantity;
     protected ProductType productType;
 
-    public Product(Long id, String name, BigDecimal price, Integer quantity) {
+    public Product(Long id, String name, BigDecimal price, Integer quantity, ProductType productType) {
         ProductValidator.validate(id, name, price, quantity);
 
         this.id = id;
         this.name = name;
         this.basePrice = price;
         this.quantity = quantity;
+        this.productType = productType;
     }
 
     public BigDecimal getPrice() {
@@ -44,7 +44,7 @@ public abstract class Product {
 
     public void increaseQuantity(int amount) {
         if (amount <= 0) {
-            throw new IllegalArgumentException("Amount cannot be negative");
+            throw new IllegalArgumentException("Amount must be greater than zero");
         } else {
             quantity += amount;
         }
@@ -52,6 +52,21 @@ public abstract class Product {
 
     public boolean isAvailable() {
         return quantity > 0;
+    }
+
+    public void updateName(String name) {
+        ProductValidator.validateName(name);
+        this.name = name;
+    }
+
+    public void updatePrice(BigDecimal price) {
+        ProductValidator.validatePrice(price);
+        this.basePrice = price;
+    }
+
+    public void updateQuantity(Integer quantity) {
+        ProductValidator.validateQuantity(quantity);
+        this.quantity = quantity;
     }
 
 }
