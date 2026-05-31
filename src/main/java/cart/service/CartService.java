@@ -5,6 +5,7 @@ import cart.mapper.CartMapper;
 import customer.model.Customer;
 import customer.repository.CustomerRepository;
 import exception.CustomerNotFoundException;
+import exception.InsufficientStockException;
 import exception.ProductNotFoundException;
 import lombok.RequiredArgsConstructor;
 import product.model.Product;
@@ -26,7 +27,7 @@ public class CartService {
         Product product = findProduct(productId, productType);
 
         if (quantity > product.getQuantity()) {
-            throw new IllegalArgumentException(
+            throw new InsufficientStockException(
                     "Requested quantity " + quantity + " exceeds available stock " + product.getQuantity()
             );
         }
