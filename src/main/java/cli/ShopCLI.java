@@ -145,17 +145,17 @@ public class ShopCLI {
         }
         print("\n  Computers:");
         print(LINE);
-        list.forEach(c -> {
-            print(String.format("  [ID:%d] %s", c.id(), c.name()));
-            print(String.format("         Price: %.2f pln  |  Stock: %d pcs.", c.totalPrice().doubleValue(), c.quantity()));
-            ComputerConfigLine(c);
+        list.forEach(computerDto -> {
+            print(String.format("  [ID:%d] %s", computerDto.id(), computerDto.name()));
+            print(String.format("         Price: %.2f pln  |  Stock: %d pcs.", computerDto.totalPrice(), computerDto.quantity()));
+            ComputerConfigLine(computerDto);
             print("");
         });
     }
 
-    private void ComputerConfigLine(ComputerDto c) {
-        if (c.computerConfiguration() != null) {
-            var cfg = c.computerConfiguration();
+    private void ComputerConfigLine(ComputerDto computerDto) {
+        if (computerDto.computerConfiguration() != null) {
+            var cfg = computerDto.computerConfiguration();
             print(String.format("         %s | %dGB RAM | %s | %s",
                     cfg.processor() != null ? cfg.processor().getDescription() : "-",
                     cfg.ram() != null ? cfg.ram().getCapacity() : 0,
@@ -172,9 +172,9 @@ public class ShopCLI {
         }
         print("\n  SMARTPHONES:");
         print(LINE);
-        list.forEach(s -> {
-            print(String.format("  [ID:%d] %s", s.id(), s.name()));
-            print(String.format("         Price: %.2f pln  |  Stock: %d pcs.", s.totalPrice().doubleValue(), s.quantity()));
+        list.forEach(smartphoneDto -> {
+            print(String.format("  [ID:%d] %smartphoneDto", smartphoneDto.id(), smartphoneDto.name()));
+            print(String.format("         Price: %.2f pln  |  Stock: %d pcs.", smartphoneDto.totalPrice().doubleValue(), smartphoneDto.quantity()));
         });
     }
 
@@ -200,11 +200,11 @@ public class ShopCLI {
         if (cart.items().isEmpty()) {
             print("  Cart is empty.");
         } else {
-            cart.items().forEach(i -> print(String.format(
+            cart.items().forEach(itemDto -> print(String.format(
                     "  %-28s  x%d  =  %.2f pln",
-                    i.productName(), i.quantity(), i.totalPrice().doubleValue())));
+                    itemDto.productName(), itemDto.quantity(), itemDto.totalPrice())));
             print(LINE);
-            print(String.format("  PRICE:  %.2f pln", cart.totalPrice().doubleValue()));
+            print(String.format("  PRICE:  %.2f pln", cart.totalPrice()));
         }
         print(LINE);
     }
@@ -247,11 +247,11 @@ public class ShopCLI {
         print("Type product's ID: ");
         long productId = readLong();
         print("Type in amount: ");
-        int qty = readInt();
+        int quantity = readInt();
 
         try {
-            CartDto cart = cartService.addProduct(currentCustomerId, productId, type, qty);
-            print("✅  Added to the cart! Cart's price: " + cart.totalPrice() + " pln");
+            CartDto cart = cartService.addProduct(currentCustomerId, productId, type, quantity);
+            print("Added to the cart! Cart's price: " + cart.totalPrice() + " pln");
         } catch (Exception e) {
             print(e.getMessage());
         }
@@ -264,29 +264,29 @@ public class ShopCLI {
         print("\n  Choose processor:");
         Processor[] processors = Processor.values();
         for (int i = 0; i < processors.length; i++)
-            print(String.format("  %d. %s (+%.0f pln)", i + 1, processors[i].getDescription(), processors[i].getPrice().doubleValue()));
+            print(String.format("  %d. %s (+%.0f pln)", i + 1, processors[i].getDescription(), processors[i].getPrice()));
         Processor proc = processors[readInt() - 1];
 
         print("\n  Choose RAM:");
         Ram[] rams = Ram.values();
         for (int i = 0; i < rams.length; i++)
-            print(String.format("  %d. %dGB (+%.0f pln)", i + 1, rams[i].getCapacity(), rams[i].getPrice().doubleValue()));
+            print(String.format("  %d. %dGB (+%.0f pln)", i + 1, rams[i].getCapacity(), rams[i].getPrice()));
         Ram ram = rams[readInt() - 1];
 
         print("\n  Choose storage type:");
         StorageType[] storages = StorageType.values();
         for (int i = 0; i < storages.length; i++)
-            print(String.format("  %d. %s (+%.0f pln)", i + 1, storages[i].getDescription(), storages[i].getPrice().doubleValue()));
+            print(String.format("  %d. %s (+%.0f pln)", i + 1, storages[i].getDescription(), storages[i].getPrice()));
         StorageType storage = storages[readInt() - 1];
 
         print("\n  Choose graphics card:");
         GraphicsCard[] gpus = GraphicsCard.values();
         for (int i = 0; i < gpus.length; i++)
-            print(String.format("  %d. %s (+%.0f pln)", i + 1, gpus[i].getDescription(), gpus[i].getPrice().doubleValue()));
+            print(String.format("  %d. %s (+%.0f pln)", i + 1, gpus[i].getDescription(), gpus[i].getPrice()));
         GraphicsCard gpu = gpus[readInt() - 1];
 
         print("Type in amount: ");
-        int qty = readInt();
+        int quantity = readInt();
 
         try {
             // Update configuration via ProductService, then add to cart
@@ -298,7 +298,7 @@ public class ShopCLI {
                     proc, ram, storage, gpu
             );
             productService.updateComputer(productId, updateReq);
-            CartDto cart = cartService.addProduct(currentCustomerId, productId, type, qty);
+            CartDto cart = cartService.addProduct(currentCustomerId, productId, type, quantity);
             print("Computer is configured and added to the cart! Price: " + cart.totalPrice() + " pln");
         } catch (Exception e) {
             print(e.getMessage());
