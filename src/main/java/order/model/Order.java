@@ -16,6 +16,8 @@ public class Order {
     private final List<CartItem> items;
     private BigDecimal totalPrice;
     private final LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+    private LocalDateTime confirmedAt;
     private OrderStatus status;
 
     public Order(Long id, Long customerId, List<CartItem> items) {
@@ -26,14 +28,19 @@ public class Order {
                 .map(CartItem::calculateTotalPrice)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
         this.createdAt = LocalDateTime.now();
+        this.updatedAt = this.createdAt;
         this.status = OrderStatus.PENDING;
     }
 
     public void confirm() {
         this.status = OrderStatus.CONFIRMED;
+        this.confirmedAt = LocalDateTime.now();
+        this.updatedAt = this.confirmedAt;
+
     }
 
     public void cancel() {
         this.status = OrderStatus.CANCELLED;
+        this.updatedAt = LocalDateTime.now();
     }
 }
