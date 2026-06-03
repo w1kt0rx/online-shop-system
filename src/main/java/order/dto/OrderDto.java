@@ -14,6 +14,8 @@ public record OrderDto(
         List<CartItemDto> items,
         BigDecimal totalPrice,
         LocalDateTime createdAt,
+        LocalDateTime updatedAt,
+        LocalDateTime confirmedAt,
         OrderStatus orderStatus
 ) {
 }

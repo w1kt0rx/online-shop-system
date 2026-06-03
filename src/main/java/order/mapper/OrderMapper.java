@@ -20,6 +20,8 @@ public final class OrderMapper {
                         .collect(Collectors.toList()),
                 order.getTotalPrice(),
                 order.getCreatedAt(),
+                order.getUpdatedAt(),
+                order.getConfirmedAt(),
                 order.getStatus()
         );
     }
