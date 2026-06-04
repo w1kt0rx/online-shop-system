@@ -7,10 +7,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class InMemoryInvoiceRepository implements InvoiceRepository {
-    private final Map<Long, Invoice> database = new HashMap<>();
-    private Long nextId = 1L;
+    private final Map<Long, Invoice> database = new ConcurrentHashMap<>();
+    private AtomicLong sequenceId = new AtomicLong(1L);
 
     @Override
     public Invoice save(Invoice entity) {
@@ -35,6 +37,6 @@ public class InMemoryInvoiceRepository implements InvoiceRepository {
 
     @Override
     public Long getNextId() {
-        return nextId++;
+        return sequenceId.getAndIncrement();
     }
 }

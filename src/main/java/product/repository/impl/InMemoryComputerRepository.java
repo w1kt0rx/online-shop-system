@@ -7,10 +7,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class InMemoryComputerRepository implements ComputerRepository {
-    private final Map<Long, Computer> database = new HashMap<>();
-    private Long nextId = 1L;
+    private final Map<Long, Computer> database = new ConcurrentHashMap<>();
+    private AtomicLong sequenceId = new AtomicLong(1L);
 
     @Override
     public Computer save(Computer entity) {
@@ -35,6 +37,6 @@ public class InMemoryComputerRepository implements ComputerRepository {
 
     @Override
     public Long getNextId() {
-        return nextId++;
+        return sequenceId.getAndIncrement();
     }
 }

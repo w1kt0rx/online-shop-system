@@ -1,7 +1,7 @@
 package exception;
 
-public class ProductNotFoundException extends RuntimeException {
+public class ProductNotFoundException extends ShopException {
     public ProductNotFoundException(String message) {
-        super(message);
+        super(message, "PRODUCT_NOT_FOUND");
     }
 }

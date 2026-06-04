@@ -1,7 +1,7 @@
 package exception;
 
-public class InsufficientStockException extends RuntimeException {
+public class InsufficientStockException extends ShopException {
     public InsufficientStockException(String message) {
-        super(message);
+        super(message, "INSUFFICIENT_STOCK");
     }
 }

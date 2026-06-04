@@ -1,11 +1,14 @@
 package cli;
 
 import cart.dto.CartDto;
-import cart.dto.CartItemDto;
 import cart.service.CartService;
 import customer.dto.CreateCustomerRequest;
 import customer.dto.CustomerDto;
 import customer.service.CustomerService;
+import discount.dto.CreateDiscountRequest;
+import discount.dto.DiscountDto;
+import discount.model.DiscountType;
+import discount.service.DiscountService;
 import exception.*;
 import invoice.dto.InvoiceDto;
 import order.dto.OrderDto;
@@ -28,6 +31,7 @@ import product.model.smartphone.configuration.Color;
 import product.service.ProductService;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -42,6 +46,7 @@ public class ShopCLI {
     private final CustomerService customerService;
     private final OrderService orderService;
     private final OrderProcessor orderProcessor;
+    private final DiscountService discountService;
 
     private Long currentCustomerId = null;
 
@@ -49,13 +54,15 @@ public class ShopCLI {
                    CartService cartService,
                    CustomerService customerService,
                    OrderService orderService,
-                   OrderProcessor orderProcessor) {
+                   OrderProcessor orderProcessor,
+                   DiscountService discountService) {
         this.scanner = new Scanner(System.in);
         this.productService = productService;
         this.cartService = cartService;
         this.customerService = customerService;
         this.orderService = orderService;
         this.orderProcessor = orderProcessor;
+        this.discountService = discountService;
     }
 
     public void start() {
@@ -73,7 +80,8 @@ public class ShopCLI {
                 case 4 -> removeProductFromCart();
                 case 5 -> placeOrder();
                 case 6 -> viewOrders();
-                case 7 -> switchCustomer();
+                case 7 -> manageDiscounts();
+                case 8 -> switchCustomer();
                 case 0 -> running = false;
                 default -> print("Wrong option, try again.");
             }
@@ -173,7 +181,7 @@ public class ShopCLI {
         print("\n  SMARTPHONES:");
         print(LINE);
         list.forEach(smartphoneDto -> {
-            print(String.format("  [ID:%d] %smartphoneDto", smartphoneDto.id(), smartphoneDto.name()));
+            print(String.format("  [ID:%d] %s", smartphoneDto.id(), smartphoneDto.name()));
             print(String.format("         Price: %.2f pln  |  Stock: %d pcs.", smartphoneDto.totalPrice().doubleValue(), smartphoneDto.quantity()));
         });
     }
@@ -205,6 +213,14 @@ public class ShopCLI {
                     itemDto.productName(), itemDto.quantity(), itemDto.totalPrice())));
             print(LINE);
             print(String.format("  PRICE:  %.2f pln", cart.totalPrice()));
+
+            // Show active discounts hint
+            List<DiscountDto> active = discountService.getAllActive();
+            if (!active.isEmpty()) {
+                print("");
+                print("  Available discount codes:");
+                active.forEach(d -> print(String.format("    %-12s  %s", d.code(), d.description())));
+            }
         }
         print(LINE);
     }
@@ -234,7 +250,6 @@ public class ShopCLI {
         };
         if (type == null) return;
 
-        // Optional: configure before adding (Computer / Smartphone)
         if (type == ProductType.COMPUTER) {
             configureComputerBeforeAdd(type);
             return;
@@ -289,7 +304,6 @@ public class ShopCLI {
         int quantity = readInt();
 
         try {
-            // Update configuration via ProductService, then add to cart
             productService.getComputerById(productId); // validate exists
             var updateReq = new product.dto.UpdateComputerRequest(
                     productService.getComputerById(productId).name(),
@@ -396,6 +410,19 @@ public class ShopCLI {
             return;
         }
 
+        // Ask for optional discount code
+        print("\nDo you have a discount code? (Enter code or press Enter to skip): ");
+        String discountInput = scanner.nextLine().trim();
+        String discountCode = discountInput.isBlank() ? null : discountInput;
+
+        // Show discount preview if code was entered
+        if (discountCode != null) {
+            discountService.describeDiscount(discountCode).ifPresentOrElse(
+                    desc -> print("  Discount applied: " + desc),
+                    () -> print("  Warning: Code '" + discountCode + "' is invalid or expired – order will proceed at full price.")
+            );
+        }
+
         print("\nAre you sure you want to place order?(y/n): ");
         String confirm = scanner.nextLine().trim().toLowerCase();
         if (!confirm.equals("y")) {
@@ -404,14 +431,14 @@ public class ShopCLI {
         }
 
         try {
-            InvoiceDto invoice = orderProcessor.processOrder(currentCustomerId);
-            printInvoice(invoice);
+            InvoiceDto invoice = orderProcessor.processOrder(currentCustomerId, discountCode);
+            printInvoice(invoice, discountCode);
         } catch (Exception e) {
             print("Error during placing an order: " + e.getMessage());
         }
     }
 
-    private void printInvoice(InvoiceDto invoice) {
+    private void printInvoice(InvoiceDto invoice, String discountCode) {
         print("\n" + "═".repeat(55));
         print("         INVOICE / ORDER CONFIRMATION");
         print("═".repeat(55));
@@ -419,6 +446,9 @@ public class ShopCLI {
         print("  Order No.:      " + invoice.orderId());
         print("  Customer:       " + invoice.customerName() + " (ID: " + invoice.customerId() + ")");
         print("  Date:           " + invoice.issuedAt().format(DATE_FMT));
+        if (discountCode != null && !discountCode.isBlank()) {
+            print("  Discount code:  " + discountCode);
+        }
         print(LINE);
 
         print(String.format("  %-28s  %5s  %10s", "Product", "Qty", "Amount"));
@@ -476,6 +506,113 @@ public class ShopCLI {
         print(LINE);
     }
 
+    // ─── Discount management ─────────────────────────────────────────
+
+    private void manageDiscounts() {
+        print("\n" + LINE);
+        print("  Discount Codes");
+        print(LINE);
+        print("  1. List active discounts");
+        print("  2. Check a specific code");
+        print("  3. Create new discount  (admin)");
+        print("  4. Deactivate discount  (admin)");
+        print("  0. Back");
+        print(LINE);
+
+        switch (readInt()) {
+            case 1 -> listActiveDiscounts();
+            case 2 -> checkDiscountCode();
+            case 3 -> createDiscount();
+            case 4 -> deactivateDiscount();
+        }
+    }
+
+    private void listActiveDiscounts() {
+        List<DiscountDto> active = discountService.getAllActive();
+        print("\n  Active discount codes:");
+        print(LINE);
+        if (active.isEmpty()) {
+            print("  No active discounts at the moment.");
+        } else {
+            active.forEach(d -> {
+                String valueDesc = d.type() == DiscountType.PERCENTAGE
+                        ? d.value() + "% off"
+                        : d.value() + " pln off";
+                String minInfo = d.minOrderValue() != null
+                        ? "  (min. order: " + d.minOrderValue() + " pln)"
+                        : "";
+                print(String.format("  %-12s  %-30s  %s%s",
+                        d.code(), d.description(), valueDesc, minInfo));
+            });
+        }
+        print(LINE);
+    }
+
+    private void checkDiscountCode() {
+        print("Enter discount code to check: ");
+        String code = scanner.nextLine().trim();
+        try {
+            DiscountDto dto = discountService.getByCode(code);
+            if (dto.active()) {
+                String desc = discountService.describeDiscount(code).orElse("N/A");
+                print("  Code '" + code + "' is valid: " + desc);
+                if (dto.minOrderValue() != null) {
+                    print("  Minimum order value: " + dto.minOrderValue() + " pln");
+                }
+            } else {
+                print("  Code '" + code + "' exists but is inactive.");
+            }
+        } catch (DiscountNotFoundException e) {
+            print("  Code '" + code + "' not found.");
+        }
+    }
+
+    private void createDiscount() {
+        print("Code: ");
+        String code = scanner.nextLine().trim();
+        print("Description: ");
+        String description = scanner.nextLine().trim();
+        print("Type (1 = PERCENTAGE, 2 = FIXED_AMOUNT): ");
+        int typeChoice = readInt();
+        DiscountType type = (typeChoice == 1) ? DiscountType.PERCENTAGE : DiscountType.FIXED_AMOUNT;
+        print("Value (e.g. 10 for 10% or 100 for 100 pln): ");
+        BigDecimal value = readBigDecimal();
+        print("Minimum order value (0 = no minimum): ");
+        BigDecimal minRaw = readBigDecimal();
+        BigDecimal minOrderValue = (minRaw != null && minRaw.compareTo(BigDecimal.ZERO) > 0) ? minRaw : null;
+        print("Valid from (days from now, 0 = today): ");
+        int daysFrom = readInt();
+        print("Valid to (days from now): ");
+        int daysTo = readInt();
+
+        try {
+            DiscountDto created = discountService.createDiscount(new CreateDiscountRequest(
+                    code, description, type, value, minOrderValue,
+                    LocalDateTime.now().plusDays(daysFrom),
+                    LocalDateTime.now().plusDays(daysTo)
+            ));
+            print("Discount '" + created.code() + "' created successfully.");
+        } catch (Exception e) {
+            print("Error: " + e.getMessage());
+        }
+    }
+
+    private void deactivateDiscount() {
+        List<DiscountDto> all = discountService.getAll();
+        print("\n  All discounts:");
+        all.forEach(d -> print(String.format("  [ID:%d] %-12s  active=%s", d.id(), d.code(), d.active())));
+        print("Enter discount ID to deactivate: ");
+        long id = readLong();
+        try {
+            discountService.deActivate(id);
+            print("Discount deactivated.");
+        } catch (DiscountNotFoundException e) {
+            print("Discount not found: " + e.getMessage());
+        }
+    }
+
+    // ─── Menu ────────────────────────────────────────────────────────
+
     private void printBanner() {
         print("\n" + "═".repeat(55));
         print("               ONLINE STORE");
@@ -494,12 +631,15 @@ public class ShopCLI {
         print("  4. Remove Product from Cart");
         print("  5. Place Order");
         print("  6. My Orders");
-        print("  7. Switch Customer");
+        print("  7. Discount Codes");
+        print("  8. Switch Customer");
         print("  0. Exit");
         print(LINE);
 
         System.out.print("  Choice > ");
     }
+
+    // ─── Helpers ─────────────────────────────────────────────────────
 
     private int readInt() {
         try {
@@ -514,6 +654,14 @@ public class ShopCLI {
             return Long.parseLong(scanner.nextLine().trim());
         } catch (NumberFormatException e) {
             return -1L;
+        }
+    }
+
+    private BigDecimal readBigDecimal() {
+        try {
+            return new BigDecimal(scanner.nextLine().trim());
+        } catch (Exception e) {
+            return BigDecimal.ZERO;
         }
     }
 
