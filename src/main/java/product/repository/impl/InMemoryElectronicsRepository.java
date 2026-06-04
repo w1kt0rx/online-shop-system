@@ -7,10 +7,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class InMemoryElectronicsRepository implements ElectronicsRepository {
-    private final Map<Long, Electronics> database = new HashMap<>();
-    private Long nextId = 1L;
+    private final Map<Long, Electronics> database = new ConcurrentHashMap<>();
+    private AtomicLong sequenceId = new AtomicLong(1L);
 
     @Override
     public Electronics save(Electronics entity) {
@@ -35,6 +37,6 @@ public class InMemoryElectronicsRepository implements ElectronicsRepository {
 
     @Override
     public Long getNextId() {
-        return nextId++;
+        return sequenceId.getAndIncrement();
     }
 }

@@ -3,8 +3,13 @@ package cli;
 import cart.service.CartService;
 import customer.repository.impl.InMemoryCustomerRepository;
 import customer.service.CustomerService;
+import discount.dto.CreateDiscountRequest;
+import discount.model.DiscountType;
+import discount.repositoy.impl.InMemoryDiscountRepository;
+import discount.service.DiscountService;
 import invoice.repository.impl.InMemoryInvoiceRepository;
 import order.repository.impl.InMemoryOrderRepository;
+import order.service.ConcurrentOrderProcessor;
 import order.service.OrderProcessor;
 import order.service.OrderService;
 import product.dto.CreateComputerRequest;
@@ -23,6 +28,7 @@ import product.repository.impl.InMemorySmartphoneRepository;
 import product.service.ProductService;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Set;
 
 public class ShopApplication {
@@ -34,16 +40,20 @@ public class ShopApplication {
         var customerRepo    = new InMemoryCustomerRepository();
         var orderRepo       = new InMemoryOrderRepository();
         var invoiceRepo     = new InMemoryInvoiceRepository();
+        var discountRepo    = new InMemoryDiscountRepository();
 
         var productService  = new ProductService(computerRepo, smartphoneRepo, electronicsRepo);
         var cartService     = new CartService(customerRepo, computerRepo, smartphoneRepo, electronicsRepo);
         var customerService = new CustomerService(customerRepo);
         var orderService    = new OrderService(orderRepo, customerRepo);
-        var orderProcessor  = new OrderProcessor(orderRepo, customerRepo, invoiceRepo);
+        var discountService = new DiscountService(discountRepo);
+        var orderProcessor  = new OrderProcessor(orderRepo, customerRepo, invoiceRepo, discountService);
+        var concurrentProcessor = new ConcurrentOrderProcessor(orderProcessor, 4);
 
         seedProducts(productService);
+        seedDiscounts(discountService);
 
-        new ShopCLI(productService, cartService, customerService, orderService, orderProcessor).start();
+        new ShopCLI(productService, cartService, customerService, orderService, orderProcessor, discountService).start();
     }
 
     private static void seedProducts(ProductService service) {
@@ -79,5 +89,21 @@ public class ShopApplication {
 
         service.createElectronics(new CreateElectronicsRequest(
                 "Headphones", new BigDecimal("1200"), 18));
+    }
+
+    private static void seedDiscounts(DiscountService service) {
+        LocalDateTime now = LocalDateTime.now();
+        service.createDiscount(new CreateDiscountRequest(
+                "WELCOME10", "Rabat powitalny 10%",
+                DiscountType.PERCENTAGE, new BigDecimal("10"),
+                BigDecimal.ZERO, now, now.plusYears(1)));
+        service.createDiscount(new CreateDiscountRequest(
+                "SAVE200", "200 zł zniżki przy zamówieniu od 2000 zł",
+                DiscountType.FIXED_AMOUNT, new BigDecimal("200"),
+                new BigDecimal("2000"), now, now.plusMonths(6)));
+        service.createDiscount(new CreateDiscountRequest(
+                "TECHFEST25", "25% na wszystko — oferta specjalna",
+                DiscountType.PERCENTAGE, new BigDecimal("25"),
+                BigDecimal.ZERO, now, now.plusWeeks(2)));
     }
 }

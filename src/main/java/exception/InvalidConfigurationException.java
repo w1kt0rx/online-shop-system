@@ -1,7 +1,7 @@
 package exception;
 
-public class InvalidConfigurationException extends RuntimeException {
+public class InvalidConfigurationException extends ShopException {
     public InvalidConfigurationException(String message) {
-        super(message);
+        super(message, "INVALID_CONFIGURATION");
     }
 }

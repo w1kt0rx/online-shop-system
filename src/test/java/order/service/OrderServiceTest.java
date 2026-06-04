@@ -3,7 +3,7 @@ package order.service;
 import customer.model.Customer;
 import customer.repository.CustomerRepository;
 import exception.CustomerNotFoundException;
-import exception.EmptyCardException;
+import exception.EmptyCartException;
 import exception.OrderNotFoundException;
 import order.dto.OrderDto;
 import order.model.Order;
@@ -104,7 +104,7 @@ class OrderServiceTest {
     void shouldThrowWhenPlacingOrderWithEmptyCart() {
         when(customerRepository.findById(2L)).thenReturn(Optional.of(emptyCustomer));
 
-        assertThrows(EmptyCardException.class,
+        assertThrows(EmptyCartException.class,
                 () -> orderService.placeOrder(2L));
         verify(orderRepository, never()).save(any());
     }

@@ -3,10 +3,8 @@ package order.service;
 import cart.mapper.CartMapper;
 import customer.model.Customer;
 import customer.repository.CustomerRepository;
-import exception.CustomerNotFoundException;
-import exception.EmptyCardException;
-import exception.InsufficientStockException;
-import exception.OrderNotFoundException;
+import discount.service.DiscountService;
+import exception.*;
 import invoice.mapper.InvoiceMapper;
 import invoice.model.Invoice;
 import invoice.repository.InvoiceRepository;
@@ -16,6 +14,7 @@ import order.repository.OrderRepository;
 import order.validator.OrderValidator;
 import invoice.dto.InvoiceDto;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -24,40 +23,56 @@ public class OrderProcessor {
     private final OrderRepository orderRepository;
     private final CustomerRepository customerRepository;
     private final InvoiceRepository invoiceRepository;
+    private final DiscountService discountService;
+
 
     public InvoiceDto processOrder(Long customerId) {
-        Customer customer = customerRepository.findById(customerId)
-                .orElseThrow(() -> new CustomerNotFoundException(
-                        "Customer with id " + customerId + " not found"));
+        return processOrder(customerId, null);
+    }
 
-        OrderValidator.validateCart(customer.getCart());
-        validateStock(customer);
+    public InvoiceDto processOrder(Long customerId, String discountCode) {
+        try {
+            Customer customer = customerRepository.findById(customerId)
+                    .orElseThrow(() -> new CustomerNotFoundException(
+                            "Customer with id " + customerId + " not found"));
 
-        Order order = new Order(
-                orderRepository.getNextId(),
-                customerId,
-                customer.getCart().getProducts()
-        );
+            OrderValidator.validateCart(customer.getCart());
+            validateStock(customer);
 
-        order.getItems().forEach(item ->
-                item.getProduct().decreaseQuantity(item.getQuantity())
-        );
+            Order order = new Order(
+                    orderRepository.getNextId(),
+                    customerId,
+                    customer.getCart().getProducts()
+            );
 
-        orderRepository.save(order);
-        order.confirm();
+            order.getItems().forEach(item ->
+                    item.getProduct().decreaseQuantity(item.getQuantity())
+            );
 
-        customer.getCart().clear();
+            orderRepository.save(order);
+            order.confirm();
 
-        Invoice invoice = new Invoice(
-                invoiceRepository.getNextId(),
-                order.getId(),
-                customer.getId(),
-                customer.getName(),
-                order.getItems().stream().map(CartMapper::toItemDto).toList(),
-                order.getTotalPrice()
-        );
+            customer.getCart().clear();
 
-        return InvoiceMapper.toDto(invoiceRepository.save(invoice));
+            BigDecimal finalAmount = resolveTotal(order.getTotalPrice(), discountCode);
+
+            Invoice invoice = new Invoice(
+                    invoiceRepository.getNextId(),
+                    order.getId(),
+                    customer.getId(),
+                    customer.getName(),
+                    order.getItems().stream().map(CartMapper::toItemDto).toList(),
+                    finalAmount
+            );
+
+            return InvoiceMapper.toDto(invoiceRepository.save(invoice));
+        } catch (CustomerNotFoundException | EmptyCartException | InsufficientStockException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new OrderProcessingException(
+                    "Order processing failed for customer " + customerId, e
+            );
+        }
     }
 
     public InvoiceDto getInvoiceByOrderId(Long orderId) {
@@ -73,6 +88,21 @@ public class OrderProcessor {
         return invoiceRepository.getAll().stream()
                 .map(InvoiceMapper::toDto)
                 .toList();
+    }
+
+    private BigDecimal resolveTotal(BigDecimal originalTotal, String discountCode) {
+        if (discountCode == null || discountCode.isBlank()) {
+            return originalTotal;
+        }
+        try {
+            BigDecimal discounted = discountService.applyDiscount(discountCode, originalTotal);
+            System.out.printf("[Discount] Applied '%s': %.2f zł → %.2f zł%n",
+                    discountCode, originalTotal.doubleValue(), discounted.doubleValue());
+            return discounted;
+        } catch (Exception e) {
+            System.err.println("[Discount] Code '" + discountCode + "' could not be applied: " + e.getMessage());
+            return originalTotal;
+        }
     }
 
     private void validateStock(Customer customer) {
