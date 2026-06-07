@@ -2,7 +2,7 @@ package discount.repository;
 
 import discount.model.Discount;
 import discount.model.DiscountType;
-import discount.repositoy.impl.InMemoryDiscountRepository;
+import discount.repository.impl.InMemoryDiscountRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

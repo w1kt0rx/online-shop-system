@@ -21,7 +21,7 @@ public final class ComputerConfigurationValidator {
         validateStorageType(storageType, errors);
         validateGraphicsCard(graphicsCard, errors);
 
-        if(!errors.isEmpty()) {
+        if (!errors.isEmpty()) {
             throw new InvalidConfigurationException(String.join(", ", errors));
         }
     }

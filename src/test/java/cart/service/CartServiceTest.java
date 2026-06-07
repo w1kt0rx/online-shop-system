@@ -48,7 +48,7 @@ class CartServiceTest {
     private Electronics electronics;
 
     @BeforeEach
-    void setUp() {
+    void setup() {
         customer = new Customer(1L, "Jan Kowalski");
         computer = new Computer(1L, "Dell XPS", new BigDecimal("3000"), 10, new ComputerConfiguration());
         smartphone = new Smartphone(1L, "iPhone 15", new BigDecimal("4000"), 5, new SmartphoneConfiguration());

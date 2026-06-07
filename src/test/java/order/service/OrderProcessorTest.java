@@ -30,9 +30,12 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class OrderProcessorTest {
 
-    @Mock private OrderRepository orderRepository;
-    @Mock private CustomerRepository customerRepository;
-    @Mock private InvoiceRepository invoiceRepository;
+    @Mock
+    private OrderRepository orderRepository;
+    @Mock
+    private CustomerRepository customerRepository;
+    @Mock
+    private InvoiceRepository invoiceRepository;
 
     @InjectMocks
     private OrderProcessor orderProcessor;

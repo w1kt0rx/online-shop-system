@@ -1,6 +1,5 @@
 package discount.strategy;
 
-import discount.model.FixedAmountDiscountStrategy;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;

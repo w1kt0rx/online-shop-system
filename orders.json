@@ -1,0 +1,25 @@
+[ {
+  "id" : 1,
+  "customerId" : 1,
+  "totalPrice" : 8300,
+  "createdAt" : "2026-06-07T16:46:05.1199063",
+  "updatedAt" : "2026-06-07T16:46:05.1199063",
+  "confirmedAt" : null,
+  "status" : "PENDING"
+}, {
+  "id" : 2,
+  "customerId" : 1,
+  "totalPrice" : 6100,
+  "createdAt" : "2026-06-07T16:52:03.0549275",
+  "updatedAt" : "2026-06-07T16:52:03.0689223",
+  "confirmedAt" : "2026-06-07T16:52:03.0689223",
+  "status" : "CONFIRMED"
+}, {
+  "id" : 3,
+  "customerId" : 1,
+  "totalPrice" : 6180,
+  "createdAt" : "2026-06-07T16:52:45.8439608",
+  "updatedAt" : "2026-06-07T16:52:45.8439608",
+  "confirmedAt" : null,
+  "status" : "PENDING"
+} ]

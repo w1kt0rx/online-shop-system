@@ -19,7 +19,7 @@ public final class SmartphoneConfigurationValidator {
         validateBattery(batteryCapacity, errors);
         validateAccessory(accessories, errors);
 
-        if(!errors.isEmpty()) {
+        if (!errors.isEmpty()) {
             throw new InvalidConfigurationException(String.join(", ", errors));
         }
 
