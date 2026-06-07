@@ -1,4 +1,4 @@
-package product.model.smartphone;
+package product.model.smartphone.configuration;
 
 
 import exception.InvalidConfigurationException;
@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import product.model.smartphone.configuration.*;
 
 import java.math.BigDecimal;
 import java.util.Set;

@@ -84,7 +84,6 @@ class OrderServiceTest {
 
         orderService.placeOrder(1L);
 
-        // stock was 10, ordered 2 → should be 8
         assertEquals(8, product.getQuantity());
     }
 
