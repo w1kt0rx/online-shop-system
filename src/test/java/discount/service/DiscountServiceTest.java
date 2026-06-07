@@ -4,7 +4,7 @@ import discount.dto.CreateDiscountRequest;
 import discount.dto.DiscountDto;
 import discount.model.Discount;
 import discount.model.DiscountType;
-import discount.repositoy.DiscountRepository;
+import discount.repository.DiscountRepository;
 import exception.DiscountNotFoundException;
 import exception.InvalidProductException;
 import org.junit.jupiter.api.Test;
@@ -29,8 +29,10 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class DiscountServiceTest {
 
-    @Mock DiscountRepository discountRepository;
-    @InjectMocks DiscountService discountService;
+    @Mock
+    DiscountRepository discountRepository;
+    @InjectMocks
+    DiscountService discountService;
 
     private Discount activeDiscount(String code, DiscountType type, BigDecimal value) {
         return new Discount(1L, code, "Test", type, value, BigDecimal.ZERO,
@@ -88,11 +90,11 @@ class DiscountServiceTest {
 
     private static Stream<Arguments> provideDiscountScenarios() {
         return Stream.of(
-                Arguments.of(DiscountType.PERCENTAGE,   new BigDecimal("10"),  new BigDecimal("1000"), new BigDecimal("900.00")),
-                Arguments.of(DiscountType.PERCENTAGE,   new BigDecimal("25"),  new BigDecimal("1000"), new BigDecimal("750.00")),
-                Arguments.of(DiscountType.PERCENTAGE,   new BigDecimal("100"), new BigDecimal("500"),  new BigDecimal("0.00")),
+                Arguments.of(DiscountType.PERCENTAGE, new BigDecimal("10"), new BigDecimal("1000"), new BigDecimal("900.00")),
+                Arguments.of(DiscountType.PERCENTAGE, new BigDecimal("25"), new BigDecimal("1000"), new BigDecimal("750.00")),
+                Arguments.of(DiscountType.PERCENTAGE, new BigDecimal("100"), new BigDecimal("500"), new BigDecimal("0.00")),
                 Arguments.of(DiscountType.FIXED_AMOUNT, new BigDecimal("200"), new BigDecimal("1500"), new BigDecimal("1300")),
-                Arguments.of(DiscountType.FIXED_AMOUNT, new BigDecimal("500"), new BigDecimal("300"),  BigDecimal.ZERO)
+                Arguments.of(DiscountType.FIXED_AMOUNT, new BigDecimal("500"), new BigDecimal("300"), BigDecimal.ZERO)
         );
     }
 

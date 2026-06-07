@@ -8,6 +8,13 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
+/**
+ * Represents a placed order in the system.
+ * An order is created from a customer's cart, capturing a snapshot of the
+ * items and computing the total price at creation time. Its lifecycle is
+ * driven by status transitions: PENDING → CONFIRMED or
+ * PENDING → CANCELLED.
+ */
 @Getter
 @ToString
 public class Order {
@@ -20,6 +27,14 @@ public class Order {
     private LocalDateTime confirmedAt;
     private OrderStatus status;
 
+    /**
+     * Creates a new order in rderStatus#PENDING state.
+     * The total price is computed as the sum of all item totals.
+     *
+     * @param id         unique order identifier
+     * @param customerId identifier of the customer who placed the order
+     * @param items      snapshot of the cart items; stored as an immutable copy
+     */
     public Order(Long id, Long customerId, List<CartItem> items) {
         this.id = id;
         this.customerId = customerId;
@@ -32,6 +47,9 @@ public class Order {
         this.status = OrderStatus.PENDING;
     }
 
+    /**
+     * Transitions the order to OrderStatus#CONFIRMED and records the confirmation timestamp.
+     */
     public void confirm() {
         this.status = OrderStatus.CONFIRMED;
         this.confirmedAt = LocalDateTime.now();
@@ -39,6 +57,9 @@ public class Order {
 
     }
 
+    /**
+     * Transitions the order to OrderStatus#CANCELLED and updates the last-modified timestamp.
+     */
     public void cancel() {
         this.status = OrderStatus.CANCELLED;
         this.updatedAt = LocalDateTime.now();

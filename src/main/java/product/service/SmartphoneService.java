@@ -2,10 +2,10 @@ package product.service;
 
 import exception.ProductNotFoundException;
 import lombok.RequiredArgsConstructor;
-import product.dto.CreateSmartphoneRequest;
-import product.dto.SmartphoneDto;
-import product.dto.UpdateSmartphoneRequest;
-import product.mapper.SmartphoneMapper;
+import product.dto.smartphone.CreateSmartphoneRequest;
+import product.dto.smartphone.SmartphoneDto;
+import product.dto.smartphone.UpdateSmartphoneRequest;
+import product.mapper.smartphone.SmartphoneMapper;
 import product.model.smartphone.Smartphone;
 import product.model.smartphone.configuration.SmartphoneConfiguration;
 import product.repository.SmartphoneRepository;

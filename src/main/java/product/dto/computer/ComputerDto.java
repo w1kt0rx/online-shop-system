@@ -1,7 +1,7 @@
-package product.dto;
+package product.dto.computer;
 
+import product.dto.computer.configuration.ComputerConfigurationDto;
 import product.model.ProductType;
-import product.model.computer.configuration.ComputerConfiguration;
 
 import java.math.BigDecimal;
 

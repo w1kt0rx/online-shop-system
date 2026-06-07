@@ -14,4 +14,5 @@ public record InvoiceDto(
         List<CartItemDto> items,
         BigDecimal totalAmount,
         LocalDateTime issuedAt
-) {}
+) {
+}

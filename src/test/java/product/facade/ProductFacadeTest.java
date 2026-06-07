@@ -11,7 +11,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import product.dto.*;
+import product.dto.computer.ComputerDto;
 import product.model.ProductType;
 import product.service.ComputerService;
 import product.service.ElectronicsService;
@@ -28,15 +28,20 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class ProductFacadeTest {
 
-    @Mock ComputerService computerService;
-    @Mock SmartphoneService smartphoneService;
-    @Mock ElectronicsService electronicsService;
-    @Mock DiscountService discountService;
-    @Mock ConcurrentOrderProcessor concurrentOrderProcessor;
+    @Mock
+    ComputerService computerService;
+    @Mock
+    SmartphoneService smartphoneService;
+    @Mock
+    ElectronicsService electronicsService;
+    @Mock
+    DiscountService discountService;
+    @Mock
+    ConcurrentOrderProcessor concurrentOrderProcessor;
 
-    @InjectMocks ProductFacade facade;
+    @InjectMocks
+    ProductFacade facade;
 
-    // ── Delegation: każda metoda trafia do właściwego serwisu ─────────
 
     @Test
     void shouldDelegateGetAllComputersToComputerService() {
@@ -93,8 +98,6 @@ class ProductFacadeTest {
         verify(computerService).getById(1L);
     }
 
-    // ── Discount delegation ───────────────────────────────────────────
-
     @Test
     void shouldDelegateGetActiveDiscountsToDiscountService() {
         when(discountService.getAllActive()).thenReturn(List.of());
@@ -130,12 +133,10 @@ class ProductFacadeTest {
         when(discountService.applyDiscount("BAD", new BigDecimal("1000")))
                 .thenThrow(new DiscountNotFoundException("not found"));
 
-        // Fasada łyka wyjątek — zwraca original total
         assertThat(facade.previewDiscountedTotal("BAD", new BigDecimal("1000")))
                 .isEqualByComparingTo(new BigDecimal("1000"));
     }
 
-    // ── Concurrent processing ─────────────────────────────────────────
 
     @Test
     void shouldDelegateProcessBatchOrdersToConcurrentProcessor() {
@@ -149,7 +150,6 @@ class ProductFacadeTest {
 
         assertThat(result).hasSize(2);
         verify(concurrentOrderProcessor).processOrdersConcurrently(ids);
-        // Fasada nie dotyka żadnego serwisu produktowego
         verifyNoInteractions(computerService, smartphoneService, electronicsService);
     }
 

@@ -1,4 +1,4 @@
-package product.dto;
+package product.dto.electronics;
 
 import product.model.ProductType;
 

@@ -28,8 +28,10 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class OrderServiceTest {
 
-    @Mock private OrderRepository orderRepository;
-    @Mock private CustomerRepository customerRepository;
+    @Mock
+    private OrderRepository orderRepository;
+    @Mock
+    private CustomerRepository customerRepository;
 
     @InjectMocks
     private OrderService orderService;

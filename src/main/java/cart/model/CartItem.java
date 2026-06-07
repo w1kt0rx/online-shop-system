@@ -19,7 +19,7 @@ public class CartItem {
         this.quantity = quantity;
     }
 
-    public BigDecimal calculateTotalPrice(){
+    public BigDecimal calculateTotalPrice() {
         return product.getPrice().multiply(BigDecimal.valueOf(quantity));
     }
 
@@ -29,19 +29,20 @@ public class CartItem {
     }
 
     public void decreaseQuantity(int amount) {
-        if(quantity - amount < 0 || amount < 0) {
+        if (quantity - amount < 0 || amount < 0) {
             throw new NotEnoughStockException("Quantity cannot be negative");
         }
         quantity -= amount;
     }
+
     private void validateQuantity(int amount) {
-        if(amount <= 0) {
+        if (amount <= 0) {
             throw new NotEnoughStockException("Quantity cannot be negative");
         }
     }
 
     private void validateProduct(Product product) {
-        if(product == null) {
+        if (product == null) {
             throw new InvalidProductException("Product cannot be null");
         }
     }

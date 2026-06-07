@@ -1,6 +1,7 @@
-package product.mapper;
+package product.mapper.smartphone;
 
-import product.dto.SmartphoneDto;
+import product.dto.smartphone.SmartphoneDto;
+import product.mapper.smartphone.configuration.SmartphoneConfigurationMapper;
 import product.model.smartphone.Smartphone;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;

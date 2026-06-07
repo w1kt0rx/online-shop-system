@@ -2,10 +2,10 @@ package product.service;
 
 import exception.ProductNotFoundException;
 import lombok.RequiredArgsConstructor;
-import product.dto.CreateElectronicsRequest;
-import product.dto.ElectronicsDto;
-import product.dto.UpdateElectronicsRequest;
-import product.mapper.ElectronicsMapper;
+import product.dto.electronics.CreateElectronicsRequest;
+import product.dto.electronics.ElectronicsDto;
+import product.dto.electronics.UpdateElectronicsRequest;
+import product.mapper.electronics.ElectronicsMapper;
 import product.model.electronics.Electronics;
 import product.repository.ElectronicsRepository;
 

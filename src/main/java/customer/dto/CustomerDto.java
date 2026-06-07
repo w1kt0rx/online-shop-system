@@ -7,4 +7,5 @@ public record CustomerDto(
         Long id,
         String name,
         CartDto cart
-) {}
+) {
+}

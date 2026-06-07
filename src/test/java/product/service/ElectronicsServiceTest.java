@@ -9,9 +9,9 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import product.dto.CreateElectronicsRequest;
-import product.dto.ElectronicsDto;
-import product.dto.UpdateElectronicsRequest;
+import product.dto.electronics.CreateElectronicsRequest;
+import product.dto.electronics.ElectronicsDto;
+import product.dto.electronics.UpdateElectronicsRequest;
 import product.model.electronics.Electronics;
 import product.repository.ElectronicsRepository;
 
@@ -27,8 +27,10 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class ElectronicsServiceTest {
 
-    @Mock ElectronicsRepository electronicsRepository;
-    @InjectMocks ElectronicsService electronicsService;
+    @Mock
+    ElectronicsRepository electronicsRepository;
+    @InjectMocks
+    ElectronicsService electronicsService;
 
     private Electronics makeProduct(Long id) {
         return new Electronics(id, "Monitor", new BigDecimal("800"), 10);
@@ -50,10 +52,10 @@ class ElectronicsServiceTest {
 
     private static Stream<Arguments> provideElectronics() {
         return Stream.of(
-                Arguments.of("Monitor 4K",  new BigDecimal("1500"), 12),
-                Arguments.of("Keyboard",    new BigDecimal("350"),  40),
-                Arguments.of("Headphones",  new BigDecimal("800"),  20),
-                Arguments.of("Webcam",      new BigDecimal("250"),  30)
+                Arguments.of("Monitor 4K", new BigDecimal("1500"), 12),
+                Arguments.of("Keyboard", new BigDecimal("350"), 40),
+                Arguments.of("Headphones", new BigDecimal("800"), 20),
+                Arguments.of("Webcam", new BigDecimal("250"), 30)
         );
     }
 

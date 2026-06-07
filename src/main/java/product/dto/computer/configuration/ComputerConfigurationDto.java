@@ -1,4 +1,4 @@
-package product.dto;
+package product.dto.computer.configuration;
 
 import product.model.computer.configuration.GraphicsCard;
 import product.model.computer.configuration.Processor;

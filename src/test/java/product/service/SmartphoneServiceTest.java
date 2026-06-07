@@ -9,9 +9,9 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import product.dto.CreateSmartphoneRequest;
-import product.dto.SmartphoneDto;
-import product.dto.UpdateSmartphoneRequest;
+import product.dto.smartphone.CreateSmartphoneRequest;
+import product.dto.smartphone.SmartphoneDto;
+import product.dto.smartphone.UpdateSmartphoneRequest;
 import product.model.smartphone.Smartphone;
 import product.model.smartphone.configuration.*;
 import product.repository.SmartphoneRepository;
@@ -29,8 +29,10 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class SmartphoneServiceTest {
 
-    @Mock SmartphoneRepository smartphoneRepository;
-    @InjectMocks SmartphoneService smartphoneService;
+    @Mock
+    SmartphoneRepository smartphoneRepository;
+    @InjectMocks
+    SmartphoneService smartphoneService;
 
     private Smartphone makePhone(Long id) {
         return new Smartphone(id, "iPhone", new BigDecimal("4000"), 10, new SmartphoneConfiguration());

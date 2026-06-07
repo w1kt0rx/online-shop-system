@@ -1,8 +1,8 @@
-package product.mapper;
+package product.mapper.smartphone;
 
 
 import org.junit.jupiter.api.Test;
-import product.dto.SmartphoneDto;
+import product.dto.smartphone.SmartphoneDto;
 import product.model.ProductType;
 import product.model.smartphone.Smartphone;
 import product.model.smartphone.configuration.*;

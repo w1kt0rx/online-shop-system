@@ -1,7 +1,7 @@
-package discount.repositoy.impl;
+package discount.repository.impl;
 
 import discount.model.Discount;
-import discount.repositoy.DiscountRepository;
+import discount.repository.DiscountRepository;
 
 import java.util.List;
 import java.util.Map;

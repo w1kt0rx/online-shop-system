@@ -2,10 +2,10 @@ package product.service;
 
 import exception.ProductNotFoundException;
 import lombok.RequiredArgsConstructor;
-import product.dto.ComputerDto;
-import product.dto.CreateComputerRequest;
-import product.dto.UpdateComputerRequest;
-import product.mapper.ComputerMapper;
+import product.dto.computer.ComputerDto;
+import product.dto.computer.CreateComputerRequest;
+import product.dto.computer.UpdateComputerRequest;
+import product.mapper.computer.ComputerMapper;
 import product.model.computer.Computer;
 import product.model.computer.configuration.ComputerConfiguration;
 import product.repository.ComputerRepository;

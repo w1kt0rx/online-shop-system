@@ -6,14 +6,16 @@ import customer.dto.CreateCustomerRequest;
 import customer.dto.CustomerDto;
 import customer.service.CustomerService;
 import discount.dto.DiscountDto;
-import exception.CustomerNotFoundException;
 import exception.handler.GlobalExceptionHandler;
 import invoice.dto.InvoiceDto;
 import order.dto.OrderDto;
 import order.service.OrderProcessor;
-import order.model.OrderProcessingResult;
 import order.service.OrderService;
-import product.dto.*;
+import product.dto.computer.ComputerDto;
+import product.dto.computer.UpdateComputerRequest;
+import product.dto.electronics.ElectronicsDto;
+import product.dto.smartphone.SmartphoneDto;
+import product.dto.smartphone.UpdateSmartphoneRequest;
 import product.facade.ProductFacade;
 import product.model.ProductType;
 import product.model.computer.configuration.*;
@@ -26,18 +28,17 @@ import java.util.*;
 public class ShopCLI {
 
     private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-    private static final String LINE  = "─".repeat(55);
+    private static final String LINE = "─".repeat(55);
     private static final String DLINE = "═".repeat(55);
 
     private final Scanner scanner = new Scanner(System.in);
 
-    // ── Zależności ────────────────────────────────────────────────────
-    private final ProductFacade productFacade;        // fasada — jeden punkt dostępu do produktów i rabatów
+    private final ProductFacade productFacade;
     private final CartService cartService;
     private final CustomerService customerService;
     private final OrderService orderService;
     private final OrderProcessor orderProcessor;
-    private final GlobalExceptionHandler exHandler;    // centralny handler wyjątków
+    private final GlobalExceptionHandler exHandler;
 
     private Long currentCustomerId = null;
 
@@ -47,15 +48,14 @@ public class ShopCLI {
                    OrderService orderService,
                    OrderProcessor orderProcessor,
                    GlobalExceptionHandler exHandler) {
-        this.productFacade   = productFacade;
-        this.cartService     = cartService;
+        this.productFacade = productFacade;
+        this.cartService = cartService;
         this.customerService = customerService;
-        this.orderService    = orderService;
-        this.orderProcessor  = orderProcessor;
-        this.exHandler       = exHandler;
+        this.orderService = orderService;
+        this.orderProcessor = orderProcessor;
+        this.exHandler = exHandler;
     }
 
-    // ── Start ─────────────────────────────────────────────────────────
 
     public void start() {
         printBanner();
@@ -81,7 +81,6 @@ public class ShopCLI {
         print("\nThank you. Goodbye!");
     }
 
-    // ── Login / Register ──────────────────────────────────────────────
 
     private void loginOrRegister() {
         print("\n" + LINE);
@@ -98,7 +97,6 @@ public class ShopCLI {
                 currentCustomerId = customer.id();
                 print("Logged in as: " + customer.name());
             } catch (Exception e) {
-                // GlobalExceptionHandler tłumaczy wyjątek na czytelny komunikat
                 print(exHandler.handleAny(e));
                 print("Signing you up instead...");
                 registerCustomer();
@@ -124,7 +122,6 @@ public class ShopCLI {
         loginOrRegister();
     }
 
-    // ── Browse products ───────────────────────────────────────────────
 
     private void browseProducts() {
         print("\n" + LINE);
@@ -146,7 +143,10 @@ public class ShopCLI {
     private void listComputers() {
         try {
             List<ComputerDto> list = productFacade.getAllComputers();
-            if (list.isEmpty()) { print("No computers in the offer."); return; }
+            if (list.isEmpty()) {
+                print("No computers in the offer.");
+                return;
+            }
             print("\n  COMPUTERS:");
             print(LINE);
             list.forEach(c -> {
@@ -156,9 +156,9 @@ public class ShopCLI {
                     var cfg = c.computerConfiguration();
                     print(String.format("           %s | %dGB RAM | %s | %s",
                             cfg.processor() != null ? cfg.processor().getDescription() : "-",
-                            cfg.ram()       != null ? cfg.ram().getCapacity()          : 0,
-                            cfg.storageType()   != null ? cfg.storageType().getDescription()   : "-",
-                            cfg.graphicsCard()  != null ? cfg.graphicsCard().getDescription()  : "-"));
+                            cfg.ram() != null ? cfg.ram().getCapacity() : 0,
+                            cfg.storageType() != null ? cfg.storageType().getDescription() : "-",
+                            cfg.graphicsCard() != null ? cfg.graphicsCard().getDescription() : "-"));
                 }
                 print("");
             });
@@ -170,7 +170,10 @@ public class ShopCLI {
     private void listSmartphones() {
         try {
             List<SmartphoneDto> list = productFacade.getAllSmartphones();
-            if (list.isEmpty()) { print("No smartphones in the offer."); return; }
+            if (list.isEmpty()) {
+                print("No smartphones in the offer.");
+                return;
+            }
             print("\n  SMARTPHONES:");
             print(LINE);
             list.forEach(s -> {
@@ -196,7 +199,10 @@ public class ShopCLI {
     private void listElectronics() {
         try {
             List<ElectronicsDto> list = productFacade.getAllElectronics();
-            if (list.isEmpty()) { print("No electronics in the offer."); return; }
+            if (list.isEmpty()) {
+                print("No electronics in the offer.");
+                return;
+            }
             print("\n  ELECTRONICS:");
             print(LINE);
             list.forEach(e -> print(String.format("  [ID:%-2d]  %-30s  %.2f PLN  (stock: %d)",
@@ -206,7 +212,6 @@ public class ShopCLI {
         }
     }
 
-    // ── Cart ──────────────────────────────────────────────────────────
 
     private void viewCart() {
         try {
@@ -235,9 +240,18 @@ public class ShopCLI {
         int typeChoice = readInt();
 
         switch (typeChoice) {
-            case 1 -> { listComputers();    configureComputerAndAdd(); }
-            case 2 -> { listSmartphones();  configureSmartphoneAndAdd(); }
-            case 3 -> { listElectronics();  addElectronicsToCart(); }
+            case 1 -> {
+                listComputers();
+                configureComputerAndAdd();
+            }
+            case 2 -> {
+                listSmartphones();
+                configureSmartphoneAndAdd();
+            }
+            case 3 -> {
+                listElectronics();
+                addElectronicsToCart();
+            }
             default -> print("Invalid type.");
         }
     }
@@ -278,7 +292,6 @@ public class ShopCLI {
         int qty = readInt();
 
         try {
-            // Fasada jako jedyny punkt kontaktu — odczyt + update przez ProductFacade
             ComputerDto existing = productFacade.getComputerById(productId);
             productFacade.updateComputer(productId, new UpdateComputerRequest(
                     existing.name(), existing.basePrice(), existing.quantity(),
@@ -322,7 +335,8 @@ public class ShopCLI {
                 try {
                     int idx = Integer.parseInt(part.trim()) - 1;
                     if (idx >= 0 && idx < accessories.length) selected.add(accessories[idx]);
-                } catch (NumberFormatException ignored) {}
+                } catch (NumberFormatException ignored) {
+                }
             }
         }
 
@@ -381,7 +395,6 @@ public class ShopCLI {
         }
     }
 
-    // ── Order ─────────────────────────────────────────────────────────
 
     private void placeOrder() {
         viewCart();
@@ -391,13 +404,11 @@ public class ShopCLI {
             return;
         }
 
-        // ── Discount code ─────────────────────────────────────────────
         print("\nDiscount code? (press Enter to skip): ");
         String code = scanner.nextLine().trim();
         String confirmedCode = null;
 
         if (!code.isEmpty()) {
-            // ProductFacade.describeDiscount() pyta DiscountService
             Optional<String> description = productFacade.describeDiscount(code);
             if (description.isPresent()) {
                 BigDecimal discounted = productFacade.previewDiscountedTotal(code, cart.totalPrice());
@@ -410,7 +421,6 @@ public class ShopCLI {
             }
         }
 
-        // ── Confirmation ──────────────────────────────────────────────
         print("\nConfirm order? (y/n): ");
         if (!scanner.nextLine().trim().equalsIgnoreCase("y")) {
             print("Cancelled.");
@@ -421,7 +431,6 @@ public class ShopCLI {
             InvoiceDto invoice = orderProcessor.processOrder(currentCustomerId, confirmedCode);
             printInvoice(invoice);
         } catch (Exception e) {
-            // GlobalExceptionHandler loguje błąd na stderr i zwraca czytelny komunikat
             print(exHandler.handleAny(e));
         }
     }
@@ -473,14 +482,12 @@ public class ShopCLI {
         }
     }
 
-    // ── Discounts ─────────────────────────────────────────────────────
 
     private void showDiscounts() {
         print("\n" + LINE);
         print("  ACTIVE PROMOTIONS");
         print(LINE);
         try {
-            // ProductFacade deleguje do DiscountService
             List<DiscountDto> active = productFacade.getAllActiveDiscounts();
             if (active.isEmpty()) {
                 print("  No active promotions.");
@@ -503,7 +510,6 @@ public class ShopCLI {
         print(LINE);
     }
 
-    // ── Helpers ───────────────────────────────────────────────────────
 
     private void printBanner() {
         print("\n" + DLINE);
@@ -534,14 +540,22 @@ public class ShopCLI {
     }
 
     private int readInt() {
-        try { return Integer.parseInt(scanner.nextLine().trim()); }
-        catch (NumberFormatException e) { return -1; }
+        try {
+            return Integer.parseInt(scanner.nextLine().trim());
+        } catch (NumberFormatException e) {
+            return -1;
+        }
     }
 
     private long readLong() {
-        try { return Long.parseLong(scanner.nextLine().trim()); }
-        catch (NumberFormatException e) { return -1L; }
+        try {
+            return Long.parseLong(scanner.nextLine().trim());
+        } catch (NumberFormatException e) {
+            return -1L;
+        }
     }
 
-    private void print(String text) { System.out.println(text); }
+    private void print(String text) {
+        System.out.println(text);
+    }
 }

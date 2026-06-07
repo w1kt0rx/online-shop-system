@@ -1,7 +1,7 @@
-package product.dto;
+package product.dto.smartphone;
 
+import product.dto.smartphone.configuration.SmartphoneConfigurationDto;
 import product.model.ProductType;
-import product.model.smartphone.configuration.SmartphoneConfiguration;
 
 import java.math.BigDecimal;
 

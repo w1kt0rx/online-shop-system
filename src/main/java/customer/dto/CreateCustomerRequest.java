@@ -1,3 +1,4 @@
 package customer.dto;
 
-public record CreateCustomerRequest(String name) {}
+public record CreateCustomerRequest(String name) {
+}

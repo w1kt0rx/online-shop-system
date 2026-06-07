@@ -1,4 +1,4 @@
-package discount.repositoy;
+package discount.repository;
 
 import discount.model.Discount;
 import product.repository.Repository;

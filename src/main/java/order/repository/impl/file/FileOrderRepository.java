@@ -16,7 +16,15 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
-
+/**
+ * File-backed OrderRepository that persists orders as JSON snapshots.
+ * <p>
+ * Uses an in-memory ConcurrentHashMap as a read cache and writes a JSON
+ * array of OrderSnapshot records to disk on every mutation. On startup,
+ * existing snapshots are loaded from the file and the ID sequence is fast-forwarded
+ * past the highest persisted id to avoid collisions.
+ * </p>
+ */
 public class FileOrderRepository implements OrderRepository {
 
     private final File file;
@@ -25,6 +33,12 @@ public class FileOrderRepository implements OrderRepository {
     private final List<OrderSnapshot> persistedSnapshots = new ArrayList<>();
     private final AtomicLong idSequence = new AtomicLong(1L);
 
+    /**
+     * Constructs the repository and loads any previously persisted snapshots from disk.
+     *
+     * @param filePath path to the JSON file used for persistence; the file is created
+     *                 automatically on the first write if it does not yet exist
+     */
     public FileOrderRepository(String filePath) {
         this.file = new File(filePath);
         this.mapper = new ObjectMapper()
@@ -33,6 +47,7 @@ public class FileOrderRepository implements OrderRepository {
         loadFromFile();
     }
 
+    /** Saves the order to the cache and persists all snapshots to disk. */
     @Override
     public Order save(Order entity) {
         cache.put(entity.getId(), entity);
@@ -40,6 +55,7 @@ public class FileOrderRepository implements OrderRepository {
         return entity;
     }
 
+    /** Removes the order from both the cache and the persisted snapshot list. */
     @Override
     public void delete(Long id) {
         cache.remove(id);
@@ -52,10 +68,7 @@ public class FileOrderRepository implements OrderRepository {
         return Optional.ofNullable(cache.get(id));
     }
 
-    /**
-     * Zwraca Orders z bieżącej sesji.
-     * Użyj getPersistedSnapshots() żeby zobaczyć historię z poprzednich sesji.
-     */
+    /** Returns an unmodifiable view of all cached orders. */
     @Override
     public List<Order> getAll() {
         return List.copyOf(cache.values());
@@ -67,25 +80,34 @@ public class FileOrderRepository implements OrderRepository {
     }
 
     /**
-     * Zwraca snapshoty załadowane z pliku przy starcie — historia z poprzednich sesji.
-     * Przydatne do raportów i wyświetlania historii zamówień.
+     * Returns an unmodifiable copy of all snapshots that have been written to the file.
+     *
+     * @return list of persisted OrderSnapshot records
      */
     public List<OrderSnapshot> getPersistedSnapshots() {
         return List.copyOf(persistedSnapshots);
     }
 
-    /** Liczba snapshotów załadowanych z pliku (poprzednie sesje). */
+    /**
+     * Returns the number of snapshots currently persisted on disk.
+     *
+     * @return count of persisted snapshots
+     */
     public int getPersistedCount() {
         return persistedSnapshots.size();
     }
 
-    // ── private ───────────────────────────────────────────────────────
-
+    /**
+     * Reads the JSON file and populates #persistedSnapshots and advances the
+     * ID sequence. Silently continues if the file does not exist; logs to System.err
+     * on a parse error.
+     */
     private void loadFromFile() {
         if (!file.exists()) return;
         try {
             List<OrderSnapshot> loaded = mapper.readValue(
-                    file, new TypeReference<List<OrderSnapshot>>() {});
+                    file, new TypeReference<List<OrderSnapshot>>() {
+                    });
             persistedSnapshots.addAll(loaded);
             loaded.forEach(s -> {
                 if (s.id() >= idSequence.get()) idSequence.set(s.id() + 1);
@@ -97,9 +119,12 @@ public class FileOrderRepository implements OrderRepository {
         }
     }
 
+    /**
+     * Merges cache entries with existing persisted snapshots and writes the combined
+     * list to disk as pretty-printed JSON. Logs to System.err on write failure.
+     */
     private void persistToFile() {
         try {
-            // Połącz snapshoty z poprzednich sesji + bieżącą sesję
             List<OrderSnapshot> allSnapshots = new ArrayList<>(persistedSnapshots);
 
             cache.values().forEach(o -> {

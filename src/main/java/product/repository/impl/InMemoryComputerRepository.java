@@ -12,7 +12,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 public class InMemoryComputerRepository implements ComputerRepository {
     private final Map<Long, Computer> database = new ConcurrentHashMap<>();
-    private AtomicLong sequenceId = new AtomicLong(1L);
+    private final AtomicLong sequenceId = new AtomicLong(1L);
 
     @Override
     public Computer save(Computer entity) {

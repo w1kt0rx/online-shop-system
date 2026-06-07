@@ -20,7 +20,6 @@ class GlobalExceptionHandlerTest {
         handler = new GlobalExceptionHandler();
     }
 
-    // ── handler(ShopException) ────────────────────────────────────────
 
     @ParameterizedTest
     @MethodSource("provideShopExceptions")
@@ -33,18 +32,17 @@ class GlobalExceptionHandlerTest {
 
     private static Stream<Arguments> provideShopExceptions() {
         return Stream.of(
-                Arguments.of(new ProductNotFoundException("Product not found"),    "PRODUCT_NOT_FOUND"),
-                Arguments.of(new CustomerNotFoundException("Customer not found"),  "CUSTOMER_NOT_FOUND"),
-                Arguments.of(new OrderNotFoundException("Order not found"),        "ORDER_NOT_FOUND"),
-                Arguments.of(new InvalidProductException("Invalid data"),          "INVALID_PRODUCT"),
-                Arguments.of(new InsufficientStockException("Out of stock"),       "INSUFFICIENT_STOCK"),
-                Arguments.of(new EmptyCartException("Cart is empty"),             "EMPTY_CART"),
-                Arguments.of(new DiscountNotFoundException("Discount not found"),  "DISCOUNT_NOT_FOUND"),
-                Arguments.of(new OrderProcessingException("Processing failed"),    "ORDER_PROCESSING_FAILED")
+                Arguments.of(new ProductNotFoundException("Product not found"), "PRODUCT_NOT_FOUND"),
+                Arguments.of(new CustomerNotFoundException("Customer not found"), "CUSTOMER_NOT_FOUND"),
+                Arguments.of(new OrderNotFoundException("Order not found"), "ORDER_NOT_FOUND"),
+                Arguments.of(new InvalidProductException("Invalid data"), "INVALID_PRODUCT"),
+                Arguments.of(new InsufficientStockException("Out of stock"), "INSUFFICIENT_STOCK"),
+                Arguments.of(new EmptyCartException("Cart is empty"), "EMPTY_CART"),
+                Arguments.of(new DiscountNotFoundException("Discount not found"), "DISCOUNT_NOT_FOUND"),
+                Arguments.of(new OrderProcessingException("Processing failed"), "ORDER_PROCESSING_FAILED")
         );
     }
 
-    // ── handleUnexpected ──────────────────────────────────────────────
 
     @Test
     void shouldReturnGenericMessageForUnexpectedException() {
@@ -53,10 +51,9 @@ class GlobalExceptionHandlerTest {
         String result = handler.handleUnexpected(unexpected);
 
         assertThat(result).startsWith("[UNEXPECTED_ERROR]");
-        assertThat(result).doesNotContain("Database connection lost"); // szczegóły nie trafiają do użytkownika
+        assertThat(result).doesNotContain("Database connection lost");
     }
 
-    // ── handleAny ────────────────────────────────────────────────────
 
     @Test
     void shouldRouteShopExceptionThroughHandler() {
@@ -82,7 +79,6 @@ class GlobalExceptionHandlerTest {
         ShopException ex = new ProductNotFoundException("Not found");
         String result = handler.handler(ex);
 
-        // format: [PRODUCT_NOT_FOUND] Not found
         assertThat(result).matches("\\[.+\\] .+");
     }
 }

@@ -9,9 +9,9 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import product.dto.ComputerDto;
-import product.dto.CreateComputerRequest;
-import product.dto.UpdateComputerRequest;
+import product.dto.computer.ComputerDto;
+import product.dto.computer.CreateComputerRequest;
+import product.dto.computer.UpdateComputerRequest;
 import product.model.computer.Computer;
 import product.model.computer.configuration.*;
 import product.repository.ComputerRepository;
@@ -28,8 +28,10 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class ComputerServiceTest {
 
-    @Mock ComputerRepository computerRepository;
-    @InjectMocks ComputerService computerService;
+    @Mock
+    ComputerRepository computerRepository;
+    @InjectMocks
+    ComputerService computerService;
 
     private Computer makeComputer(Long id) {
         return new Computer(id, "Dell XPS", new BigDecimal("3000"), 5, new ComputerConfiguration());
@@ -64,9 +66,9 @@ class ComputerServiceTest {
 
     private static Stream<Arguments> provideCreateRequests() {
         return Stream.of(
-                Arguments.of("Budget PC",  new BigDecimal("1500"), Processor.AMD_RYZEN_5, Ram.RAM_8GB),
-                Arguments.of("Mid PC",     new BigDecimal("3000"), Processor.INTEL_I7,    Ram.RAM_16GB),
-                Arguments.of("High-end PC",new BigDecimal("6000"), Processor.INTEL_I9,    Ram.RAM_32GB)
+                Arguments.of("Budget PC", new BigDecimal("1500"), Processor.AMD_RYZEN_5, Ram.RAM_8GB),
+                Arguments.of("Mid PC", new BigDecimal("3000"), Processor.INTEL_I7, Ram.RAM_16GB),
+                Arguments.of("High-end PC", new BigDecimal("6000"), Processor.INTEL_I9, Ram.RAM_32GB)
         );
     }
 

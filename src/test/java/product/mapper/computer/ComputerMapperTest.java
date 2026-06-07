@@ -1,11 +1,11 @@
-package product.mapper;
+package product.mapper.computer;
 
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import product.dto.ComputerDto;
+import product.dto.computer.ComputerDto;
 import product.model.ProductType;
 import product.model.computer.Computer;
 import product.model.computer.configuration.*;

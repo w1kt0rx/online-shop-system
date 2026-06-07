@@ -1,8 +1,8 @@
-package product.mapper;
+package product.mapper.smartphone.configuration;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import product.dto.SmartphoneConfigurationDto;
+import product.dto.smartphone.configuration.SmartphoneConfigurationDto;
 import product.model.smartphone.configuration.SmartphoneConfiguration;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)

@@ -1,6 +1,6 @@
-package product.mapper;
+package product.mapper.electronics;
 
-import product.dto.ElectronicsDto;
+import product.dto.electronics.ElectronicsDto;
 import product.model.electronics.Electronics;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;

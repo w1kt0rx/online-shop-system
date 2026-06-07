@@ -1,8 +1,8 @@
-package product.mapper;
+package product.mapper.computer.configuration;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import product.dto.ComputerConfigurationDto;
+import product.dto.computer.configuration.ComputerConfigurationDto;
 import product.model.computer.configuration.ComputerConfiguration;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)

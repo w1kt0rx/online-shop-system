@@ -19,7 +19,7 @@ public final class ProductValidator {
         validatePrice(price, errors);
         validateQuantity(quantity, errors);
 
-        if(!errors.isEmpty()) {
+        if (!errors.isEmpty()) {
             throw new InvalidProductException(String.join(", ", errors));
         }
     }
@@ -48,7 +48,7 @@ public final class ProductValidator {
         }
     }
 
-    public static void validateId(Long id){
+    public static void validateId(Long id) {
         if (id == null || id < 0) {
             throw new InvalidProductException("Id cannot be null or negative");
         }

@@ -1,6 +1,7 @@
-package product.mapper;
+package product.mapper.computer;
 
-import product.dto.ComputerDto;
+import product.dto.computer.ComputerDto;
+import product.mapper.computer.configuration.ComputerConfigurationMapper;
 import product.model.computer.Computer;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;

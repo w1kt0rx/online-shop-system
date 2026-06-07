@@ -12,5 +12,5 @@ public record CartItemDto(
         BigDecimal unitPrice,
         Integer quantity,
         BigDecimal totalPrice
-                          ) {
+) {
 }
