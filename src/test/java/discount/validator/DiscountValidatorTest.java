@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -20,8 +21,8 @@ class DiscountValidatorTest {
                 DiscountType.PERCENTAGE,
                 new BigDecimal("10"),
                 null,
-                LocalDateTime.now().minusHours(1),
-                LocalDateTime.now().plusDays(7)
+                ZonedDateTime.now().minusHours(1),
+                ZonedDateTime.now().plusDays(7)
         );
     }
 
@@ -36,8 +37,8 @@ class DiscountValidatorTest {
         CreateDiscountRequest request = new CreateDiscountRequest(
                 null, "desc", DiscountType.PERCENTAGE, new BigDecimal("10"),
                 null,
-                LocalDateTime.now().minusHours(1),
-                LocalDateTime.now().plusDays(1)
+                ZonedDateTime.now().minusHours(1),
+                ZonedDateTime.now().plusDays(1)
         );
         assertThatThrownBy(() -> DiscountValidator.validate(request))
                 .isInstanceOf(InvalidProductException.class)
@@ -49,8 +50,8 @@ class DiscountValidatorTest {
         CreateDiscountRequest request = new CreateDiscountRequest(
                 "   ", "desc", DiscountType.PERCENTAGE, new BigDecimal("10"),
                 null,
-                LocalDateTime.now().minusHours(1),
-                LocalDateTime.now().plusDays(1)
+                ZonedDateTime.now().minusHours(1),
+                ZonedDateTime.now().plusDays(1)
         );
         assertThatThrownBy(() -> DiscountValidator.validate(request))
                 .isInstanceOf(InvalidProductException.class)
@@ -62,8 +63,8 @@ class DiscountValidatorTest {
         CreateDiscountRequest request = new CreateDiscountRequest(
                 "CODE10", "desc", DiscountType.PERCENTAGE, null,
                 null,
-                LocalDateTime.now().minusHours(1),
-                LocalDateTime.now().plusDays(1)
+                ZonedDateTime.now().minusHours(1),
+                ZonedDateTime.now().plusDays(1)
         );
         assertThatThrownBy(() -> DiscountValidator.validate(request))
                 .isInstanceOf(InvalidProductException.class)
@@ -75,8 +76,8 @@ class DiscountValidatorTest {
         CreateDiscountRequest request = new CreateDiscountRequest(
                 "CODE10", "desc", DiscountType.PERCENTAGE, BigDecimal.ZERO,
                 null,
-                LocalDateTime.now().minusHours(1),
-                LocalDateTime.now().plusDays(1)
+                ZonedDateTime.now().minusHours(1),
+                ZonedDateTime.now().plusDays(1)
         );
         assertThatThrownBy(() -> DiscountValidator.validate(request))
                 .isInstanceOf(InvalidProductException.class)
@@ -88,8 +89,8 @@ class DiscountValidatorTest {
         CreateDiscountRequest request = new CreateDiscountRequest(
                 "CODE10", "desc", DiscountType.PERCENTAGE, new BigDecimal("-5"),
                 null,
-                LocalDateTime.now().minusHours(1),
-                LocalDateTime.now().plusDays(1)
+                ZonedDateTime.now().minusHours(1),
+                ZonedDateTime.now().plusDays(1)
         );
         assertThatThrownBy(() -> DiscountValidator.validate(request))
                 .isInstanceOf(InvalidProductException.class);
@@ -99,7 +100,7 @@ class DiscountValidatorTest {
     void shouldThrowWhenValidFromIsNull() {
         CreateDiscountRequest request = new CreateDiscountRequest(
                 "CODE10", "desc", DiscountType.PERCENTAGE, new BigDecimal("10"),
-                null, null, LocalDateTime.now().plusDays(1)
+                null, null, ZonedDateTime.now().plusDays(1)
         );
         assertThatThrownBy(() -> DiscountValidator.validate(request))
                 .isInstanceOf(InvalidProductException.class)
@@ -110,7 +111,7 @@ class DiscountValidatorTest {
     void shouldThrowWhenValidToIsNull() {
         CreateDiscountRequest request = new CreateDiscountRequest(
                 "CODE10", "desc", DiscountType.PERCENTAGE, new BigDecimal("10"),
-                null, LocalDateTime.now().minusHours(1), null
+                null, ZonedDateTime.now().minusHours(1), null
         );
         assertThatThrownBy(() -> DiscountValidator.validate(request))
                 .isInstanceOf(InvalidProductException.class)
@@ -122,8 +123,8 @@ class DiscountValidatorTest {
         CreateDiscountRequest request = new CreateDiscountRequest(
                 "CODE10", "desc", DiscountType.PERCENTAGE, new BigDecimal("10"),
                 null,
-                LocalDateTime.now().plusDays(5),
-                LocalDateTime.now().plusDays(1)
+                ZonedDateTime.now().plusDays(5),
+                ZonedDateTime.now().plusDays(1)
         );
         assertThatThrownBy(() -> DiscountValidator.validate(request))
                 .isInstanceOf(InvalidProductException.class)

@@ -4,7 +4,9 @@ import discount.dto.DiscountDto;
 import discount.service.DiscountService;
 import exception.DiscountNotFoundException;
 import exception.InvalidProductException;
+import invoice.dto.InvoiceDto;
 import lombok.RequiredArgsConstructor;
+import order.service.AsyncOrderProcessor;
 import order.service.ConcurrentOrderProcessor;
 import order.model.OrderProcessingResult;
 import product.dto.computer.ComputerDto;
@@ -23,6 +25,7 @@ import product.service.SmartphoneService;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Facade that exposes all product, discount, and batch-order operations through a single entry point.
@@ -34,13 +37,14 @@ import java.util.Optional;
  * </p>
  */
 @RequiredArgsConstructor
-public class ProductFacade {
+public class ProductService {
 
     private final ComputerService computerService;
     private final SmartphoneService smartphoneService;
     private final ElectronicsService electronicsService;
     private final DiscountService discountService;
     private final ConcurrentOrderProcessor concurrentOrderProcessor;
+    private final AsyncOrderProcessor asyncOrderProcessor;
 
     /** Creates a new computer product. */
     public ComputerDto createComputer(CreateComputerRequest request) {
@@ -164,5 +168,27 @@ public class ProductFacade {
      */
     public List<OrderProcessingResult> processBatchOrders(List<Long> customerIds) {
         return concurrentOrderProcessor.processOrdersConcurrently(customerIds);
+    }
+
+    /**
+     * Processes a single order asynchronously (without blocking the thread).
+     * The result can be accessed using thenAccept, thenApply, or join.
+     *
+     * @param customerId the customer identifier
+     * @return a CompletableFuture containing the invoice; completed exceptionally if an error occurs
+     */
+    public CompletableFuture<InvoiceDto> processOrderAsync(Long customerId) {
+        return asyncOrderProcessor.processOrderAsync(customerId);
+    }
+
+    /**
+     * Processes a list of orders asynchronously — all in parallel without blocking.
+     * Completes when all orders have finished processing (successfully or exceptionally).
+     *
+     * @param customerIds the list of customer identifiers
+     * @return a CompletableFuture containing the results in the original input order
+     */
+    public CompletableFuture<List<OrderProcessingResult>> processBatchAsync(List<Long> customerIds) {
+        return asyncOrderProcessor.processBatchAsync(customerIds);
     }
 }

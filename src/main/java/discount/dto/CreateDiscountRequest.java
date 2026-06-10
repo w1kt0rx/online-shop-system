@@ -3,7 +3,7 @@ package discount.dto;
 import discount.model.DiscountType;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 public record CreateDiscountRequest(
         String code,
@@ -11,7 +11,7 @@ public record CreateDiscountRequest(
         DiscountType type,
         BigDecimal value,
         BigDecimal minOrderValue,
-        LocalDateTime validFrom,
-        LocalDateTime validTo
+        ZonedDateTime validFrom,
+        ZonedDateTime validTo
 ) {
 }

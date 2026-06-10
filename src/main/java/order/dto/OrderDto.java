@@ -1,11 +1,10 @@
 package order.dto;
 
 import cart.dto.CartItemDto;
-import cart.model.CartItem;
 import order.model.OrderStatus;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 public record OrderDto(
@@ -13,9 +12,9 @@ public record OrderDto(
         Long customerId,
         List<CartItemDto> items,
         BigDecimal totalPrice,
-        LocalDateTime createdAt,
-        LocalDateTime updatedAt,
-        LocalDateTime confirmedAt,
+        ZonedDateTime createdAt,
+        ZonedDateTime updatedAt,
+        ZonedDateTime confirmedAt,
         OrderStatus orderStatus
 ) {
 }

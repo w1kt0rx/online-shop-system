@@ -1,11 +1,13 @@
 package order.model;
 
 import cart.model.CartItem;
+import common.time.ShopClock;
 import lombok.Getter;
 import lombok.ToString;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 /**
@@ -22,9 +24,9 @@ public class Order {
     private final Long customerId;
     private final List<CartItem> items;
     private BigDecimal totalPrice;
-    private final LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
-    private LocalDateTime confirmedAt;
+    private final ZonedDateTime createdAt;
+    private ZonedDateTime updatedAt;
+    private ZonedDateTime confirmedAt;
     private OrderStatus status;
 
     /**
@@ -42,7 +44,7 @@ public class Order {
         this.totalPrice = items.stream()
                 .map(CartItem::calculateTotalPrice)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
-        this.createdAt = LocalDateTime.now();
+        this.createdAt = ShopClock.now();
         this.updatedAt = this.createdAt;
         this.status = OrderStatus.PENDING;
     }
@@ -52,7 +54,7 @@ public class Order {
      */
     public void confirm() {
         this.status = OrderStatus.CONFIRMED;
-        this.confirmedAt = LocalDateTime.now();
+        this.confirmedAt = ShopClock.now();
         this.updatedAt = this.confirmedAt;
 
     }
@@ -62,6 +64,6 @@ public class Order {
      */
     public void cancel() {
         this.status = OrderStatus.CANCELLED;
-        this.updatedAt = LocalDateTime.now();
+        this.updatedAt = ShopClock.now();
     }
 }

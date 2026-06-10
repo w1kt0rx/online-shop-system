@@ -1,6 +1,7 @@
 package cli;
 
 import cart.service.CartService;
+import common.time.ShopClock;
 import customer.repository.impl.InMemoryCustomerRepository;
 import customer.service.CustomerService;
 import discount.dto.CreateDiscountRequest;
@@ -12,13 +13,14 @@ import invoice.repository.impl.InMemoryInvoiceRepository;
 
 import order.repository.OrderRepository;
 import order.repository.impl.file.FileOrderRepository;
+import order.service.AsyncOrderProcessor;
 import order.service.ConcurrentOrderProcessor;
 import order.service.OrderProcessor;
 import order.service.OrderService;
 import product.dto.computer.CreateComputerRequest;
 import product.dto.electronics.CreateElectronicsRequest;
 import product.dto.smartphone.CreateSmartphoneRequest;
-import product.facade.ProductFacade;
+import product.facade.ProductService;
 import product.model.computer.configuration.*;
 import product.model.smartphone.configuration.*;
 import product.repository.impl.InMemoryComputerRepository;
@@ -29,7 +31,7 @@ import product.service.ElectronicsService;
 import product.service.SmartphoneService;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.Set;
 
 public class ShopApplication {
@@ -58,17 +60,20 @@ public class ShopApplication {
         var orderProcessor = new OrderProcessor(orderRepo, customerRepo, invoiceRepo, discountService);
         var concurrentProcessor = new ConcurrentOrderProcessor(orderProcessor, 4);
 
+        var asyncProcessor = new AsyncOrderProcessor(orderProcessor, 4);
         var exHandler = new GlobalExceptionHandler();
 
-        var productFacade = new ProductFacade(
+        var productFacade = new ProductService(
                 computerService, smartphoneService, electronicsService,
-                discountService, concurrentProcessor);
+                discountService, concurrentProcessor, asyncProcessor);
 
         seedProducts(computerService, smartphoneService, electronicsService);
         seedDiscounts(discountService);
 
         new ShopCLI(productFacade, cartService, customerService,
                 orderService, orderProcessor, exHandler).start();
+
+        asyncProcessor.shutdown();
     }
 
     private static void seedProducts(ComputerService cs, SmartphoneService ss, ElectronicsService es) {
@@ -92,7 +97,7 @@ public class ShopApplication {
     }
 
     private static void seedDiscounts(DiscountService ds) {
-        LocalDateTime now = LocalDateTime.now();
+        ZonedDateTime now = ShopClock.now();
         ds.createDiscount(new CreateDiscountRequest(
                 "WELCOME10", "10% welcome discount",
                 DiscountType.PERCENTAGE, new BigDecimal("10"),

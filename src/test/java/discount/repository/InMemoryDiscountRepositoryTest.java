@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,8 +26,8 @@ class InMemoryDiscountRepositoryTest {
     private Discount buildDiscount(Long id, String code) {
         return new Discount(id, code, "desc", DiscountType.PERCENTAGE,
                 new BigDecimal("10"), null,
-                LocalDateTime.now().minusDays(1),
-                LocalDateTime.now().plusDays(7));
+                ZonedDateTime.now().minusDays(1),
+                ZonedDateTime.now().plusDays(7));
     }
 
     @Test

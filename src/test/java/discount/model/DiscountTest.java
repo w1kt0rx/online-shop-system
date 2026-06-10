@@ -4,12 +4,13 @@ import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class DiscountTest {
 
-    private Discount activeDiscount(LocalDateTime from, LocalDateTime to) {
+    private Discount activeDiscount(ZonedDateTime from, ZonedDateTime to) {
         return new Discount(1L, "CODE", "desc", DiscountType.PERCENTAGE,
                 new BigDecimal("10"), null, from, to);
     }
@@ -17,8 +18,8 @@ class DiscountTest {
     @Test
     void shouldBeValidWhenActiveAndWithinDateRange() {
         Discount discount = activeDiscount(
-                LocalDateTime.now().minusDays(1),
-                LocalDateTime.now().plusDays(1)
+                ZonedDateTime.now().minusDays(1),
+                ZonedDateTime.now().plusDays(1)
         );
         assertThat(discount.isValid()).isTrue();
     }
@@ -26,8 +27,8 @@ class DiscountTest {
     @Test
     void shouldBeInvalidWhenDeactivated() {
         Discount discount = activeDiscount(
-                LocalDateTime.now().minusDays(1),
-                LocalDateTime.now().plusDays(1)
+                ZonedDateTime.now().minusDays(1),
+                ZonedDateTime.now().plusDays(1)
         );
         discount.deActivate();
         assertThat(discount.isValid()).isFalse();
@@ -36,8 +37,8 @@ class DiscountTest {
     @Test
     void shouldBeInvalidWhenValidFromIsInFuture() {
         Discount discount = activeDiscount(
-                LocalDateTime.now().plusDays(1),
-                LocalDateTime.now().plusDays(5)
+                ZonedDateTime.now().plusDays(1),
+                ZonedDateTime.now().plusDays(5)
         );
         assertThat(discount.isValid()).isFalse();
     }
@@ -45,8 +46,8 @@ class DiscountTest {
     @Test
     void shouldBeInvalidWhenValidToIsInPast() {
         Discount discount = activeDiscount(
-                LocalDateTime.now().minusDays(5),
-                LocalDateTime.now().minusDays(1)
+                ZonedDateTime.now().minusDays(5),
+                ZonedDateTime.now().minusDays(1)
         );
         assertThat(discount.isValid()).isFalse();
     }
@@ -54,8 +55,8 @@ class DiscountTest {
     @Test
     void shouldBeActiveByDefault() {
         Discount discount = activeDiscount(
-                LocalDateTime.now().minusDays(1),
-                LocalDateTime.now().plusDays(1)
+                ZonedDateTime.now().minusDays(1),
+                ZonedDateTime.now().plusDays(1)
         );
         assertThat(discount.isActive()).isTrue();
     }
@@ -63,8 +64,8 @@ class DiscountTest {
     @Test
     void shouldSetActiveFalseAfterDeActivate() {
         Discount discount = activeDiscount(
-                LocalDateTime.now().minusDays(1),
-                LocalDateTime.now().plusDays(1)
+                ZonedDateTime.now().minusDays(1),
+                ZonedDateTime.now().plusDays(1)
         );
         discount.deActivate();
         assertThat(discount.isActive()).isFalse();
@@ -73,8 +74,8 @@ class DiscountTest {
     @Test
     void shouldBeInvalidWhenDeactivatedEvenIfDatesAreValid() {
         Discount discount = activeDiscount(
-                LocalDateTime.now().minusHours(1),
-                LocalDateTime.now().plusHours(1)
+                ZonedDateTime.now().minusHours(1),
+                ZonedDateTime.now().plusHours(1)
         );
         discount.deActivate();
         assertThat(discount.isValid()).isFalse();

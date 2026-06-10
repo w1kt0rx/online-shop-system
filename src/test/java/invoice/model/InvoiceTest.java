@@ -6,6 +6,7 @@ import product.model.ProductType;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,9 +36,9 @@ class InvoiceTest {
 
     @Test
     void shouldSetIssuedAtTimestampOnCreation() {
-        LocalDateTime before = LocalDateTime.now().minusSeconds(1);
+        ZonedDateTime before = ZonedDateTime.now().minusSeconds(1);
         Invoice invoice = new Invoice(1L, 1L, 1L, "Test", sampleItems(), BigDecimal.TEN);
-        LocalDateTime after = LocalDateTime.now().plusSeconds(1);
+        ZonedDateTime after = ZonedDateTime.now().plusSeconds(1);
 
         assertThat(invoice.getIssuedAt()).isAfter(before).isBefore(after);
     }

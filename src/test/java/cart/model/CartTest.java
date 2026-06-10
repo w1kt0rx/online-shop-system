@@ -25,8 +25,8 @@ class CartTest {
     void shouldAddProductToCart() {
         cart.addProduct(monitor, 2);
 
-        assertEquals(1, cart.getProducts().size());
-        assertEquals(2, cart.getProducts().get(0).getQuantity());
+        assertEquals(1, cart.getCartItems().size());
+        assertEquals(2, cart.getCartItems().get(0).getQuantity());
     }
 
     @Test
@@ -34,8 +34,8 @@ class CartTest {
         cart.addProduct(monitor, 2);
         cart.addProduct(monitor, 3);
 
-        assertEquals(1, cart.getProducts().size());
-        assertEquals(5, cart.getProducts().get(0).getQuantity());
+        assertEquals(1, cart.getCartItems().size());
+        assertEquals(5, cart.getCartItems().get(0).getQuantity());
     }
 
     @Test
@@ -43,7 +43,7 @@ class CartTest {
         cart.addProduct(monitor, 1);
         cart.addProduct(keyboard, 2);
 
-        assertEquals(2, cart.getProducts().size());
+        assertEquals(2, cart.getCartItems().size());
     }
 
     @Test
@@ -52,14 +52,14 @@ class CartTest {
         cart.addProduct(keyboard, 1);
         cart.removeProduct(monitor);
 
-        assertEquals(1, cart.getProducts().size());
-        assertEquals("Keyboard", cart.getProducts().get(0).getProduct().getName());
+        assertEquals(1, cart.getCartItems().size());
+        assertEquals("Keyboard", cart.getCartItems().get(0).getProduct().getName());
     }
 
     @Test
     void shouldNotThrowWhenRemovingNonExistentProduct() {
         assertDoesNotThrow(() -> cart.removeProduct(monitor));
-        assertTrue(cart.getProducts().isEmpty());
+        assertTrue(cart.getCartItems().isEmpty());
     }
 
     @Test
@@ -81,7 +81,7 @@ class CartTest {
         cart.addProduct(keyboard, 2);
         cart.clear();
 
-        assertTrue(cart.getProducts().isEmpty());
+        assertTrue(cart.getCartItems().isEmpty());
         assertTrue(cart.isEmpty());
     }
 
@@ -113,6 +113,6 @@ class CartTest {
         cart.addProduct(monitor, 1);
 
         assertThrows(UnsupportedOperationException.class,
-                () -> cart.getProducts().add(new CartItem(keyboard, 1)));
+                () -> cart.getCartItems().add(new CartItem(keyboard, 1)));
     }
 }

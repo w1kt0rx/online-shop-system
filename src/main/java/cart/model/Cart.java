@@ -1,5 +1,6 @@
 package cart.model;
 
+import cart.dto.CartItemDto;
 import product.model.Product;
 
 import java.math.BigDecimal;
@@ -13,7 +14,7 @@ import java.util.Optional;
  * multiple times merges quantities rather than creating duplicate entries.
  */
 public class Cart {
-    private final List<CartItem> products = new ArrayList<>();
+    private final List<CartItem> cartItems = new ArrayList<>();
 
     /**
      * Adds a product to the cart, or increases the quantity of an existing entry.
@@ -22,17 +23,17 @@ public class Cart {
      * @param quantity number of units; must be greater than zero
      * @throws IllegalArgumentException if quantity is not positive
      */
-    public void addProduct(Product product, int quantity) {
+    public CartItem addProduct(Product product, int quantity) {
         validateQuantity(quantity);
-
         Optional<CartItem> existingItem = findCartItem(product);
 
         if (existingItem.isPresent()) {
             existingItem.get().increaseQuantity(quantity);
-            return;
+            return existingItem.get();
         }
-
-        products.add(new CartItem(product, quantity));
+        CartItem cartItem = new CartItem(product, quantity);
+        cartItems.add(cartItem);
+        return cartItem;
     }
 
     /**
@@ -41,14 +42,14 @@ public class Cart {
      * @param product the product to remove
      */
     public void removeProduct(Product product) {
-        products.removeIf(item -> item.getProduct().equals(product));
+        cartItems.removeIf(item -> item.getProduct().equals(product));
     }
 
     /**
      * Removes all items from the cart.
      */
     public void clear() {
-        products.clear();
+        cartItems.clear();
     }
 
     /**
@@ -57,7 +58,7 @@ public class Cart {
      * @return true when empty
      */
     public boolean isEmpty() {
-        return products.isEmpty();
+        return cartItems.isEmpty();
     }
 
     /**
@@ -67,7 +68,7 @@ public class Cart {
      * if the cart is empty
      */
     public BigDecimal getTotalPrice() {
-        return products.stream()
+        return cartItems.stream()
                 .map(CartItem::calculateTotalPrice)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
@@ -77,12 +78,12 @@ public class Cart {
      *
      * @return immutable copy of the item list
      */
-    public List<CartItem> getProducts() {
-        return List.copyOf(products);
+    public List<CartItem> getCartItems() {
+        return List.copyOf(cartItems);
     }
 
     private Optional<CartItem> findCartItem(Product product) {
-        return products.stream()
+        return cartItems.stream()
                 .filter(item -> item.getProduct().equals(product))
                 .findFirst();
     }

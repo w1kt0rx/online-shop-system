@@ -12,7 +12,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 public class InMemoryInvoiceRepository implements InvoiceRepository {
     private final Map<Long, Invoice> database = new ConcurrentHashMap<>();
-    private AtomicLong sequenceId = new AtomicLong(1L);
+    private final AtomicLong sequenceId = new AtomicLong(1L);
 
     @Override
     public Invoice save(Invoice entity) {

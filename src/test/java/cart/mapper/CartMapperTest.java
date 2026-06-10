@@ -56,7 +56,7 @@ class CartMapperTest {
         Cart cart = new Cart();
         cart.addProduct(product, 2);
 
-        CartItemDto itemDto = CartMapper.toItemDto(cart.getProducts().get(0));
+        CartItemDto itemDto = CartMapper.toItemDto(cart.getCartItems().get(0));
 
         assertThat(itemDto.productId()).isEqualTo(5L);
         assertThat(itemDto.productName()).isEqualTo("Headphones");
@@ -72,7 +72,7 @@ class CartMapperTest {
         Cart cart = new Cart();
         cart.addProduct(computer, 1);
 
-        CartItemDto itemDto = CartMapper.toItemDto(cart.getProducts().get(0));
+        CartItemDto itemDto = CartMapper.toItemDto(cart.getCartItems().get(0));
 
         assertThat(itemDto.productType()).isEqualTo(ProductType.COMPUTER);
         assertThat(itemDto.unitPrice()).isEqualByComparingTo(new BigDecimal("4000"));

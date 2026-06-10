@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.ToString;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 /**
  * Represents a discount that can be applied to an order.
@@ -21,8 +21,8 @@ public class Discount {
     private final DiscountType type;
     private final BigDecimal value;
     private final BigDecimal minOrderValue;
-    private final LocalDateTime validFrom;
-    private final LocalDateTime validTo;
+    private final ZonedDateTime validFrom;
+    private final ZonedDateTime validTo;
     private boolean active;
 
     /**
@@ -41,7 +41,7 @@ public class Discount {
      * @param validTo       end of the validity window
      */
     public Discount(Long id, String code, String description, DiscountType type, BigDecimal value,
-                    BigDecimal minOrderValue, LocalDateTime validFrom, LocalDateTime validTo) {
+                    BigDecimal minOrderValue, ZonedDateTime validFrom, ZonedDateTime validTo) {
         this.id = id;
         this.code = code;
         this.description = description;
@@ -60,7 +60,7 @@ public class Discount {
      * @return true when the discount may be applied
      */
     public boolean isValid() {
-        LocalDateTime now = LocalDateTime.now();
+        ZonedDateTime now = ZonedDateTime.now();
         return active && !now.isBefore(validFrom) && !now.isAfter(validTo);
     }
 

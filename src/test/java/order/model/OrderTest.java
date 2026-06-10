@@ -7,6 +7,7 @@ import product.model.electronics.Electronics;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -31,9 +32,9 @@ class OrderTest {
 
     @Test
     void shouldSetCreatedAtTimestampOnCreation() {
-        LocalDateTime before = LocalDateTime.now().minusSeconds(1);
+        ZonedDateTime before = ZonedDateTime.now().minusSeconds(1);
         Order freshOrder = new Order(2L, 1L, List.of(cartItem));
-        LocalDateTime after = LocalDateTime.now().plusSeconds(1);
+        ZonedDateTime after = ZonedDateTime.now().plusSeconds(1);
 
         assertThat(freshOrder.getCreatedAt()).isAfter(before).isBefore(after);
     }
