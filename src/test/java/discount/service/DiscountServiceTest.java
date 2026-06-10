@@ -18,6 +18,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -36,14 +37,14 @@ class DiscountServiceTest {
 
     private Discount activeDiscount(String code, DiscountType type, BigDecimal value) {
         return new Discount(1L, code, "Test", type, value, BigDecimal.ZERO,
-                LocalDateTime.now().minusDays(1), LocalDateTime.now().plusDays(30));
+                ZonedDateTime.now().minusDays(1), ZonedDateTime.now().plusDays(30));
     }
 
     private Discount expiredDiscount(String code) {
         return new Discount(2L, code, "Expired", DiscountType.PERCENTAGE, new BigDecimal("10"),
                 BigDecimal.ZERO,
-                LocalDateTime.now().minusDays(30),
-                LocalDateTime.now().minusDays(1));
+                ZonedDateTime.now().minusDays(30),
+                ZonedDateTime.now().minusDays(1));
     }
 
     // ── createDiscount ────────────────────────────────────────────────
@@ -56,7 +57,7 @@ class DiscountServiceTest {
 
         DiscountDto result = discountService.createDiscount(new CreateDiscountRequest(
                 "SAVE10", "10% off", DiscountType.PERCENTAGE, new BigDecimal("10"),
-                BigDecimal.ZERO, LocalDateTime.now(), LocalDateTime.now().plusDays(30)));
+                BigDecimal.ZERO, ZonedDateTime.now(), ZonedDateTime.now().plusDays(30)));
 
         assertThat(result.code()).isEqualTo("SAVE10");
         verify(discountRepository).save(any());
@@ -70,11 +71,9 @@ class DiscountServiceTest {
         assertThatExceptionOfType(InvalidProductException.class)
                 .isThrownBy(() -> discountService.createDiscount(new CreateDiscountRequest(
                         "SAVE10", "dup", DiscountType.PERCENTAGE, new BigDecimal("5"),
-                        BigDecimal.ZERO, LocalDateTime.now(), LocalDateTime.now().plusDays(1))))
+                        BigDecimal.ZERO, ZonedDateTime.now(), ZonedDateTime.now().plusDays(1))))
                 .withMessageContaining("already exists");
     }
-
-    // ── applyDiscount ─────────────────────────────────────────────────
 
     @ParameterizedTest
     @MethodSource("provideDiscountScenarios")
@@ -119,15 +118,13 @@ class DiscountServiceTest {
     void shouldThrowWhenMinOrderValueNotMet() {
         Discount d = new Discount(1L, "BIG", "Min 2000", DiscountType.FIXED_AMOUNT,
                 new BigDecimal("200"), new BigDecimal("2000"),
-                LocalDateTime.now().minusDays(1), LocalDateTime.now().plusDays(30));
+                ZonedDateTime.now().minusDays(1), ZonedDateTime.now().plusDays(30));
         when(discountRepository.findByCode("BIG")).thenReturn(Optional.of(d));
 
         assertThatExceptionOfType(InvalidProductException.class)
                 .isThrownBy(() -> discountService.applyDiscount("BIG", new BigDecimal("500")))
                 .withMessageContaining("minimum");
     }
-
-    // ── getAllActive ──────────────────────────────────────────────────
 
     @Test
     void shouldReturnOnlyActiveDiscounts() {

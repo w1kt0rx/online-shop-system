@@ -13,7 +13,7 @@ import java.util.List;
 public final class CartMapper {
 
     public static CartDto toDto(Cart cart) {
-        List<CartItemDto> items = cart.getProducts().stream()
+        List<CartItemDto> items = cart.getCartItems().stream()
                 .map(CartMapper::toItemDto)
                 .toList();
         return new CartDto(items, cart.getTotalPrice());

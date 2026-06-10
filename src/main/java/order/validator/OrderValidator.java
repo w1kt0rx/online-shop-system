@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 public final class OrderValidator {
 
     public static void validateCart(Cart cart) {
-        if ((cart == null) || cart.getProducts().isEmpty()) {
+        if ((cart == null) || cart.getCartItems().isEmpty()) {
             throw new EmptyCartException("Cannot place an order with an empty cart");
         }
     }

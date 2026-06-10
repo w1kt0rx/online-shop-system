@@ -18,7 +18,7 @@ import product.service.ElectronicsService;
 import product.service.SmartphoneService;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,7 +26,7 @@ import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class ProductFacadeTest {
+class ProductServiceTest {
 
     @Mock
     ComputerService computerService;
@@ -40,7 +40,7 @@ class ProductFacadeTest {
     ConcurrentOrderProcessor concurrentOrderProcessor;
 
     @InjectMocks
-    ProductFacade facade;
+    ProductService facade;
 
 
     @Test
@@ -157,7 +157,7 @@ class ProductFacadeTest {
     void shouldReturnActiveDiscountsList() {
         DiscountDto dto = new DiscountDto(1L, "TECH25", "25% off",
                 DiscountType.PERCENTAGE, new BigDecimal("25"), BigDecimal.ZERO,
-                LocalDateTime.now().minusDays(1), LocalDateTime.now().plusDays(30), true);
+                ZonedDateTime.now().minusDays(1), ZonedDateTime.now().plusDays(30), true);
         when(discountService.getAllActive()).thenReturn(List.of(dto));
 
         List<DiscountDto> result = facade.getAllActiveDiscounts();

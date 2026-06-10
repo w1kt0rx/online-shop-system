@@ -4,6 +4,7 @@ import discount.model.DiscountType;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 public record DiscountDto(
         Long id,
@@ -12,8 +13,8 @@ public record DiscountDto(
         DiscountType type,
         BigDecimal value,
         BigDecimal minOrderValue,
-        LocalDateTime validFrom,
-        LocalDateTime validTo,
+        ZonedDateTime validFrom,
+        ZonedDateTime validTo,
         boolean active
 ) {
 }

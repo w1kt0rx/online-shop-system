@@ -30,7 +30,7 @@ public class OrderService {
         Order order = new Order(
                 orderRepository.getNextId(),
                 customerId,
-                customer.getCart().getProducts()
+                customer.getCart().getCartItems()
         );
 
         decreaseStockForItems(order);

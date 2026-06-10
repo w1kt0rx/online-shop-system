@@ -86,7 +86,7 @@ public class OrderProcessor {
             Order order = new Order(
                     orderRepository.getNextId(),
                     customerId,
-                    customer.getCart().getProducts()
+                    customer.getCart().getCartItems()
             );
 
             order.getItems().forEach(item ->
@@ -171,7 +171,7 @@ public class OrderProcessor {
      * @throws InsufficientStockException if any item's requested quantity exceeds available stock
      */
     private void validateStock(Customer customer) {
-        customer.getCart().getProducts().forEach(item -> {
+        customer.getCart().getCartItems().forEach(item -> {
             if (item.getQuantity() > item.getProduct().getQuantity()) {
                 throw new InsufficientStockException(
                         "Not enough stock for product: " + item.getProduct().getName()

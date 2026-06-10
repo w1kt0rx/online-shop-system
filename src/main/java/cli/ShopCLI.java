@@ -16,7 +16,7 @@ import product.dto.computer.UpdateComputerRequest;
 import product.dto.electronics.ElectronicsDto;
 import product.dto.smartphone.SmartphoneDto;
 import product.dto.smartphone.UpdateSmartphoneRequest;
-import product.facade.ProductFacade;
+import product.facade.ProductService;
 import product.model.ProductType;
 import product.model.computer.configuration.*;
 import product.model.smartphone.configuration.*;
@@ -33,7 +33,7 @@ public class ShopCLI {
 
     private final Scanner scanner = new Scanner(System.in);
 
-    private final ProductFacade productFacade;
+    private final ProductService productFacade;
     private final CartService cartService;
     private final CustomerService customerService;
     private final OrderService orderService;
@@ -42,7 +42,7 @@ public class ShopCLI {
 
     private Long currentCustomerId = null;
 
-    public ShopCLI(ProductFacade productFacade,
+    public ShopCLI(ProductService productFacade,
                    CartService cartService,
                    CustomerService customerService,
                    OrderService orderService,
@@ -80,6 +80,7 @@ public class ShopCLI {
         }
         print("\nThank you. Goodbye!");
     }
+
 
 
     private void loginOrRegister() {

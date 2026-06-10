@@ -1,11 +1,13 @@
 package invoice.model;
 
 import cart.dto.CartItemDto;
+import common.time.ShopClock;
 import lombok.Getter;
 import lombok.ToString;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 @Getter
@@ -17,7 +19,7 @@ public class Invoice {
     private final String customerName;
     private final List<CartItemDto> items;
     private final BigDecimal totalAmount;
-    private final LocalDateTime issuedAt;
+    private final ZonedDateTime issuedAt;
 
     public Invoice(Long id, Long orderId, Long customerId, String customerName,
                    List<CartItemDto> items, BigDecimal totalAmount) {
@@ -27,6 +29,6 @@ public class Invoice {
         this.customerName = customerName;
         this.items = List.copyOf(items);
         this.totalAmount = totalAmount;
-        this.issuedAt = LocalDateTime.now();
+        this.issuedAt = ShopClock.now();
     }
 }

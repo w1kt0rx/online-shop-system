@@ -1,5 +1,6 @@
 package cart.model;
 
+import cart.validator.CartItemValidator;
 import exception.InvalidProductException;
 import exception.NotEnoughStockException;
 import product.model.Product;
@@ -13,8 +14,7 @@ public class CartItem {
     private Integer quantity;
 
     public CartItem(Product product, Integer quantity) {
-        validateProduct(product);
-        validateQuantity(quantity);
+        CartItemValidator.validateCartItem(product, quantity);
         this.product = product;
         this.quantity = quantity;
     }
@@ -24,7 +24,7 @@ public class CartItem {
     }
 
     public void increaseQuantity(int amount) {
-        validateQuantity(amount);
+        CartItemValidator.validateQuantity(amount);
         quantity += amount;
     }
 
@@ -35,15 +35,5 @@ public class CartItem {
         quantity -= amount;
     }
 
-    private void validateQuantity(int amount) {
-        if (amount <= 0) {
-            throw new NotEnoughStockException("Quantity cannot be negative");
-        }
     }
 
-    private void validateProduct(Product product) {
-        if (product == null) {
-            throw new InvalidProductException("Product cannot be null");
-        }
-    }
-}

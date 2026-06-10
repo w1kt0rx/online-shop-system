@@ -3,7 +3,7 @@ package invoice.dto;
 import cart.dto.CartItemDto;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 public record InvoiceDto(
@@ -13,6 +13,6 @@ public record InvoiceDto(
         String customerName,
         List<CartItemDto> items,
         BigDecimal totalAmount,
-        LocalDateTime issuedAt
+        ZonedDateTime issuedAt
 ) {
 }

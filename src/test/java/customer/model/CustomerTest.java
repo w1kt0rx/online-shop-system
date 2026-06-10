@@ -28,7 +28,7 @@ class CustomerTest {
         Cart cart = customer.getCart();
 
         assertThat(cart).isNotNull();
-        assertThat(cart.getProducts()).isEmpty();
+        assertThat(cart.getCartItems()).isEmpty();
     }
 
     @Test
