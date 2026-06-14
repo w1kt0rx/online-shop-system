@@ -29,10 +29,14 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class AsyncOrderProcessorTest {
 
-    @Mock OrderRepository orderRepository;
-    @Mock CustomerRepository customerRepository;
-    @Mock InvoiceRepository invoiceRepository;
-    @Mock DiscountService discountService;
+    @Mock
+    OrderRepository orderRepository;
+    @Mock
+    CustomerRepository customerRepository;
+    @Mock
+    InvoiceRepository invoiceRepository;
+    @Mock
+    DiscountService discountService;
 
     private OrderProcessor orderProcessor;
     private AsyncOrderProcessor asyncProcessor;

@@ -35,5 +35,5 @@ public class CartItem {
         quantity -= amount;
     }
 
-    }
+}
 

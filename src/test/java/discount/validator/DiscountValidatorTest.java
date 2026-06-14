@@ -27,7 +27,7 @@ class DiscountValidatorTest {
     }
 
     @Test
-     void shouldPassForValidRequest() {
+    void shouldPassForValidRequest() {
         assertThatCode(() -> DiscountValidator.validate(validRequest()))
                 .doesNotThrowAnyException();
     }

@@ -18,6 +18,7 @@ import invoice.dto.InvoiceDto;
 import invoice.repository.impl.InMemoryInvoiceRepository;
 import order.model.OrderProcessingResult;
 import order.repository.impl.InMemoryOrderRepository;
+import order.facade.OrderFacade;
 import order.service.AsyncOrderProcessor;
 import order.service.ConcurrentOrderProcessor;
 import order.service.OrderProcessor;
@@ -29,7 +30,7 @@ import product.dto.electronics.CreateElectronicsRequest;
 import product.dto.electronics.ElectronicsDto;
 import product.dto.smartphone.CreateSmartphoneRequest;
 import product.dto.smartphone.SmartphoneDto;
-import product.facade.ProductService;
+import product.facade.ProductFacade;
 import product.model.ProductType;
 import product.model.computer.configuration.GraphicsCard;
 import product.model.computer.configuration.Processor;
@@ -71,23 +72,24 @@ class ShopIntegrationTest {
     private OrderProcessor orderProcessor;
     private ConcurrentOrderProcessor concurrentOrderProcessor;
     private AsyncOrderProcessor asyncOrderProcessor;
-    private ProductService productFacade;
+    private ProductFacade productFacade;
+    private OrderFacade orderFacade;
 
     @BeforeEach
     void setUp() {
-        customerRepository    = new InMemoryCustomerRepository();
-        computerRepository    = new InMemoryComputerRepository();
-        smartphoneRepository  = new InMemorySmartphoneRepository();
+        customerRepository = new InMemoryCustomerRepository();
+        computerRepository = new InMemoryComputerRepository();
+        smartphoneRepository = new InMemorySmartphoneRepository();
         electronicsRepository = new InMemoryElectronicsRepository();
-        orderRepository       = new InMemoryOrderRepository();
-        invoiceRepository     = new InMemoryInvoiceRepository();
-        discountRepository    = new InMemoryDiscountRepository();
+        orderRepository = new InMemoryOrderRepository();
+        invoiceRepository = new InMemoryInvoiceRepository();
+        discountRepository = new InMemoryDiscountRepository();
 
-        customerService    = new CustomerService(customerRepository);
-        computerService    = new ComputerService(computerRepository);
-        smartphoneService  = new SmartphoneService(smartphoneRepository);
+        customerService = new CustomerService(customerRepository);
+        computerService = new ComputerService(computerRepository);
+        smartphoneService = new SmartphoneService(smartphoneRepository);
         electronicsService = new ElectronicsService(electronicsRepository);
-        discountService    = new DiscountService(discountRepository);
+        discountService = new DiscountService(discountRepository);
 
         cartService = new CartService(
                 customerRepository, computerRepository,
@@ -103,10 +105,8 @@ class ShopIntegrationTest {
 
         asyncOrderProcessor = new AsyncOrderProcessor(orderProcessor, 4);
 
-        productFacade = new ProductService(
-                computerService, smartphoneService, electronicsService,
-                discountService, concurrentOrderProcessor, asyncOrderProcessor
-        );
+        productFacade = new ProductFacade(computerService, smartphoneService, electronicsService);
+        orderFacade = new OrderFacade(concurrentOrderProcessor, asyncOrderProcessor);
     }
 
 
@@ -436,7 +436,7 @@ class ShopIntegrationTest {
                 createCustomerWithProduct("Client C", product.id(), 1)
         );
 
-        List<OrderProcessingResult> results = productFacade.processBatchOrders(customerIds);
+        List<OrderProcessingResult> results = orderFacade.processBatchOrders(customerIds);
 
         assertThat(results).hasSize(3);
         assertThat(results).allSatisfy(r -> assertThat(r.success()).isTrue());
@@ -450,7 +450,7 @@ class ShopIntegrationTest {
         long withCart = createCustomerWithProduct("With cart", product.id(), 1);
         CustomerDto withoutCart = customerService.createCustomer(new CreateCustomerRequest("Without car"));
 
-        List<OrderProcessingResult> results = productFacade.processBatchOrders(
+        List<OrderProcessingResult> results = orderFacade.processBatchOrders(
                 List.of(withCart, withoutCart.id())
         );
 
@@ -471,7 +471,7 @@ class ShopIntegrationTest {
                 createCustomerWithProduct("K5", limited.id(), 1)
         );
 
-        productFacade.processBatchOrders(customerIds);
+        orderFacade.processBatchOrders(customerIds);
 
         assertThat(productFacade.getElectronicsById(limited.id()).quantity()).isGreaterThanOrEqualTo(0);
     }

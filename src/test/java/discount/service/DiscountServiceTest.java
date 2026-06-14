@@ -192,4 +192,45 @@ class DiscountServiceTest {
         assertThatExceptionOfType(DiscountNotFoundException.class)
                 .isThrownBy(() -> discountService.deActivate(99L));
     }
+
+    // ── previewDiscountedTotal ───────────────────────────────────────
+
+    @Test
+    void shouldReturnDiscountedTotalOnValidCode() {
+        when(discountRepository.findByCode("SAVE10"))
+                .thenReturn(Optional.of(activeDiscount("SAVE10", DiscountType.PERCENTAGE, new BigDecimal("10"))));
+
+        BigDecimal result = discountService.previewDiscountedTotal("SAVE10", new BigDecimal("1000"));
+
+        assertThat(result).isEqualByComparingTo(new BigDecimal("900"));
+    }
+
+    @Test
+    void shouldReturnOriginalTotalWhenDiscountCodeUnknown() {
+        when(discountRepository.findByCode("BAD")).thenReturn(Optional.empty());
+
+        BigDecimal result = discountService.previewDiscountedTotal("BAD", new BigDecimal("1000"));
+
+        assertThat(result).isEqualByComparingTo(new BigDecimal("1000"));
+    }
+
+    @Test
+    void shouldReturnOriginalTotalWhenDiscountCodeExpired() {
+        when(discountRepository.findByCode("OLD")).thenReturn(Optional.of(expiredDiscount("OLD")));
+
+        BigDecimal result = discountService.previewDiscountedTotal("OLD", new BigDecimal("1000"));
+
+        assertThat(result).isEqualByComparingTo(new BigDecimal("1000"));
+    }
+
+    @Test
+    void shouldReturnOriginalTotalWhenMinOrderValueNotMet() {
+        Discount discount = new Discount(3L, "SAVE200", "Test", DiscountType.FIXED_AMOUNT, new BigDecimal("200"),
+                new BigDecimal("2000"), ZonedDateTime.now().minusDays(1), ZonedDateTime.now().plusDays(30));
+        when(discountRepository.findByCode("SAVE200")).thenReturn(Optional.of(discount));
+
+        BigDecimal result = discountService.previewDiscountedTotal("SAVE200", new BigDecimal("1000"));
+
+        assertThat(result).isEqualByComparingTo(new BigDecimal("1000"));
+    }
 }

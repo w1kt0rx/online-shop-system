@@ -10,6 +10,7 @@ import java.time.ZonedDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
+
 import java.time.temporal.ChronoUnit;
 
 class ShopClockTest {
@@ -26,13 +27,13 @@ class ShopClockTest {
     void shouldReturnTimeCloseToCurrentInstant() {
         ZonedDateTime before = ZonedDateTime.now(ShopClock.DEFAULT_ZONE).minusSeconds(1);
         ZonedDateTime result = ShopClock.now();
-        ZonedDateTime after  = ZonedDateTime.now(ShopClock.DEFAULT_ZONE).plusSeconds(1);
+        ZonedDateTime after = ZonedDateTime.now(ShopClock.DEFAULT_ZONE).plusSeconds(1);
 
         assertThat(result).isAfter(before).isBefore(after);
     }
 
     @ParameterizedTest
-    @ValueSource(strings = { "Europe/London", "America/New_York", "Asia/Tokyo", "UTC" })
+    @ValueSource(strings = {"Europe/London", "America/New_York", "Asia/Tokyo", "UTC"})
     void shouldReturnTimeInRequestedZone(String zoneId) {
         ZoneId zone = ZoneId.of(zoneId);
         ZonedDateTime result = ShopClock.nowIn(zone);
@@ -43,7 +44,7 @@ class ShopClockTest {
     @Test
     void shouldPreserveSameInstantWhenConvertingZones() {
         ZonedDateTime warsaw = ShopClock.now();
-        ZonedDateTime tokyo  = ShopClock.convertTo(warsaw, ZoneId.of("Asia/Tokyo"));
+        ZonedDateTime tokyo = ShopClock.convertTo(warsaw, ZoneId.of("Asia/Tokyo"));
 
         assertThat(warsaw.toInstant()).isEqualTo(tokyo.toInstant());
         assertThat(warsaw.getZone()).isNotEqualTo(tokyo.getZone());
@@ -51,8 +52,8 @@ class ShopClockTest {
 
     @Test
     void shouldConvertToInstant() {
-        ZonedDateTime now     = ShopClock.now();
-        Instant instant       = ShopClock.toInstant(now);
+        ZonedDateTime now = ShopClock.now();
+        Instant instant = ShopClock.toInstant(now);
         Instant systemInstant = Instant.now();
 
         assertThat(instant).isCloseTo(systemInstant, within(2, ChronoUnit.SECONDS));
@@ -66,7 +67,7 @@ class ShopClockTest {
     @Test
     void shouldNotMixUpLocalTimes() {
         ZonedDateTime warsaw = ShopClock.now();
-        ZonedDateTime tokyo  = ShopClock.nowIn(ZoneId.of("Asia/Tokyo"));
+        ZonedDateTime tokyo = ShopClock.nowIn(ZoneId.of("Asia/Tokyo"));
 
         assertThat(warsaw.toInstant())
                 .isCloseTo(tokyo.toInstant(), within(2, ChronoUnit.SECONDS));

@@ -6,17 +6,19 @@ import customer.dto.CreateCustomerRequest;
 import customer.dto.CustomerDto;
 import customer.service.CustomerService;
 import discount.dto.DiscountDto;
+import discount.service.DiscountService;
 import exception.handler.GlobalExceptionHandler;
 import invoice.dto.InvoiceDto;
 import order.dto.OrderDto;
-import order.service.OrderProcessor;
+import order.facade.OrderFacade;
+import order.model.OrderProcessingResult;
 import order.service.OrderService;
 import product.dto.computer.ComputerDto;
 import product.dto.computer.UpdateComputerRequest;
 import product.dto.electronics.ElectronicsDto;
 import product.dto.smartphone.SmartphoneDto;
 import product.dto.smartphone.UpdateSmartphoneRequest;
-import product.facade.ProductService;
+import product.facade.ProductFacade;
 import product.model.ProductType;
 import product.model.computer.configuration.*;
 import product.model.smartphone.configuration.*;
@@ -24,6 +26,7 @@ import product.model.smartphone.configuration.*;
 import java.math.BigDecimal;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.CompletionException;
 
 public class ShopCLI {
 
@@ -33,26 +36,29 @@ public class ShopCLI {
 
     private final Scanner scanner = new Scanner(System.in);
 
-    private final ProductService productFacade;
+    private final ProductFacade productFacade;
     private final CartService cartService;
     private final CustomerService customerService;
     private final OrderService orderService;
-    private final OrderProcessor orderProcessor;
+    private final OrderFacade orderFacade;
+    private final DiscountService discountService;
     private final GlobalExceptionHandler exHandler;
 
     private Long currentCustomerId = null;
 
-    public ShopCLI(ProductService productFacade,
+    public ShopCLI(ProductFacade productFacade,
                    CartService cartService,
                    CustomerService customerService,
                    OrderService orderService,
-                   OrderProcessor orderProcessor,
+                   OrderFacade orderFacade,
+                   DiscountService discountService,
                    GlobalExceptionHandler exHandler) {
         this.productFacade = productFacade;
         this.cartService = cartService;
         this.customerService = customerService;
         this.orderService = orderService;
-        this.orderProcessor = orderProcessor;
+        this.orderFacade = orderFacade;
+        this.discountService = discountService;
         this.exHandler = exHandler;
     }
 
@@ -74,13 +80,13 @@ public class ShopCLI {
                 case 6 -> viewOrders();
                 case 7 -> showDiscounts();
                 case 8 -> switchCustomer();
+                case 9 -> batchCheckout();
                 case 0 -> running = false;
                 default -> print("Wrong option, try again.");
             }
         }
         print("\nThank you. Goodbye!");
     }
-
 
 
     private void loginOrRegister() {
@@ -410,9 +416,9 @@ public class ShopCLI {
         String confirmedCode = null;
 
         if (!code.isEmpty()) {
-            Optional<String> description = productFacade.describeDiscount(code);
+            Optional<String> description = discountService.describeDiscount(code);
             if (description.isPresent()) {
-                BigDecimal discounted = productFacade.previewDiscountedTotal(code, cart.totalPrice());
+                BigDecimal discounted = discountService.previewDiscountedTotal(code, cart.totalPrice());
                 print(String.format("  Discount: %s", description.get()));
                 print(String.format("  Original total:   %.2f PLN", cart.totalPrice().doubleValue()));
                 print(String.format("  After discount:   %.2f PLN", discounted.doubleValue()));
@@ -429,8 +435,16 @@ public class ShopCLI {
         }
 
         try {
-            InvoiceDto invoice = orderProcessor.processOrder(currentCustomerId, confirmedCode);
+            print("\nProcessing your order");
+            InvoiceDto invoice = orderFacade.processOrderAsync(currentCustomerId, confirmedCode).join();
             printInvoice(invoice);
+        } catch (CompletionException e) {
+            Throwable cause = e.getCause();
+            if (cause instanceof Exception ex) {
+                print(exHandler.handleAny(ex));
+            } else {
+                print(exHandler.handleUnexpected(e));
+            }
         } catch (Exception e) {
             print(exHandler.handleAny(e));
         }
@@ -489,7 +503,7 @@ public class ShopCLI {
         print("  ACTIVE PROMOTIONS");
         print(LINE);
         try {
-            List<DiscountDto> active = productFacade.getAllActiveDiscounts();
+            List<DiscountDto> active = discountService.getAllActive();
             if (active.isEmpty()) {
                 print("  No active promotions.");
             } else {
@@ -507,6 +521,56 @@ public class ShopCLI {
             }
         } catch (Exception e) {
             print(exHandler.handleAny(e));
+        }
+        print(LINE);
+    }
+
+
+    /**
+     * Admin-style feature: checks out the carts of several customers at once,
+     * processing them concurrently via {@link OrderFacade#processBatchOrders(List)}
+     * (backed by ConcurrentOrderProcessor and a fixed thread pool).
+     * Failures for individual customers (e.g. empty cart, insufficient stock)
+     * do not stop the rest of the batch — each customer gets their own result.
+     */
+    private void batchCheckout() {
+        print("\n" + LINE);
+        print("  BATCH CHECKOUT ");
+        print(LINE);
+        print("Enter customer IDs to check out, separated by commas: ");
+        String input = scanner.nextLine().trim();
+        if (input.isEmpty()) {
+            print("No customer IDs provided.");
+            return;
+        }
+
+        List<Long> customerIds = new ArrayList<>();
+        for (String part : input.split(",")) {
+            try {
+                customerIds.add(Long.parseLong(part.trim()));
+            } catch (NumberFormatException ignored) {
+                print("  Skipping invalid customer ID: " + part.trim());
+            }
+        }
+
+        if (customerIds.isEmpty()) {
+            print("No valid customer IDs provided.");
+            return;
+        }
+
+        print(String.format("Processing %d order(s)", customerIds.size()));
+        List<OrderProcessingResult> results = orderFacade.processBatchOrders(customerIds);
+
+        print(LINE);
+        for (OrderProcessingResult result : results) {
+            if (result.success()) {
+                print(String.format("  Customer #%d: OK — invoice #%d, total %.2f PLN",
+                        result.customerId(), result.invoice().id(),
+                        result.invoice().totalAmount().doubleValue()));
+            } else {
+                print(String.format("  Customer #%d: FAILED — %s",
+                        result.customerId(), result.errorMessage()));
+            }
         }
         print(LINE);
     }
@@ -535,6 +599,7 @@ public class ShopCLI {
         print("  6. My Orders");
         print("  7. Promotions & Discounts");
         print("  8. Switch Customer");
+        print("  9. Batch Checkout for Multiple Customers (Admin)");
         print("  0. Exit");
         print(LINE);
         System.out.print("  Choice > ");

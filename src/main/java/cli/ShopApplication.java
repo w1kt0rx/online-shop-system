@@ -13,6 +13,7 @@ import invoice.repository.impl.InMemoryInvoiceRepository;
 
 import order.repository.OrderRepository;
 import order.repository.impl.file.FileOrderRepository;
+import order.facade.OrderFacade;
 import order.service.AsyncOrderProcessor;
 import order.service.ConcurrentOrderProcessor;
 import order.service.OrderProcessor;
@@ -20,7 +21,7 @@ import order.service.OrderService;
 import product.dto.computer.CreateComputerRequest;
 import product.dto.electronics.CreateElectronicsRequest;
 import product.dto.smartphone.CreateSmartphoneRequest;
-import product.facade.ProductService;
+import product.facade.ProductFacade;
 import product.model.computer.configuration.*;
 import product.model.smartphone.configuration.*;
 import product.repository.impl.InMemoryComputerRepository;
@@ -36,9 +37,7 @@ import java.util.Set;
 
 public class ShopApplication {
 
-
     public static void main(String[] args) {
-
 
         var computerRepo = new InMemoryComputerRepository();
         var smartphoneRepo = new InMemorySmartphoneRepository();
@@ -63,17 +62,16 @@ public class ShopApplication {
         var asyncProcessor = new AsyncOrderProcessor(orderProcessor, 4);
         var exHandler = new GlobalExceptionHandler();
 
-        var productFacade = new ProductService(
-                computerService, smartphoneService, electronicsService,
-                discountService, concurrentProcessor, asyncProcessor);
+        var productFacade = new ProductFacade(computerService, smartphoneService, electronicsService);
+        var orderFacade = new OrderFacade(concurrentProcessor, asyncProcessor);
 
         seedProducts(computerService, smartphoneService, electronicsService);
         seedDiscounts(discountService);
 
         new ShopCLI(productFacade, cartService, customerService,
-                orderService, orderProcessor, exHandler).start();
+                orderService, orderFacade, discountService, exHandler).start();
 
-        asyncProcessor.shutdown();
+        orderFacade.shutdown();
     }
 
     private static void seedProducts(ComputerService cs, SmartphoneService ss, ElectronicsService es) {

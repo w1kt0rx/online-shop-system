@@ -1,5 +1,6 @@
 package discount.model;
 
+import common.time.ShopClock;
 import lombok.Getter;
 import lombok.ToString;
 
@@ -60,7 +61,7 @@ public class Discount {
      * @return true when the discount may be applied
      */
     public boolean isValid() {
-        ZonedDateTime now = ZonedDateTime.now();
+        ZonedDateTime now = ShopClock.now();
         return active && !now.isBefore(validFrom) && !now.isAfter(validTo);
     }
 
