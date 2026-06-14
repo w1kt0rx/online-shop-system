@@ -23,7 +23,7 @@ class FileOrderRepositoryTest {
 
     @BeforeEach
     void setUp() {
-        new File(TEST_FILE).delete(); // fresh start każdy test
+        new File(TEST_FILE).delete();
         repository = new FileOrderRepository(TEST_FILE);
     }
 
@@ -37,8 +37,6 @@ class FileOrderRepositoryTest {
         CartItem item = new CartItem(product, 1);
         return new Order(id, 1L, List.of(item));
     }
-
-    // ── Runtime cache (bieżąca sesja) ────────────────────────────────
 
     @Test
     void shouldSaveAndFindOrderInCurrentSession() {
@@ -74,7 +72,6 @@ class FileOrderRepositoryTest {
         assertThat(repository.getNextId()).isEqualTo(3L);
     }
 
-    // ── Persystencja do pliku ─────────────────────────────────────────
 
     @Test
     void shouldCreateFileOnFirstSave() {
@@ -88,7 +85,6 @@ class FileOrderRepositoryTest {
         repository.save(makeOrder(1L));
         repository.save(makeOrder(2L));
 
-        // Nowe repo — ładuje snapshoty z pliku
         FileOrderRepository reloaded = new FileOrderRepository(TEST_FILE);
 
         assertThat(reloaded.getPersistedSnapshots()).hasSize(2);
@@ -114,7 +110,6 @@ class FileOrderRepositoryTest {
 
         FileOrderRepository reloaded = new FileOrderRepository(TEST_FILE);
 
-        // Po reloadzie kolejne ID to 3, nie 1
         assertThat(reloaded.getNextId()).isEqualTo(3L);
     }
 
@@ -144,15 +139,12 @@ class FileOrderRepositoryTest {
 
     @Test
     void shouldAccumulateSnapshotsAcrossSessions() {
-        // Sesja 1: zapisz 2 zamówienia
-        repository.save(makeOrder(repository.getNextId())); // id=1
-        repository.save(makeOrder(repository.getNextId())); // id=2
+        repository.save(makeOrder(repository.getNextId()));
+        repository.save(makeOrder(repository.getNextId()));
 
-        // Sesja 2: dodaj jeszcze jedno
         FileOrderRepository session2 = new FileOrderRepository(TEST_FILE);
-        session2.save(makeOrder(session2.getNextId())); // id=3
+        session2.save(makeOrder(session2.getNextId()));
 
-        // Sesja 3: powinny być widoczne wszystkie 3 snapshoty
         FileOrderRepository session3 = new FileOrderRepository(TEST_FILE);
         assertThat(session3.getPersistedSnapshots()).hasSize(3);
     }
@@ -160,8 +152,8 @@ class FileOrderRepositoryTest {
     @Test
     void shouldNotDuplicateSnapshotOnMultipleSaves() {
         Order order = makeOrder(1L);
-        repository.save(order); // zapis 1
-        repository.save(order); // zapis 2 tego samego
+        repository.save(order);
+        repository.save(order);
 
         FileOrderRepository reloaded = new FileOrderRepository(TEST_FILE);
         assertThat(reloaded.getPersistedSnapshots()).hasSize(1);

@@ -1,11 +1,6 @@
 package product.model.smartphone.configuration;
 
 import lombok.Getter;
-import product.model.computer.configuration.GraphicsCard;
-import product.model.computer.configuration.Processor;
-import product.model.computer.configuration.Ram;
-import product.model.computer.configuration.StorageType;
-import product.validator.ComputerConfigurationValidator;
 import product.validator.SmartphoneConfigurationValidator;
 
 import java.math.BigDecimal;

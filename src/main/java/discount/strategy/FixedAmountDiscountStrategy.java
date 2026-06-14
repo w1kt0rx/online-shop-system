@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 
 /**
  * DiscountStrategy that subtracts a fixed monetary amount from a price.
- * If the deduction would result in a negative price, the returned amount is
+ * If the deduction resulted in a negative price, the returned amount is
  * clamped to BigDecimal.ZERO.
  */
 public class FixedAmountDiscountStrategy implements DiscountStrategy {

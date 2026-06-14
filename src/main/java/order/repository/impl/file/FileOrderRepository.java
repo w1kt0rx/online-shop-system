@@ -5,11 +5,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import order.model.Order;
+import order.model.OrderStatus;
 import order.repository.OrderRepository;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -47,7 +49,9 @@ public class FileOrderRepository implements OrderRepository {
         loadFromFile();
     }
 
-    /** Saves the order to the cache and persists all snapshots to disk. */
+    /**
+     * Saves the order to the cache and persists all snapshots to disk.
+     */
     @Override
     public Order save(Order entity) {
         cache.put(entity.getId(), entity);
@@ -55,7 +59,9 @@ public class FileOrderRepository implements OrderRepository {
         return entity;
     }
 
-    /** Removes the order from both the cache and the persisted snapshot list. */
+    /**
+     * Removes the order from both the cache and the persisted snapshot list.
+     */
     @Override
     public void delete(Long id) {
         cache.remove(id);
@@ -68,7 +74,9 @@ public class FileOrderRepository implements OrderRepository {
         return Optional.ofNullable(cache.get(id));
     }
 
-    /** Returns an unmodifiable view of all cached orders. */
+    /**
+     * Returns an unmodifiable view of all cached orders.
+     */
     @Override
     public List<Order> getAll() {
         return List.copyOf(cache.values());
@@ -98,12 +106,18 @@ public class FileOrderRepository implements OrderRepository {
     }
 
     /**
-     * Reads the JSON file and populates #persistedSnapshots and advances the
-     * ID sequence. Silently continues if the file does not exist; logs to System.err
-     * on a parse error.
+     * Reads the JSON file, populates #persistedSnapshots, reconstructs each
+     * snapshot into an Order in the cache (via Order#restore, so they are
+     * immediately visible through findById/getAll), and advances the
+     * ID sequence past the highest persisted id. Silently continues if the file
+     * does not exist; logs to System.err on a parse error.
+     * <p>
+     * Note: reconstructed orders have an empty item list, since cart item details
+     * are not part of the persisted snapshot.
+     * </p>
      */
     private void loadFromFile() {
-        if (!file.exists()) return;
+        if (!file.exists() || file.length() == 0) return;
         try {
             List<OrderSnapshot> loaded = mapper.readValue(
                     file, new TypeReference<List<OrderSnapshot>>() {
@@ -111,6 +125,14 @@ public class FileOrderRepository implements OrderRepository {
             persistedSnapshots.addAll(loaded);
             loaded.forEach(s -> {
                 if (s.id() >= idSequence.get()) idSequence.set(s.id() + 1);
+                cache.put(s.id(), Order.restore(
+                        s.id(),
+                        s.customerId(),
+                        s.totalPrice(),
+                        s.createdAt(),
+                        s.updatedAt(),
+                        s.confirmedAt(),
+                        OrderStatus.valueOf(s.status())));
             });
             System.out.printf("[FileOrderRepository] Loaded %d snapshots from %s%n",
                     loaded.size(), file.getPath());
@@ -122,29 +144,38 @@ public class FileOrderRepository implements OrderRepository {
     /**
      * Merges cache entries with existing persisted snapshots and writes the combined
      * list to disk as pretty-printed JSON. Logs to System.err on write failure.
+     * <p>
+     * Snapshots are upserted by order id: every order currently in the cache gets a
+     * freshly built snapshot reflecting its current state (overwriting any older
+     * snapshot for the same id), while snapshots for orders not present in the cache
+     * (e.g. loaded from a previous session) are preserved as-is.
+     * </p>
      */
     private void persistToFile() {
         try {
-            List<OrderSnapshot> allSnapshots = new ArrayList<>(persistedSnapshots);
+            Map<Long, OrderSnapshot> snapshotsById = new LinkedHashMap<>();
 
-            cache.values().forEach(o -> {
-                boolean alreadyPersisted = allSnapshots.stream()
-                        .anyMatch(s -> s.id().equals(o.getId()));
-                if (!alreadyPersisted) {
-                    allSnapshots.add(new OrderSnapshot(
-                            o.getId(),
-                            o.getCustomerId(),
-                            o.getTotalPrice(),
-                            o.getCreatedAt(),
-                            o.getUpdatedAt(),
-                            o.getConfirmedAt(),
-                            o.getStatus().name()));
-                }
-            });
+            persistedSnapshots.forEach(snapshot -> snapshotsById.put(snapshot.id(), snapshot));
 
-            mapper.writerWithDefaultPrettyPrinter().writeValue(file, allSnapshots);
+            cache.values().forEach(o -> snapshotsById.put(o.getId(), toSnapshot(o)));
+
+            mapper.writerWithDefaultPrettyPrinter().writeValue(file, new ArrayList<>(snapshotsById.values()));
         } catch (IOException e) {
             System.err.println("[FileOrderRepository] Could not persist: " + e.getMessage());
         }
+    }
+
+    /**
+     * Builds an OrderSnapshot reflecting the current state of the given order.
+     */
+    private OrderSnapshot toSnapshot(Order o) {
+        return new OrderSnapshot(
+                o.getId(),
+                o.getCustomerId(),
+                o.getTotalPrice(),
+                o.getCreatedAt(),
+                o.getUpdatedAt(),
+                o.getConfirmedAt(),
+                o.getStatus().name());
     }
 }

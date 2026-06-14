@@ -21,8 +21,10 @@ import java.time.ZonedDateTime;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class ShopClock {
 
-    /** Default store time zone — Europe/Warsaw (UTC+1/UTC+2). */
-    public static ZoneId DEFAULT_ZONE = ZoneId.of("Europe/Warsaw");
+    /**
+     * Default store time zone — Europe/Warsaw (UTC+1/UTC+2).
+     */
+    public static final ZoneId DEFAULT_ZONE = ZoneId.of("Europe/Warsaw");
 
     /**
      * Returns the current time in the store's default time zone (Europe/Warsaw).
@@ -49,7 +51,7 @@ public final class ShopClock {
      * The physical instant remains the same — only its representation changes.
      *
      * @param dateTime the source date and time
-     * @param target the target time zone
+     * @param target   the target time zone
      * @return the same moment represented in a different time zone
      */
     public static ZonedDateTime convertTo(ZonedDateTime dateTime, ZoneId target) {

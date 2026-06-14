@@ -58,7 +58,7 @@ public class ConcurrentOrderProcessor {
         } catch (InterruptedException e) {
             executor.shutdownNow();
             Thread.currentThread().interrupt();
-            throw new OrderProcessingException("Concurrent order processing was interupted", e);
+            throw new OrderProcessingException("Concurrent order processing was interrupted", e);
         }
 
         List<OrderProcessingResult> results = new ArrayList<>();

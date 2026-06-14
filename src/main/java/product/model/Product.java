@@ -3,7 +3,6 @@ package product.model;
 import exception.NotEnoughStockException;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.Setter;
 import product.validator.ProductValidator;
 
 import java.math.BigDecimal;
@@ -17,12 +16,14 @@ import java.math.BigDecimal;
  * </p>
  */
 @Getter
-@EqualsAndHashCode
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public abstract class Product {
+    @EqualsAndHashCode.Include
     protected Long id;
     protected String name;
     protected BigDecimal basePrice;
     protected Integer quantity;
+    @EqualsAndHashCode.Include
     protected ProductType productType;
 
 
@@ -62,7 +63,7 @@ public abstract class Product {
      * @throws IllegalArgumentException  if amount is negative
      * @throws NotEnoughStockException   if amount exceeds current stock
      */
-    public void decreaseQuantity(int amount) {
+    public synchronized void decreaseQuantity(int amount) {
         if (amount < 0) {
             throw new IllegalArgumentException("Amount cannot be negative");
         }
@@ -79,7 +80,7 @@ public abstract class Product {
      * @param amount number of units to add; must be greater than zero
      * @throws IllegalArgumentException if amount is not positive
      */
-    public void increaseQuantity(int amount) {
+    public synchronized void increaseQuantity(int amount) {
         if (amount <= 0) {
             throw new IllegalArgumentException("Amount must be greater than zero");
         } else {

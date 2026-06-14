@@ -6,7 +6,6 @@ import lombok.Getter;
 import lombok.ToString;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.List;
 
@@ -30,7 +29,7 @@ public class Order {
     private OrderStatus status;
 
     /**
-     * Creates a new order in rderStatus#PENDING state.
+     * Creates a new order in OrderStatus#PENDING state.
      * The total price is computed as the sum of all item totals.
      *
      * @param id         unique order identifier
@@ -47,6 +46,48 @@ public class Order {
         this.createdAt = ShopClock.now();
         this.updatedAt = this.createdAt;
         this.status = OrderStatus.PENDING;
+    }
+
+    /**
+     * Full-state constructor used to reconstruct an order from persisted data.
+     * Bypasses total-price calculation and timestamp generation, taking every
+     * field as-is.
+     */
+    private Order(Long id, Long customerId, List<CartItem> items, BigDecimal totalPrice,
+                  ZonedDateTime createdAt, ZonedDateTime updatedAt, ZonedDateTime confirmedAt,
+                  OrderStatus status) {
+        this.id = id;
+        this.customerId = customerId;
+        this.items = List.copyOf(items);
+        this.totalPrice = totalPrice;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+        this.confirmedAt = confirmedAt;
+        this.status = status;
+    }
+
+    /**
+     * Reconstructs an order from a previously persisted snapshot, e.g. when reloading
+     * orders from {@code FileOrderRepository} on application restart.
+     * <p>
+     * The original cart items are not part of the persisted snapshot, so the
+     * reconstructed order's {@link #getItems()} is empty; all other fields
+     * (total price, timestamps, status) reflect the persisted state exactly.
+     * </p>
+     *
+     * @param id          the persisted order id
+     * @param customerId  the persisted customer id
+     * @param totalPrice  the persisted order total
+     * @param createdAt   the persisted creation timestamp
+     * @param updatedAt   the persisted last-update timestamp
+     * @param confirmedAt the persisted confirmation timestamp; may be null
+     * @param status      the persisted order status
+     * @return a reconstructed Order with an empty item list
+     */
+    public static Order restore(Long id, Long customerId, BigDecimal totalPrice,
+                                ZonedDateTime createdAt, ZonedDateTime updatedAt,
+                                ZonedDateTime confirmedAt, OrderStatus status) {
+        return new Order(id, customerId, List.of(), totalPrice, createdAt, updatedAt, confirmedAt, status);
     }
 
     /**

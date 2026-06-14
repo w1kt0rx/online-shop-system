@@ -4,6 +4,8 @@ import cart.dto.CartDto;
 import customer.model.Customer;
 import customer.repository.CustomerRepository;
 import exception.CustomerNotFoundException;
+import exception.InsufficientStockException;
+import exception.InvalidProductException;
 import exception.ProductNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -160,7 +162,7 @@ class CartServiceTest {
         when(customerRepository.findById(1L)).thenReturn(Optional.of(customer));
         when(computerRepository.findById(1L)).thenReturn(Optional.of(computer));
 
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(InsufficientStockException.class,
                 () -> cartService.addProduct(1L, 1L, ProductType.COMPUTER, 999));
     }
 

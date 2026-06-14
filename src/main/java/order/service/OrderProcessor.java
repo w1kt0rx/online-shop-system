@@ -1,6 +1,7 @@
 package order.service;
 
 import cart.mapper.CartMapper;
+import cart.model.CartItem;
 import customer.model.Customer;
 import customer.repository.CustomerRepository;
 import discount.service.DiscountService;
@@ -15,6 +16,7 @@ import order.validator.OrderValidator;
 import invoice.dto.InvoiceDto;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -58,9 +60,9 @@ public class OrderProcessor {
      * <p>
      * Execution steps:
      * Load and validate the customer
-     * Validate cart (non-empty) and stock levels
-     * Persist the order and confirm it
-     * Decrement product stock for each ordered item
+     * Validate cart (non-empty)
+     * Atomically reserve stock for each ordered item (rolled back on failure)
+     * Confirm and persist the order
      * Clear the customer's cart
      * Apply discount code if provided (failures are logged, not propagated)
      * Create and persist the invoice
@@ -81,7 +83,6 @@ public class OrderProcessor {
                             "Customer with id " + customerId + " not found"));
 
             OrderValidator.validateCart(customer.getCart());
-            validateStock(customer);
 
             Order order = new Order(
                     orderRepository.getNextId(),
@@ -89,12 +90,10 @@ public class OrderProcessor {
                     customer.getCart().getCartItems()
             );
 
-            order.getItems().forEach(item ->
-                    item.getProduct().decreaseQuantity(item.getQuantity())
-            );
+            reserveStock(order.getItems());
 
-            orderRepository.save(order);
             order.confirm();
+            orderRepository.save(order);
 
             customer.getCart().clear();
 
@@ -166,19 +165,34 @@ public class OrderProcessor {
     }
 
     /**
-     * Validates that every cart item has sufficient stock available.
+     * Atomically reserves stock for every cart item by decrementing the product
+     * quantities one by one.
+     * <p>
+     * Each decrement is performed via Product#decreaseQuantity, which is
+     * synchronized on the product instance, eliminating the check-then-act race
+     * window that existed when stock was validated separately from the decrement.
+     * If any item cannot be reserved (insufficient stock), all previously reserved
+     * items in this order are rolled back via Product#increaseQuantity before
+     * an InsufficientStockException is thrown.
+     * </p>
      *
      * @throws InsufficientStockException if any item's requested quantity exceeds available stock
      */
-    private void validateStock(Customer customer) {
-        customer.getCart().getCartItems().forEach(item -> {
-            if (item.getQuantity() > item.getProduct().getQuantity()) {
+    private void reserveStock(List<CartItem> items) {
+        List<CartItem> reserved = new ArrayList<>();
+        for (CartItem item : items) {
+            var product = item.getProduct();
+            try {
+                product.decreaseQuantity(item.getQuantity());
+            } catch (NotEnoughStockException e) {
+                reserved.forEach(r -> r.getProduct().increaseQuantity(r.getQuantity()));
                 throw new InsufficientStockException(
-                        "Not enough stock for product: " + item.getProduct().getName()
-                                + ". Available: " + item.getProduct().getQuantity()
+                        "Not enough stock for product: " + product.getName()
+                                + ". Available: " + product.getQuantity()
                                 + ", requested: " + item.getQuantity()
                 );
             }
-        });
+            reserved.add(item);
+        }
     }
 }

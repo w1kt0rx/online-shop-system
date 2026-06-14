@@ -1,8 +1,8 @@
 package exception.handler;
 
+import common.time.ShopClock;
 import exception.ShopException;
 
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 /**
@@ -38,7 +38,7 @@ public class GlobalExceptionHandler {
      */
     public String handleUnexpected(Exception ex) {
         logUnexpected(ex);
-        return formatMessage("UNEXPECTED_ERROR", "An unexpected error occured. Please try again");
+        return formatMessage("UNEXPECTED_ERROR", "An unexpected error occurred. Please try again");
     }
 
     /**
@@ -62,14 +62,14 @@ public class GlobalExceptionHandler {
 
     private void log(ShopException ex) {
         System.err.printf("[%s] ERROR [%s]: %s%n",
-                LocalDateTime.now().format(FMT),
+                ShopClock.now().format(FMT),
                 ex.getErrorCode(),
                 ex.getMessage());
     }
 
     private void logUnexpected(Exception ex) {
         System.err.printf("[%s] UNEXPECTED ERROR: %s%n",
-                LocalDateTime.now().format(FMT),
+                ShopClock.now().format(FMT),
                 ex.getMessage());
         ex.printStackTrace(System.err);
     }

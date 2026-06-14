@@ -156,4 +156,21 @@ public class DiscountService {
                 .filter(Discount::isValid)
                 .map(discount -> DiscountFactoryStrategy.create(discount).describe());
     }
+
+    /**
+     * Previews the total after applying a discount code without committing any order.
+     * If the code is invalid, expired/inactive, or does not meet the minimum order
+     * requirements, the original total is returned unchanged.
+     *
+     * @param code  discount code to preview
+     * @param total the hypothetical order total
+     * @return the discounted total, or total if the code cannot be applied
+     */
+    public BigDecimal previewDiscountedTotal(String code, BigDecimal total) {
+        try {
+            return applyDiscount(code, total);
+        } catch (DiscountNotFoundException | InvalidProductException e) {
+            return total;
+        }
+    }
 }
