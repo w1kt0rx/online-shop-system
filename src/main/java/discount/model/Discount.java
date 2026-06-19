@@ -1,6 +1,6 @@
 package discount.model;
 
-import common.time.ShopClock;
+import common.time.TimeUtils;
 import lombok.Getter;
 import lombok.ToString;
 
@@ -61,7 +61,7 @@ public class Discount {
      * @return true when the discount may be applied
      */
     public boolean isValid() {
-        ZonedDateTime now = ShopClock.now();
+        ZonedDateTime now = TimeUtils.now();
         return active && !now.isBefore(validFrom) && !now.isAfter(validTo);
     }
 
@@ -69,7 +69,7 @@ public class Discount {
      * Permanently deactivates this discount.
      * Once deactivated, isValid() will return false regardless of dates.
      */
-    public void deActivate() {
+    public void deactivate() {
         active = false;
     }
 }

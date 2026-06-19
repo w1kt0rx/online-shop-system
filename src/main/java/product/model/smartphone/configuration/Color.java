@@ -1,10 +1,13 @@
 package product.model.smartphone.configuration;
 
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 import java.math.BigDecimal;
 
 @Getter
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public enum Color {
     BLACK("Black", BigDecimal.ZERO),
     WHITE("White", new BigDecimal("50")),
@@ -14,9 +17,4 @@ public enum Color {
 
     private final String description;
     private final BigDecimal price;
-
-    Color(String description, BigDecimal price) {
-        this.description = description;
-        this.price = price;
-    }
 }

@@ -1,6 +1,6 @@
 package exception.handler;
 
-import common.time.ShopClock;
+import common.time.TimeUtils;
 import exception.ShopException;
 
 import java.time.format.DateTimeFormatter;
@@ -62,14 +62,14 @@ public class GlobalExceptionHandler {
 
     private void log(ShopException ex) {
         System.err.printf("[%s] ERROR [%s]: %s%n",
-                ShopClock.now().format(FMT),
+                TimeUtils.now().format(FMT),
                 ex.getErrorCode(),
                 ex.getMessage());
     }
 
     private void logUnexpected(Exception ex) {
         System.err.printf("[%s] UNEXPECTED ERROR: %s%n",
-                ShopClock.now().format(FMT),
+                TimeUtils.now().format(FMT),
                 ex.getMessage());
         ex.printStackTrace(System.err);
     }

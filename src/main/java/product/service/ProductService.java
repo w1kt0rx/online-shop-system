@@ -1,4 +1,4 @@
-package product.facade;
+package product.service;
 
 import lombok.RequiredArgsConstructor;
 import product.dto.computer.ComputerDto;
@@ -10,9 +10,6 @@ import product.dto.electronics.UpdateElectronicsRequest;
 import product.dto.smartphone.CreateSmartphoneRequest;
 import product.dto.smartphone.SmartphoneDto;
 import product.dto.smartphone.UpdateSmartphoneRequest;
-import product.service.ComputerService;
-import product.service.ElectronicsService;
-import product.service.SmartphoneService;
 
 import java.util.List;
 
@@ -27,7 +24,7 @@ import java.util.List;
  * </p>
  */
 @RequiredArgsConstructor
-public class ProductFacade {
+public class ProductService {
 
     private final ComputerService computerService;
     private final SmartphoneService smartphoneService;

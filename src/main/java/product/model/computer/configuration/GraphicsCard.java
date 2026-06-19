@@ -1,10 +1,13 @@
 package product.model.computer.configuration;
 
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 import java.math.BigDecimal;
 
 @Getter
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public enum GraphicsCard {
     INTEGRATED("Integrated", BigDecimal.ZERO),
     GTX_1650("GTX 1650", new BigDecimal("600")),
@@ -14,8 +17,4 @@ public enum GraphicsCard {
     private final String description;
     private final BigDecimal price;
 
-    GraphicsCard(String description, BigDecimal price) {
-        this.description = description;
-        this.price = price;
-    }
 }

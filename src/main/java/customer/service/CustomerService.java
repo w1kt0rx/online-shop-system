@@ -26,9 +26,7 @@ public class CustomerService {
 
     public CustomerDto getCustomerById(Long id) {
         Customer customer = customerRepository.findById(id)
-                .orElseThrow(() -> new CustomerNotFoundException(
-                        "Customer with id " + id + " not found"
-                ));
+                .orElseThrow(() -> new CustomerNotFoundException(id));
         return CustomerMapper.toDto(customer);
     }
 
@@ -40,18 +38,14 @@ public class CustomerService {
 
     public CustomerDto updateCustomer(Long id, UpdateCustomerRequest request) {
         Customer customer = customerRepository.findById(id)
-                .orElseThrow(() -> new CustomerNotFoundException(
-                        "Customer with id " + id + " not found"
-                ));
+                .orElseThrow(() -> new CustomerNotFoundException(id));
         customer.updateName(request.name());
         return CustomerMapper.toDto(customerRepository.save(customer));
     }
 
     public void deleteCustomer(Long id) {
         customerRepository.findById(id)
-                .orElseThrow(() -> new CustomerNotFoundException(
-                        "Customer with id " + id + " not found"
-                ));
+                .orElseThrow(() -> new CustomerNotFoundException(id));
         customerRepository.delete(id);
     }
 }

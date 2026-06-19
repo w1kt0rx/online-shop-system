@@ -79,12 +79,11 @@ public class OrderProcessor {
     public InvoiceDto processOrder(Long customerId, String discountCode) {
         try {
             Customer customer = customerRepository.findById(customerId)
-                    .orElseThrow(() -> new CustomerNotFoundException(
-                            "Customer with id " + customerId + " not found"));
+                    .orElseThrow(() -> new CustomerNotFoundException(customerId));
 
             OrderValidator.validateCart(customer.getCart());
 
-            Order order = new Order(
+            Order order = Order.of(
                     orderRepository.getNextId(),
                     customerId,
                     customer.getCart().getCartItems()
@@ -130,8 +129,7 @@ public class OrderProcessor {
                 .filter(inv -> inv.getOrderId().equals(orderId))
                 .findFirst()
                 .map(InvoiceMapper::toDto)
-                .orElseThrow(() -> new OrderNotFoundException(
-                        "Invoice for order " + orderId + " not found"));
+                .orElseThrow(() -> new OrderNotFoundException(orderId));
     }
 
     /**

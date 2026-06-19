@@ -30,7 +30,7 @@ import product.dto.electronics.CreateElectronicsRequest;
 import product.dto.electronics.ElectronicsDto;
 import product.dto.smartphone.CreateSmartphoneRequest;
 import product.dto.smartphone.SmartphoneDto;
-import product.facade.ProductFacade;
+import product.service.ProductService;
 import product.model.ProductType;
 import product.model.computer.configuration.GraphicsCard;
 import product.model.computer.configuration.Processor;
@@ -72,7 +72,7 @@ class ShopIntegrationTest {
     private OrderProcessor orderProcessor;
     private ConcurrentOrderProcessor concurrentOrderProcessor;
     private AsyncOrderProcessor asyncOrderProcessor;
-    private ProductFacade productFacade;
+    private ProductService productFacade;
     private OrderFacade orderFacade;
 
     @BeforeEach
@@ -105,7 +105,7 @@ class ShopIntegrationTest {
 
         asyncOrderProcessor = new AsyncOrderProcessor(orderProcessor, 4);
 
-        productFacade = new ProductFacade(computerService, smartphoneService, electronicsService);
+        productFacade = new ProductService(computerService, smartphoneService, electronicsService);
         orderFacade = new OrderFacade(concurrentOrderProcessor, asyncOrderProcessor);
     }
 
@@ -287,7 +287,7 @@ class ShopIntegrationTest {
                 BigDecimal.ZERO, ZonedDateTime.now().minusDays(1), ZonedDateTime.now().plusDays(10)
         ));
 
-        discountService.deActivate(toDeactivate.id());
+        discountService.deactivate(toDeactivate.id());
 
         assertThat(discountService.getAllActive())
                 .extracting(DiscountDto::code)
@@ -367,7 +367,7 @@ class ShopIntegrationTest {
         cartService.addProduct(customer.id(), router.id(), ProductType.ELECTRONICS, 2);
         InvoiceDto invoice = orderProcessor.processOrder(customer.id(), "PROMO15");
 
-        // 2 × 500 = 1000, substracting 15% = 850
+        // 2 × 500 = 1000, subtracting 15% = 850
         assertThat(invoice.totalAmount()).isEqualByComparingTo(new BigDecimal("850.00"));
     }
 
@@ -379,7 +379,7 @@ class ShopIntegrationTest {
         );
 
         cartService.addProduct(customer.id(), keyboard.id(), ProductType.ELECTRONICS, 1);
-        InvoiceDto invoice = orderProcessor.processOrder(customer.id(), "NIEISTNIEJE");
+        InvoiceDto invoice = orderProcessor.processOrder(customer.id(), "NonExisting");
 
         assertThat(invoice).isNotNull();
         assertThat(invoice.totalAmount()).isEqualByComparingTo(new BigDecimal("400"));

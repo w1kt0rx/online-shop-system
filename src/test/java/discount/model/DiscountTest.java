@@ -3,7 +3,6 @@ package discount.model;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -30,7 +29,7 @@ class DiscountTest {
                 ZonedDateTime.now().minusDays(1),
                 ZonedDateTime.now().plusDays(1)
         );
-        discount.deActivate();
+        discount.deactivate();
         assertThat(discount.isValid()).isFalse();
     }
 
@@ -67,7 +66,7 @@ class DiscountTest {
                 ZonedDateTime.now().minusDays(1),
                 ZonedDateTime.now().plusDays(1)
         );
-        discount.deActivate();
+        discount.deactivate();
         assertThat(discount.isActive()).isFalse();
     }
 
@@ -77,7 +76,7 @@ class DiscountTest {
                 ZonedDateTime.now().minusHours(1),
                 ZonedDateTime.now().plusHours(1)
         );
-        discount.deActivate();
+        discount.deactivate();
         assertThat(discount.isValid()).isFalse();
     }
 }

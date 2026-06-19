@@ -120,7 +120,7 @@ public class FileOrderRepository implements OrderRepository {
         if (!file.exists() || file.length() == 0) return;
         try {
             List<OrderSnapshot> loaded = mapper.readValue(
-                    file, new TypeReference<List<OrderSnapshot>>() {
+                    file, new TypeReference<>() {
                     });
             persistedSnapshots.addAll(loaded);
             loaded.forEach(s -> {
@@ -134,10 +134,10 @@ public class FileOrderRepository implements OrderRepository {
                         s.confirmedAt(),
                         OrderStatus.valueOf(s.status())));
             });
-            System.out.printf("[FileOrderRepository] Loaded %d snapshots from %s%n",
+            System.out.printf("Loaded %d snapshots from %s%n",
                     loaded.size(), file.getPath());
         } catch (IOException e) {
-            System.err.println("[FileOrderRepository] Could not load: " + e.getMessage());
+            System.err.println("Could not load: " + e.getMessage());
         }
     }
 
@@ -157,7 +157,7 @@ public class FileOrderRepository implements OrderRepository {
 
             persistedSnapshots.forEach(snapshot -> snapshotsById.put(snapshot.id(), snapshot));
 
-            cache.values().forEach(o -> snapshotsById.put(o.getId(), toSnapshot(o)));
+            cache.values().forEach(order -> snapshotsById.put(order.getId(), toSnapshot(order)));
 
             mapper.writerWithDefaultPrettyPrinter().writeValue(file, new ArrayList<>(snapshotsById.values()));
         } catch (IOException e) {

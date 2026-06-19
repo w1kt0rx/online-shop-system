@@ -54,8 +54,7 @@ public class AsyncOrderProcessor {
      */
     public CompletableFuture<InvoiceDto> processOrderAsync(Long customerId, String discountCode) {
         return CompletableFuture
-                .supplyAsync(() -> orderProcessor.processOrder(customerId, discountCode), executor)
-                ;
+                .supplyAsync(() -> orderProcessor.processOrder(customerId, discountCode), executor);
     }
 
     /**

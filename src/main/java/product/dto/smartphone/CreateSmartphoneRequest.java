@@ -14,4 +14,12 @@ public record CreateSmartphoneRequest(String name,
                                       Set<Accessory> accessory,
                                       BatteryCapacity batteryCapacity,
                                       Color color) {
+    public static CreateSmartphoneRequest of(String name,
+                                             BigDecimal basePrice,
+                                             Integer quantity,
+                                             Set<Accessory> accessory,
+                                             BatteryCapacity batteryCapacity,
+                                             Color color) {
+        return new CreateSmartphoneRequest(name, basePrice, quantity, accessory, batteryCapacity, color);
+    }
 }

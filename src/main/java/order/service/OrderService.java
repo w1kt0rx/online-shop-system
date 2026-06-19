@@ -19,9 +19,7 @@ public class OrderService {
 
     public OrderDto getOrderById(Long id) {
         Order order = orderRepository.findById(id)
-                .orElseThrow(() -> new OrderNotFoundException(
-                        "Order with id " + id + " not found"
-                ));
+                .orElseThrow(() -> new OrderNotFoundException(id));
         return OrderMapper.toDto(order);
     }
 
@@ -33,9 +31,7 @@ public class OrderService {
 
     public List<OrderDto> getOrdersByCustomer(Long customerId) {
         customerRepository.findById(customerId)
-                .orElseThrow(() -> new CustomerNotFoundException(
-                        "Customer with id " + customerId + " not found"
-                ));
+                .orElseThrow(() -> new CustomerNotFoundException(customerId));
         return orderRepository.getAll().stream()
                 .filter(order -> order.getCustomerId().equals(customerId))
                 .map(OrderMapper::toDto)
@@ -44,9 +40,7 @@ public class OrderService {
 
     public OrderDto cancelOrder(Long orderId) {
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new OrderNotFoundException(
-                        "Order with id " + orderId + " not found"
-                ));
+                .orElseThrow(() -> new OrderNotFoundException(orderId));
         order.cancel();
         return OrderMapper.toDto(orderRepository.save(order));
     }
