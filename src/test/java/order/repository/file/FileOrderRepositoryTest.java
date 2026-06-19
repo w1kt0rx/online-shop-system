@@ -35,7 +35,7 @@ class FileOrderRepositoryTest {
     private Order makeOrder(Long id) {
         Electronics product = new Electronics(1L, "Monitor", new BigDecimal("800"), 10);
         CartItem item = new CartItem(product, 1);
-        return new Order(id, 1L, List.of(item));
+        return Order.of(id, 1L, List.of(item));
     }
 
     @Test

@@ -44,15 +44,15 @@ class OrderServiceTest {
     void setup() {
         product = new Electronics(1L, "Monitor", new BigDecimal("800"), 10);
 
-        customerWithItems = new Customer(1L, "Jan Kowalski");
+        customerWithItems =new Customer(1L, "Anna", "fdfdsfsfds@gmail.com", "Password");
         customerWithItems.getCart().addProduct(product, 2);
 
-        emptyCustomer = new Customer(2L, "Anna Nowak");
+        emptyCustomer = new Customer(2L, "Anna", "fdfdsfsfds@gmail.com", "Password");
     }
 
     @Test
     void shouldGetOrderById() {
-        Order order = new Order(1L, 1L, customerWithItems.getCart().getCartItems());
+        Order order = Order.of(1L, 1L, customerWithItems.getCart().getCartItems());
         when(orderRepository.findById(1L)).thenReturn(Optional.of(order));
 
         OrderDto result = orderService.getOrderById(1L);
@@ -71,8 +71,8 @@ class OrderServiceTest {
 
     @Test
     void shouldGetAllOrders() {
-        Order order1 = new Order(1L, 1L, customerWithItems.getCart().getCartItems());
-        Order order2 = new Order(2L, 1L, customerWithItems.getCart().getCartItems());
+        Order order1 = Order.of(1L, 1L, customerWithItems.getCart().getCartItems());
+        Order order2 = Order.of(2L, 1L, customerWithItems.getCart().getCartItems());
         when(orderRepository.getAll()).thenReturn(List.of(order1, order2));
 
         List<OrderDto> result = orderService.getAllOrders();
@@ -82,8 +82,8 @@ class OrderServiceTest {
 
     @Test
     void shouldGetOrdersByCustomer() {
-        Order order1 = new Order(1L, 1L, customerWithItems.getCart().getCartItems());
-        Order order2 = new Order(2L, 2L, customerWithItems.getCart().getCartItems());
+        Order order1 = Order.of(1L, 1L, customerWithItems.getCart().getCartItems());
+        Order order2 = Order.of(2L, 2L, customerWithItems.getCart().getCartItems());
         when(customerRepository.findById(1L)).thenReturn(Optional.of(customerWithItems));
         when(orderRepository.getAll()).thenReturn(List.of(order1, order2));
 
@@ -95,7 +95,7 @@ class OrderServiceTest {
 
     @Test
     void shouldCancelOrder() {
-        Order order = new Order(1L, 1L, customerWithItems.getCart().getCartItems());
+        Order order = Order.of(1L, 1L, customerWithItems.getCart().getCartItems());
         when(orderRepository.findById(1L)).thenReturn(Optional.of(order));
         when(orderRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 

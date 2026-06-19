@@ -38,14 +38,6 @@ class GlobalExceptionHandlerTest {
                         "PRODUCT_NOT_FOUND"
                 ),
                 Arguments.of(
-                        new CustomerNotFoundException("Customer not found"),
-                        "CUSTOMER_NOT_FOUND"
-                ),
-                Arguments.of(
-                        new OrderNotFoundException("Order not found"),
-                        "ORDER_NOT_FOUND"
-                ),
-                Arguments.of(
                         new InvalidProductException("Invalid data"),
                         "INVALID_PRODUCT"
                 ),

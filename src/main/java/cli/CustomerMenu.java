@@ -2,6 +2,7 @@ package cli;
 
 import customer.dto.CreateCustomerRequest;
 import customer.dto.CustomerDto;
+import customer.dto.LoginRequest;
 import customer.service.CustomerService;
 import exception.handler.GlobalExceptionHandler;
 
@@ -18,37 +19,54 @@ public class CustomerMenu extends BaseMenu {
 
     public void loginOrRegister() {
         print("\n" + LINE);
-        print("  1. Login (enter customer ID)");
+        print("  1. Login (email + password)");
         print("  2. Sign up as new customer");
         print(LINE);
 
         int choice = readInt();
         if (choice == 1) {
-            print("Enter customer ID: ");
-            long id = readLong();
-
-            try {
-                CustomerDto customer = customerService.getCustomerById(id);
-                session.setCurrentCustomerId(customer.id());
-                print("Logged in as: " + customer.name());
-
-            } catch (Exception e) {
-                print(exHandler.handleAny(e));
-                print("Signing you up instead...");
-                registerCustomer();
-            }
+            login();
         } else {
             registerCustomer();
         }
     }
 
-    private void registerCustomer() {
-        print("Enter your name: ");
-        String name = scanner.nextLine().trim();
+    private void login() {
+        print("Email: ");
+        String email = scanner.nextLine().trim();
+        print("Password: ");
+        String password = scanner.nextLine();
+
         try {
-            CustomerDto customer = customerService.createCustomer(new CreateCustomerRequest(name));
+            CustomerDto customer = customerService.login(new LoginRequest(email, password));
             session.setCurrentCustomerId(customer.id());
-            print("Registered! Your ID: " + customer.id() + " (save this to log in later)");
+            print("Logged in as: " + customer.name());
+        } catch (Exception e) {
+            print(exHandler.handleAny(e));
+            print("\nNot registered yet?");
+            print("  1. Try again");
+            print("  2. Sign up instead");
+            if (readInt() == 2) {
+                registerCustomer();
+            } else {
+                login();
+            }
+        }
+    }
+
+    private void registerCustomer() {
+        print("Name: ");
+        String name = scanner.nextLine().trim();
+        print("Email: ");
+        String email = scanner.nextLine().trim();
+        print("Password (min. 8 characters): ");
+        String password = scanner.nextLine();
+
+        try {
+            CustomerDto customer = customerService.createCustomer(
+                    new CreateCustomerRequest(name, email, password));
+            session.setCurrentCustomerId(customer.id());
+            print("Registered! Welcome, " + customer.name() + ".");
         } catch (Exception e) {
             print(exHandler.handleAny(e));
         }

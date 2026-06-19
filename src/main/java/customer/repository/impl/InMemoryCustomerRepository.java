@@ -3,7 +3,6 @@ package customer.repository.impl;
 import customer.repository.CustomerRepository;
 import customer.model.Customer;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -38,5 +37,16 @@ public class InMemoryCustomerRepository implements CustomerRepository {
     @Override
     public Long getNextId() {
         return sequenceId.getAndIncrement();
+    }
+
+    @Override
+    public Optional<Customer> findByEmail(String email) {
+        if (email == null) {
+            return Optional.empty();
+        }
+        String normalized = email.trim().toLowerCase();
+        return database.values().stream()
+                .filter(c -> c.getEmail().equals(normalized))
+                .findFirst();
     }
 }
