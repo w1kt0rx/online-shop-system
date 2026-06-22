@@ -11,6 +11,7 @@ import discount.service.DiscountService;
 import exception.handler.GlobalExceptionHandler;
 import invoice.repository.impl.InMemoryInvoiceRepository;
 
+import invoice.service.InvoiceService;
 import order.repository.OrderRepository;
 import order.repository.impl.file.FileOrderRepository;
 import order.facade.OrderFacade;
@@ -50,13 +51,14 @@ public class ShopApplication {
         var computerService = new ComputerService(computerRepo);
         var smartphoneService = new SmartphoneService(smartphoneRepo);
         var electronicsService = new ElectronicsService(electronicsRepo);
+        var invoiceService = new InvoiceService(invoiceRepo);
 
         var cartService = new CartService(customerRepo, computerRepo, smartphoneRepo, electronicsRepo);
         var customerService = new CustomerService(customerRepo);
         var orderService = new OrderService(orderRepo, customerRepo);
         var discountService = new DiscountService(discountRepo);
 
-        var orderProcessor = new OrderProcessor(orderRepo, customerRepo, invoiceRepo, discountService);
+        var orderProcessor = new OrderProcessor(orderRepo, customerRepo, discountService, invoiceService);
         var concurrentProcessor = new ConcurrentOrderProcessor(orderProcessor, 4);
 
         var asyncProcessor = new AsyncOrderProcessor(orderProcessor, 4);

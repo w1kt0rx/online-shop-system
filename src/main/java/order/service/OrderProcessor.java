@@ -5,77 +5,41 @@ import cart.model.CartItem;
 import customer.model.Customer;
 import customer.repository.CustomerRepository;
 import discount.service.DiscountService;
-import exception.*;
-import invoice.mapper.InvoiceMapper;
-import invoice.model.Invoice;
-import invoice.repository.InvoiceRepository;
+import discount.util.DiscountMessageFormatter;
+import exception.CustomerNotFoundException;
+import exception.EmptyCartException;
+import exception.InsufficientStockException;
+import exception.NotEnoughStockException;
+import exception.OrderProcessingException;
+import invoice.dto.InvoiceDto;
+import invoice.service.InvoiceService;
 import lombok.RequiredArgsConstructor;
 import order.model.Order;
 import order.repository.OrderRepository;
 import order.validator.OrderValidator;
-import invoice.dto.InvoiceDto;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Orchestrates the full order-to-invoice pipeline.
- * <p>
- * Responsibilities include: validating the customer and their cart, checking stock
- * availability, persisting the order, decrementing product stock, optionally applying
- * a discount code, and generating a final InvoiceDto.
- * </p>
- * <p>
- * This class delegates discount logic to DiscountService and follows a
- * fail-fast approach — domain exceptions are re-thrown as-is while unexpected
- * failures are wrapped in OrderProcessingException.
- * </p>
+ * Orchestrates the full order placement pipeline:
+ * validates the customer and cart, reserves stock, creates and confirms
+ * the order, clears the cart, applies an optional discount, and delegates
+ * invoice creation to InvoiceService.
  */
 @RequiredArgsConstructor
 public class OrderProcessor {
 
     private final OrderRepository orderRepository;
     private final CustomerRepository customerRepository;
-    private final InvoiceRepository invoiceRepository;
     private final DiscountService discountService;
+    private final InvoiceService invoiceService;
 
-    /**
-     * Processes an order for the given customer without a discount.
-     * Equivalent to calling processOrder(Long, String) with null.
-     *
-     * @param customerId identifier of the customer placing the order
-     * @return the generated invoice DTO
-     * @throws CustomerNotFoundException  if no customer exists with that id
-     * @throws EmptyCartException         if the customer's cart is empty
-     * @throws InsufficientStockException if any item exceeds available stock
-     * @throws OrderProcessingException   if an unexpected error occurs
-     */
     public InvoiceDto processOrder(Long customerId) {
         return processOrder(customerId, null);
     }
 
-    /**
-     * Processes an order for the given customer, applying an optional discount code.
-     * <p>
-     * Execution steps:
-     * Load and validate the customer
-     * Validate cart (non-empty)
-     * Atomically reserve stock for each ordered item (rolled back on failure)
-     * Confirm and persist the order
-     * Clear the customer's cart
-     * Apply discount code if provided (failures are logged, not propagated)
-     * Create and persist the invoice
-     * </p>
-     *
-     * @param customerId   identifier of the customer placing the order
-     * @param discountCode optional discount code; null or blank skips discounting
-     * @return the generated invoice DTO
-     * @throws CustomerNotFoundException  if no customer exists with that id
-     * @throws EmptyCartException         if the customer's cart is empty
-     * @throws InsufficientStockException if any item exceeds available stock
-     * @throws OrderProcessingException   if an unexpected error occurs during processing
-     */
     public InvoiceDto processOrder(Long customerId, String discountCode) {
         try {
             Customer customer = customerRepository.findById(customerId)
@@ -98,16 +62,16 @@ public class OrderProcessor {
 
             BigDecimal finalAmount = resolveTotal(order.getTotalPrice(), discountCode);
 
-            Invoice invoice = new Invoice(
-                    invoiceRepository.getNextId(),
+            return invoiceService.createInvoice(
                     order.getId(),
                     customer.getId(),
                     customer.getName(),
-                    order.getItems().stream().map(CartMapper::toItemDto).toList(),
+                    order.getItems().stream()
+                            .map(CartMapper::toItemDto)
+                            .toList(),
                     finalAmount
             );
 
-            return InvoiceMapper.toDto(invoiceRepository.save(invoice));
         } catch (CustomerNotFoundException | EmptyCartException | InsufficientStockException e) {
             throw e;
         } catch (Exception e) {
@@ -117,67 +81,26 @@ public class OrderProcessor {
         }
     }
 
-    /**
-     * Retrieves the invoice associated with a given order.
-     *
-     * @param orderId the order identifier
-     * @return the invoice DTO
-     * @throws OrderNotFoundException if no invoice exists for that order id
-     */
-    public InvoiceDto getInvoiceByOrderId(Long orderId) {
-        return invoiceRepository.getAll().stream()
-                .filter(inv -> inv.getOrderId().equals(orderId))
-                .findFirst()
-                .map(InvoiceMapper::toDto)
-                .orElseThrow(() -> new OrderNotFoundException(orderId));
-    }
-
-    /**
-     * Returns all invoices stored in the system.
-     *
-     * @return list of all invoice DTOs; empty list if none exist
-     */
-    public List<InvoiceDto> getAllInvoices() {
-        return invoiceRepository.getAll().stream()
-                .map(InvoiceMapper::toDto)
-                .toList();
-    }
-
-    /**
-     * Resolves the final order total, applying a discount if a valid code is provided.
-     * If the code is blank or discount application fails, the original total is returned.
-     */
     private BigDecimal resolveTotal(BigDecimal originalTotal, String discountCode) {
         if (discountCode == null || discountCode.isBlank()) {
             return originalTotal;
         }
-        try {
-            BigDecimal discounted = discountService.applyDiscount(discountCode, originalTotal);
-            System.out.printf("[Discount] Applied '%s': %.2f zł → %.2f zł%n",
-                    discountCode, originalTotal.doubleValue(), discounted.doubleValue());
-            return discounted;
-        } catch (Exception e) {
-            System.err.println("[Discount] Code '" + discountCode + "' could not be applied: " + e.getMessage());
-            return originalTotal;
-        }
+
+        BigDecimal discounted = discountService.applyDiscount(discountCode, originalTotal);
+
+        System.out.println(
+                DiscountMessageFormatter.applied(
+                        discountCode,
+                        originalTotal,
+                        discounted
+                )
+        );
+        return discounted;
     }
 
-    /**
-     * Atomically reserves stock for every cart item by decrementing the product
-     * quantities one by one.
-     * <p>
-     * Each decrement is performed via Product#decreaseQuantity, which is
-     * synchronized on the product instance, eliminating the check-then-act race
-     * window that existed when stock was validated separately from the decrement.
-     * If any item cannot be reserved (insufficient stock), all previously reserved
-     * items in this order are rolled back via Product#increaseQuantity before
-     * an InsufficientStockException is thrown.
-     * </p>
-     *
-     * @throws InsufficientStockException if any item's requested quantity exceeds available stock
-     */
     private void reserveStock(List<CartItem> items) {
         List<CartItem> reserved = new ArrayList<>();
+
         for (CartItem item : items) {
             var product = item.getProduct();
             try {
