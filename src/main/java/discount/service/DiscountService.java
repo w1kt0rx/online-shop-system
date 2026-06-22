@@ -101,12 +101,12 @@ public class DiscountService {
      * @param id identifier of the discount to deactivate
      * @throws DiscountNotFoundException if no discount with that id exists
      */
-    public void deActivate(Long id) {
+    public void deactivate(Long id) {
         Discount discount = discountRepository.findById(id)
                 .orElseThrow(() -> new DiscountNotFoundException(
                         "Discount with id " + id + " not found"
                 ));
-        discount.deActivate();
+        discount.deactivate();
         discountRepository.save(discount);
     }
 

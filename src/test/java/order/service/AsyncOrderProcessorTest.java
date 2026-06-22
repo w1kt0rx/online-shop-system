@@ -55,7 +55,7 @@ class AsyncOrderProcessorTest {
 
     private Customer customerWithProduct(Long id, String name, int stock) {
         Electronics product = new Electronics(id, "Monitor " + id, new BigDecimal("800"), stock);
-        Customer customer = new Customer(id, name);
+        Customer customer = new Customer(id, name, "user" + id + "@example.com", "Password123");
         customer.getCart().addProduct(product, 1);
         return customer;
     }
@@ -78,7 +78,7 @@ class AsyncOrderProcessorTest {
 
     @Test
     void shouldCompleteExceptionallyForEmptyCart() {
-        Customer empty = new Customer(2L, "Anna");
+        Customer empty = new Customer(2L, "Anna", "fdfdsfsfds@gmail.com", "Password");
         when(customerRepository.findById(2L)).thenReturn(Optional.of(empty));
 
         CompletableFuture<InvoiceDto> future = asyncProcessor.processOrderAsync(2L);
@@ -128,7 +128,7 @@ class AsyncOrderProcessorTest {
     @Test
     void shouldHandleMixedSuccessAndFailureInBatch() throws Exception {
         Customer ok = customerWithProduct(1L, "Jan", 5);
-        Customer fail = new Customer(2L, "Anna"); // pusty koszyk
+        Customer fail = new Customer(2L, "Anna", "fdfdsfsfds@gmail.com", "Password");
         when(customerRepository.findById(1L)).thenReturn(Optional.of(ok));
         when(customerRepository.findById(2L)).thenReturn(Optional.of(fail));
         when(orderRepository.getNextId()).thenReturn(1L);
@@ -173,4 +173,3 @@ class AsyncOrderProcessorTest {
         assertThat(results).isEmpty();
     }
 }
-

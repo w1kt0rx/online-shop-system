@@ -30,7 +30,7 @@ import product.dto.electronics.CreateElectronicsRequest;
 import product.dto.electronics.ElectronicsDto;
 import product.dto.smartphone.CreateSmartphoneRequest;
 import product.dto.smartphone.SmartphoneDto;
-import product.facade.ProductFacade;
+import product.service.ProductService;
 import product.model.ProductType;
 import product.model.computer.configuration.GraphicsCard;
 import product.model.computer.configuration.Processor;
@@ -72,7 +72,7 @@ class ShopIntegrationTest {
     private OrderProcessor orderProcessor;
     private ConcurrentOrderProcessor concurrentOrderProcessor;
     private AsyncOrderProcessor asyncOrderProcessor;
-    private ProductFacade productFacade;
+    private ProductService productFacade;
     private OrderFacade orderFacade;
 
     @BeforeEach
@@ -105,7 +105,7 @@ class ShopIntegrationTest {
 
         asyncOrderProcessor = new AsyncOrderProcessor(orderProcessor, 4);
 
-        productFacade = new ProductFacade(computerService, smartphoneService, electronicsService);
+        productFacade = new ProductService(computerService, smartphoneService, electronicsService);
         orderFacade = new OrderFacade(concurrentOrderProcessor, asyncOrderProcessor);
     }
 
@@ -163,7 +163,7 @@ class ShopIntegrationTest {
 
     @Test
     void shouldCreateAndRetrieveCustomer() {
-        CustomerDto customer = customerService.createCustomer(new CreateCustomerRequest("Anna Nowak"));
+        CustomerDto customer = customerService.createCustomer(new CreateCustomerRequest("Anna Nowak", "wiktor@gmail.com", "Password!123"));
 
         CustomerDto fetched = customerService.getCustomerById(customer.id());
 
@@ -173,7 +173,7 @@ class ShopIntegrationTest {
 
     @Test
     void shouldDeleteCustomer() {
-        CustomerDto customer = customerService.createCustomer(new CreateCustomerRequest("Jan Kowalski"));
+        CustomerDto customer = customerService.createCustomer(new CreateCustomerRequest("Jan Kowalski", "wiktor@gmail.com", "Password!123"));
 
         customerService.deleteCustomer(customer.id());
 
@@ -190,7 +190,7 @@ class ShopIntegrationTest {
 
     @Test
     void shouldAddProductToCart() {
-        CustomerDto customer = customerService.createCustomer(new CreateCustomerRequest("Piotr Wiśniewski"));
+        CustomerDto customer = customerService.createCustomer(new CreateCustomerRequest("Piotr Wiśniewski", "wiktor@gmail.com", "Password!123"));
         ElectronicsDto monitor = productFacade.createElectronics(
                 new CreateElectronicsRequest("Monitor 27\"", new BigDecimal("1200"), 5)
         );
@@ -203,7 +203,7 @@ class ShopIntegrationTest {
 
     @Test
     void shouldRemoveProductFromCart() {
-        CustomerDto customer = customerService.createCustomer(new CreateCustomerRequest("Marta Kowalczyk"));
+        CustomerDto customer = customerService.createCustomer(new CreateCustomerRequest("Marta Kowalczyk", "wiktor@gmail.com", "Password!123"));
         ElectronicsDto speaker = productFacade.createElectronics(
                 new CreateElectronicsRequest("Speakers", new BigDecimal("300"), 10)
         );
@@ -216,7 +216,7 @@ class ShopIntegrationTest {
 
     @Test
     void shouldRejectQuantityExceedingStock() {
-        CustomerDto customer = customerService.createCustomer(new CreateCustomerRequest("Tomasz Malinowski"));
+        CustomerDto customer = customerService.createCustomer(new CreateCustomerRequest("Tomasz Malinowski", "wiktor@gmail.com", "Password!123"));
         ElectronicsDto limited = productFacade.createElectronics(
                 new CreateElectronicsRequest("Projector", new BigDecimal("4000"), 2)
         );
@@ -227,7 +227,7 @@ class ShopIntegrationTest {
 
     @Test
     void shouldClearCart() {
-        CustomerDto customer = customerService.createCustomer(new CreateCustomerRequest("Agnieszka Zając"));
+        CustomerDto customer = customerService.createCustomer(new CreateCustomerRequest("Agnieszka Zając", "wiktor@gmail.com", "Password!123"));
         ElectronicsDto headphones = productFacade.createElectronics(
                 new CreateElectronicsRequest("Headphones", new BigDecimal("600"), 10)
         );
@@ -287,7 +287,7 @@ class ShopIntegrationTest {
                 BigDecimal.ZERO, ZonedDateTime.now().minusDays(1), ZonedDateTime.now().plusDays(10)
         ));
 
-        discountService.deActivate(toDeactivate.id());
+        discountService.deactivate(toDeactivate.id());
 
         assertThat(discountService.getAllActive())
                 .extracting(DiscountDto::code)
@@ -298,7 +298,7 @@ class ShopIntegrationTest {
 
     @Test
     void shouldProcessFullOrderFlow() {
-        CustomerDto customer = customerService.createCustomer(new CreateCustomerRequest("Krzysztof Nowak"));
+        CustomerDto customer = customerService.createCustomer(new CreateCustomerRequest("Krzysztof Nowak", "wiktor@gmail.com", "Password!123"));
         ElectronicsDto laptop = productFacade.createElectronics(
                 new CreateElectronicsRequest("Laptop Lenovo", new BigDecimal("3000"), 5)
         );
@@ -315,7 +315,7 @@ class ShopIntegrationTest {
 
     @Test
     void shouldDecreaseStockAfterOrder() {
-        CustomerDto customer = customerService.createCustomer(new CreateCustomerRequest("Beata Wiśniewska"));
+        CustomerDto customer = customerService.createCustomer(new CreateCustomerRequest("Beata Wiśniewska", "wiktor@gmail.com", "Password!123"));
         ElectronicsDto printer = productFacade.createElectronics(
                 new CreateElectronicsRequest("Pinter HP", new BigDecimal("800"), 10)
         );
@@ -328,7 +328,7 @@ class ShopIntegrationTest {
 
     @Test
     void shouldClearCartAfterOrder() {
-        CustomerDto customer = customerService.createCustomer(new CreateCustomerRequest("Rafał Kaczmarek"));
+        CustomerDto customer = customerService.createCustomer(new CreateCustomerRequest("Rafał Kaczmarek", "wiktor@gmail.com", "Password!123"));
         ElectronicsDto webcam = productFacade.createElectronics(
                 new CreateElectronicsRequest("Camera", new BigDecimal("350"), 8)
         );
@@ -341,7 +341,7 @@ class ShopIntegrationTest {
 
     @Test
     void shouldThrowForEmptyCart() {
-        CustomerDto customer = customerService.createCustomer(new CreateCustomerRequest("Dorota Szymańska"));
+        CustomerDto customer = customerService.createCustomer(new CreateCustomerRequest("Dorota Szymańska", "wiktor@gmail.com", "Password!123"));
 
         assertThatExceptionOfType(EmptyCartException.class)
                 .isThrownBy(() -> orderProcessor.processOrder(customer.id()));
@@ -359,7 +359,7 @@ class ShopIntegrationTest {
                 "PROMO15", "15% discount", DiscountType.PERCENTAGE, new BigDecimal("15"),
                 BigDecimal.ZERO, ZonedDateTime.now().minusDays(1), ZonedDateTime.now().plusDays(30)
         ));
-        CustomerDto customer = customerService.createCustomer(new CreateCustomerRequest("Łukasz Pawlak"));
+        CustomerDto customer = customerService.createCustomer(new CreateCustomerRequest("Łukasz Pawlak", "wiktor@gmail.com", "Password!123"));
         ElectronicsDto router = productFacade.createElectronics(
                 new CreateElectronicsRequest("Router WiFi 6", new BigDecimal("500"), 5)
         );
@@ -367,19 +367,19 @@ class ShopIntegrationTest {
         cartService.addProduct(customer.id(), router.id(), ProductType.ELECTRONICS, 2);
         InvoiceDto invoice = orderProcessor.processOrder(customer.id(), "PROMO15");
 
-        // 2 × 500 = 1000, substracting 15% = 850
+        // 2 × 500 = 1000, subtracting 15% = 850
         assertThat(invoice.totalAmount()).isEqualByComparingTo(new BigDecimal("850.00"));
     }
 
     @Test
     void shouldFinalizeOrderWithInvalidDiscountCode() {
-        CustomerDto customer = customerService.createCustomer(new CreateCustomerRequest("Monika Lewandowska"));
+        CustomerDto customer = customerService.createCustomer(new CreateCustomerRequest("Monika Lewandowska", "wiktor@gmail.com", "Password!123"));
         ElectronicsDto keyboard = productFacade.createElectronics(
                 new CreateElectronicsRequest("Mechanical keyboard", new BigDecimal("400"), 5)
         );
 
         cartService.addProduct(customer.id(), keyboard.id(), ProductType.ELECTRONICS, 1);
-        InvoiceDto invoice = orderProcessor.processOrder(customer.id(), "NIEISTNIEJE");
+        InvoiceDto invoice = orderProcessor.processOrder(customer.id(), "NonExisting");
 
         assertThat(invoice).isNotNull();
         assertThat(invoice.totalAmount()).isEqualByComparingTo(new BigDecimal("400"));
@@ -387,7 +387,7 @@ class ShopIntegrationTest {
 
     @Test
     void shouldRetrieveInvoiceByOrderId() {
-        CustomerDto customer = customerService.createCustomer(new CreateCustomerRequest("Paweł Czyżewski"));
+        CustomerDto customer = customerService.createCustomer(new CreateCustomerRequest("Paweł Czyżewski", "wiktor@gmail.com", "Password!123"));
         ElectronicsDto hub = productFacade.createElectronics(
                 new CreateElectronicsRequest("Hub USB-C", new BigDecimal("200"), 10)
         );
@@ -403,7 +403,7 @@ class ShopIntegrationTest {
 
     @Test
     void shouldHandleMixedCartWithComputerAndSmartphone() {
-        CustomerDto customer = customerService.createCustomer(new CreateCustomerRequest("Ewelina Baran"));
+        CustomerDto customer = customerService.createCustomer(new CreateCustomerRequest("Ewelina Baran", "wiktor@gmail.com", "Password!123"));
         ComputerDto computer = productFacade.createComputer(new CreateComputerRequest(
                 "MacBook Pro", new BigDecimal("6000"), 3,
                 Processor.INTEL_I9, Ram.RAM_32GB, StorageType.SSD_2TB, GraphicsCard.INTEGRATED
@@ -448,7 +448,7 @@ class ShopIntegrationTest {
                 new CreateElectronicsRequest("SSD 1TB", new BigDecimal("400"), 10)
         );
         long withCart = createCustomerWithProduct("With cart", product.id(), 1);
-        CustomerDto withoutCart = customerService.createCustomer(new CreateCustomerRequest("Without car"));
+        CustomerDto withoutCart = customerService.createCustomer(new CreateCustomerRequest("Without car", "wiktor@gmail.com", "Password!123"));
 
         List<OrderProcessingResult> results = orderFacade.processBatchOrders(
                 List.of(withCart, withoutCart.id())
@@ -477,7 +477,7 @@ class ShopIntegrationTest {
     }
 
     private long createCustomerWithProduct(String name, Long productId, int quantity) {
-        CustomerDto customer = customerService.createCustomer(new CreateCustomerRequest(name));
+        CustomerDto customer = customerService.createCustomer(new CreateCustomerRequest(name, "wiktor@gmail.com", "Password!123"));
         cartService.addProduct(customer.id(), productId, ProductType.ELECTRONICS, quantity);
         return customer.id();
     }

@@ -1,10 +1,13 @@
 package product.model.smartphone.configuration;
 
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 import java.math.BigDecimal;
 
 @Getter
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public enum Accessory {
     SCREEN_PROTECTOR("Screen protector", new BigDecimal("50")),
     PHONE_CASE("Phone case", new BigDecimal("80")),
@@ -14,9 +17,4 @@ public enum Accessory {
 
     private final String description;
     private final BigDecimal price;
-
-    Accessory(String description, BigDecimal price) {
-        this.description = description;
-        this.price = price;
-    }
 }

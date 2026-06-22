@@ -41,8 +41,8 @@ class ConcurrentOrderProcessorTest {
         Electronics product1 = new Electronics(1L, "Monitor", new BigDecimal("800"), 10);
         Electronics product2 = new Electronics(2L, "Keyboard", new BigDecimal("300"), 10);
 
-        Customer c1 = new Customer(1L, "Jan");
-        Customer c2 = new Customer(2L, "Anna");
+        Customer c1 = new Customer(1L, "Jan", "wiktor@gmail.com", "Password!123");
+        Customer c2 = new Customer(2L, "Anna", "wiktor@gmail.com", "Password!123");
         c1.getCart().addProduct(product1, 1);
         c2.getCart().addProduct(product2, 1);
 
@@ -65,7 +65,7 @@ class ConcurrentOrderProcessorTest {
 
     @Test
     void shouldReturnFailureForCustomerWithEmptyCart() {
-        Customer emptyCustomer = new Customer(3L, "Piotr");
+        Customer emptyCustomer = new Customer(3L, "Piotr", "wiktor@gmail.com", "Password!123");
         when(customerRepository.findById(3L)).thenReturn(Optional.of(emptyCustomer));
 
         OrderProcessor processor = new OrderProcessor(
@@ -82,9 +82,9 @@ class ConcurrentOrderProcessorTest {
     @Test
     void shouldHandleMixOfSuccessAndFailure() {
         Electronics product = new Electronics(1L, "Monitor", new BigDecimal("800"), 10);
-        Customer success = new Customer(1L, "Jan");
+        Customer success = new Customer(1L, "Jan", "wiktor@gmail.com", "Password!123");
         success.getCart().addProduct(product, 1);
-        Customer failure = new Customer(2L, "Anna"); // empty cart
+        Customer failure = new Customer(2L, "Anna", "wiktor@gmail.com", "Password!123"); // empty cart
 
         when(customerRepository.findById(1L)).thenReturn(Optional.of(success));
         when(customerRepository.findById(2L)).thenReturn(Optional.of(failure));

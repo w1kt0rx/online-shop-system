@@ -1,12 +1,15 @@
 package order.model;
 
 import cart.model.CartItem;
-import common.time.ShopClock;
+import common.time.TimeUtils;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.ToString;
 
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -18,6 +21,7 @@ import java.util.List;
  */
 @Getter
 @ToString
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Order {
     private final Long id;
     private final Long customerId;
@@ -28,42 +32,11 @@ public class Order {
     private ZonedDateTime confirmedAt;
     private OrderStatus status;
 
-    /**
-     * Creates a new order in OrderStatus#PENDING state.
-     * The total price is computed as the sum of all item totals.
-     *
-     * @param id         unique order identifier
-     * @param customerId identifier of the customer who placed the order
-     * @param items      snapshot of the cart items; stored as an immutable copy
-     */
-    public Order(Long id, Long customerId, List<CartItem> items) {
-        this.id = id;
-        this.customerId = customerId;
-        this.items = List.copyOf(items);
-        this.totalPrice = items.stream()
+    public static Order of(Long id, Long customerId, List<CartItem> items) {
+        BigDecimal price = items.stream()
                 .map(CartItem::calculateTotalPrice)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
-        this.createdAt = ShopClock.now();
-        this.updatedAt = this.createdAt;
-        this.status = OrderStatus.PENDING;
-    }
-
-    /**
-     * Full-state constructor used to reconstruct an order from persisted data.
-     * Bypasses total-price calculation and timestamp generation, taking every
-     * field as-is.
-     */
-    private Order(Long id, Long customerId, List<CartItem> items, BigDecimal totalPrice,
-                  ZonedDateTime createdAt, ZonedDateTime updatedAt, ZonedDateTime confirmedAt,
-                  OrderStatus status) {
-        this.id = id;
-        this.customerId = customerId;
-        this.items = List.copyOf(items);
-        this.totalPrice = totalPrice;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
-        this.confirmedAt = confirmedAt;
-        this.status = status;
+        return new Order(id, customerId, items, price, TimeUtils.now(), TimeUtils.now(), null, OrderStatus.PENDING );
     }
 
     /**
@@ -95,9 +68,13 @@ public class Order {
      */
     public void confirm() {
         this.status = OrderStatus.CONFIRMED;
-        this.confirmedAt = ShopClock.now();
+        this.confirmedAt = TimeUtils.now();
         this.updatedAt = this.confirmedAt;
 
+    }
+
+    public List<CartItem> getItems() {
+        return Collections.unmodifiableList(items);
     }
 
     /**
@@ -105,6 +82,6 @@ public class Order {
      */
     public void cancel() {
         this.status = OrderStatus.CANCELLED;
-        this.updatedAt = ShopClock.now();
+        this.updatedAt = TimeUtils.now();
     }
 }

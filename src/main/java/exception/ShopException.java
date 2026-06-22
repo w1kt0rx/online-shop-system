@@ -4,8 +4,8 @@ import lombok.Getter;
 
 @Getter
 public abstract class ShopException extends RuntimeException {
-    private final String errorCode;
-    public ShopException(String message, String errorCode) {
+    private String errorCode = "";
+    public ShopException(String message) {
         super(message);
         this.errorCode = errorCode;
     }

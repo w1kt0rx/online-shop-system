@@ -22,7 +22,7 @@ class OrderTest {
     void setUp() {
         product = new Electronics(1L, "Monitor", new BigDecimal("800"), 10);
         cartItem = new CartItem(product, 2);
-        order = new Order(1L, 1L, List.of(cartItem));
+        order = Order.of(1L, 1L, List.of(cartItem));
     }
 
     @Test
@@ -33,7 +33,7 @@ class OrderTest {
     @Test
     void shouldSetCreatedAtTimestampOnCreation() {
         ZonedDateTime before = ZonedDateTime.now().minusSeconds(1);
-        Order freshOrder = new Order(2L, 1L, List.of(cartItem));
+        Order freshOrder = Order.of(2L, 1L, List.of(cartItem));
         ZonedDateTime after = ZonedDateTime.now().plusSeconds(1);
 
         assertThat(freshOrder.getCreatedAt()).isAfter(before).isBefore(after);
@@ -49,7 +49,7 @@ class OrderTest {
     void shouldCalculateTotalPriceForMultipleItems() {
         Electronics keyboard = new Electronics(2L, "Keyboard", new BigDecimal("150"), 5);
         CartItem keyboardItem = new CartItem(keyboard, 3);
-        Order multiOrder = new Order(3L, 1L, List.of(cartItem, keyboardItem));
+        Order multiOrder =Order.of(3L, 1L, List.of(cartItem, keyboardItem));
 
         // (2*800) + (3*150) = 1600 + 450 = 2050
         assertThat(multiOrder.getTotalPrice()).isEqualByComparingTo(new BigDecimal("2050"));
@@ -78,7 +78,7 @@ class OrderTest {
     @Test
     void shouldStoreCopyOfItems() {
         List<CartItem> mutableItems = new java.util.ArrayList<>(List.of(cartItem));
-        Order o = new Order(4L, 1L, mutableItems);
+        Order o =Order.of(4L, 1L, mutableItems);
         mutableItems.clear();
 
         assertThat(o.getItems()).hasSize(1);
@@ -91,7 +91,7 @@ class OrderTest {
 
     @Test
     void shouldReturnEmptyTotalForEmptyItemsList() {
-        Order emptyOrder = new Order(5L, 1L, List.of());
+        Order emptyOrder = Order.of(5L, 1L, List.of());
         assertThat(emptyOrder.getTotalPrice()).isEqualByComparingTo(BigDecimal.ZERO);
     }
 }

@@ -99,25 +99,20 @@ public class CartService {
 
     private Customer findCustomer(Long customerId) {
         return customerRepository.findById(customerId)
-                .orElseThrow(() -> new CustomerNotFoundException(
-                        "Customer with id " + customerId + " not found"
-                ));
+                .orElseThrow(() -> new CustomerNotFoundException(customerId));
     }
 
     private Product findProduct(Long productId, ProductType productType) {
         return switch (productType) {
             case COMPUTER -> computerRepository.findById(productId)
-                    .orElseThrow(() -> new ProductNotFoundException(
-                            "Computer with id " + productId + " not found"
-                    ));
+                    .orElseThrow(() -> new ProductNotFoundException(productType, productId));
+
             case SMARTPHONE -> smartphoneRepository.findById(productId)
-                    .orElseThrow(() -> new ProductNotFoundException(
-                            "Smartphone with id " + productId + " not found"
-                    ));
+                    .orElseThrow(() -> new ProductNotFoundException(productType, productId));
+
             case ELECTRONICS -> electronicsRepository.findById(productId)
-                    .orElseThrow(() -> new ProductNotFoundException(
-                            "Electronics with id " + productId + " not found"
-                    ));
+                    .orElseThrow(() -> new ProductNotFoundException(productType, productId));
+
             default -> throw new IllegalArgumentException("Unknown product type: " + productType);
         };
     }

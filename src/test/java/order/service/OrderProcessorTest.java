@@ -46,7 +46,7 @@ class OrderProcessorTest {
     @BeforeEach
     void setUp() {
         product = new Electronics(1L, "Monitor", new BigDecimal("800"), 10);
-        customer = new Customer(1L, "Jan Kowalski");
+        customer = new Customer(1L, "Jan Kowalski", "wiktor@gmail.com", "Password!123");
         customer.getCart().addProduct(product, 2);
     }
 
@@ -129,7 +129,7 @@ class OrderProcessorTest {
 
     @Test
     void shouldThrowWhenCartIsEmpty() {
-        Customer emptyCustomer = new Customer(2L, "Anna Nowak");
+        Customer emptyCustomer = new Customer(2L, "Anna Nowak", "wiktor@gmail.com", "Password!123");
         when(customerRepository.findById(2L)).thenReturn(Optional.of(emptyCustomer));
 
         assertThatExceptionOfType(EmptyCartException.class)
@@ -141,7 +141,7 @@ class OrderProcessorTest {
 
     @Test
     void shouldThrowWhenStockIsInsufficient() {
-        Customer greedyCustomer = new Customer(3L, "Piotr");
+        Customer greedyCustomer = new Customer(3L, "Piotr", "wiktor@gmail.com", "Password!123");
         greedyCustomer.getCart().addProduct(product, 15); // only 10 in stock
         when(customerRepository.findById(3L)).thenReturn(Optional.of(greedyCustomer));
 

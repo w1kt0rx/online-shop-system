@@ -1,10 +1,13 @@
 package product.model.computer.configuration;
 
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 import java.math.BigDecimal;
 
 @Getter
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public enum StorageType {
     SSD_512GB("SSD 512GB", new BigDecimal("300")),
     SSD_1TB("SSD 1TB", new BigDecimal("500")),
@@ -15,8 +18,4 @@ public enum StorageType {
     private final String description;
     private final BigDecimal price;
 
-    StorageType(String description, BigDecimal price) {
-        this.description = description;
-        this.price = price;
-    }
 }

@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import product.model.ProductType;
 
 import java.util.stream.Stream;
 
@@ -32,14 +33,30 @@ class GlobalExceptionHandlerTest {
 
     private static Stream<Arguments> provideShopExceptions() {
         return Stream.of(
-                Arguments.of(new ProductNotFoundException("Product not found"), "PRODUCT_NOT_FOUND"),
-                Arguments.of(new CustomerNotFoundException("Customer not found"), "CUSTOMER_NOT_FOUND"),
-                Arguments.of(new OrderNotFoundException("Order not found"), "ORDER_NOT_FOUND"),
-                Arguments.of(new InvalidProductException("Invalid data"), "INVALID_PRODUCT"),
-                Arguments.of(new InsufficientStockException("Out of stock"), "INSUFFICIENT_STOCK"),
-                Arguments.of(new EmptyCartException("Cart is empty"), "EMPTY_CART"),
-                Arguments.of(new DiscountNotFoundException("Discount not found"), "DISCOUNT_NOT_FOUND"),
-                Arguments.of(new OrderProcessingException("Processing failed"), "ORDER_PROCESSING_FAILED")
+                Arguments.of(
+                        new ProductNotFoundException(ProductType.COMPUTER, 1L),
+                        "PRODUCT_NOT_FOUND"
+                ),
+                Arguments.of(
+                        new InvalidProductException("Invalid data"),
+                        "INVALID_PRODUCT"
+                ),
+                Arguments.of(
+                        new InsufficientStockException("Out of stock"),
+                        "INSUFFICIENT_STOCK"
+                ),
+                Arguments.of(
+                        new EmptyCartException("Cart is empty"),
+                        "EMPTY_CART"
+                ),
+                Arguments.of(
+                        new DiscountNotFoundException("Discount not found"),
+                        "DISCOUNT_NOT_FOUND"
+                ),
+                Arguments.of(
+                        new OrderProcessingException("Processing failed"),
+                        "ORDER_PROCESSING_FAILED"
+                )
         );
     }
 
@@ -57,12 +74,13 @@ class GlobalExceptionHandlerTest {
 
     @Test
     void shouldRouteShopExceptionThroughHandler() {
-        ProductNotFoundException ex = new ProductNotFoundException("Product 1 not found");
+        ProductNotFoundException ex =
+                new ProductNotFoundException(ProductType.COMPUTER, 1L);
 
         String result = handler.handleAny(ex);
 
         assertThat(result).startsWith("[PRODUCT_NOT_FOUND]");
-        assertThat(result).contains("Product 1 not found");
+        assertThat(result).contains("COMPUTER with id 1 not found");
     }
 
     @Test
@@ -76,7 +94,9 @@ class GlobalExceptionHandlerTest {
 
     @Test
     void shouldFormatMessageAsCodePlusBracket() {
-        ShopException ex = new ProductNotFoundException("Not found");
+        ShopException ex =
+                new ProductNotFoundException(ProductType.COMPUTER, 1L);
+
         String result = handler.handler(ex);
 
         assertThat(result).matches("\\[.+\\] .+");

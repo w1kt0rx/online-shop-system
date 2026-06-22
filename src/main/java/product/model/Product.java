@@ -1,11 +1,14 @@
 package product.model;
 
+import exception.InvalidProductException;
 import exception.NotEnoughStockException;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import product.validator.ProductValidator;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Abstract base class for all products in the shop.
@@ -37,7 +40,7 @@ public abstract class Product {
      * @param productType category of the product
      */
     public Product(Long id, String name, BigDecimal price, Integer quantity, ProductType productType) {
-        ProductValidator.validate(id, name, price, quantity);
+        validate(id, name, price, quantity);
 
         this.id = id;
         this.name = name;
@@ -125,6 +128,43 @@ public abstract class Product {
     public void updateQuantity(Integer quantity) {
         ProductValidator.validateQuantity(quantity);
         this.quantity = quantity;
+    }
+
+    public static void validate(Long id, String name, BigDecimal price, Integer quantity) {
+        List<String> errors = new ArrayList<>();
+
+        validateId(id, errors);
+        validateName(name, errors);
+        validatePrice(price, errors);
+        validateQuantity(quantity, errors);
+
+        if (!errors.isEmpty()) {
+            throw new InvalidProductException(String.join(", ", errors));
+        }
+    }
+
+    private static void validateId(Long id, List<String> errors) {
+        if (id == null || id < 0) {
+            errors.add("Id cannot be null or negative");
+        }
+    }
+
+    private static void validateName(String name, List<String> errors) {
+        if (name == null || name.isBlank()) {
+            errors.add("Name cannot be blank");
+        }
+    }
+
+    private static void validatePrice(BigDecimal price, List<String> errors) {
+        if (price == null || price.compareTo(BigDecimal.ZERO) < 0) {
+            errors.add("Price cannot be negative");
+        }
+    }
+
+    private static void validateQuantity(Integer quantity, List<String> errors) {
+        if (quantity == null || quantity < 0) {
+            errors.add("Quantity cannot be negative or null");
+        }
     }
 
 }

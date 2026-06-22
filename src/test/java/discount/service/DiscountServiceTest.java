@@ -17,7 +17,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -179,7 +178,7 @@ class DiscountServiceTest {
         when(discountRepository.findById(1L)).thenReturn(Optional.of(d));
         when(discountRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
-        discountService.deActivate(1L);
+        discountService.deactivate(1L);
 
         assertThat(d.isValid()).isFalse();
         verify(discountRepository).save(d);
@@ -190,7 +189,7 @@ class DiscountServiceTest {
         when(discountRepository.findById(99L)).thenReturn(Optional.empty());
 
         assertThatExceptionOfType(DiscountNotFoundException.class)
-                .isThrownBy(() -> discountService.deActivate(99L));
+                .isThrownBy(() -> discountService.deactivate(99L));
     }
 
     // ── previewDiscountedTotal ───────────────────────────────────────

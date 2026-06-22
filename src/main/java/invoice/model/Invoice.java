@@ -1,12 +1,11 @@
 package invoice.model;
 
 import cart.dto.CartItemDto;
-import common.time.ShopClock;
+import common.time.TimeUtils;
 import lombok.Getter;
 import lombok.ToString;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.List;
 
@@ -29,6 +28,6 @@ public class Invoice {
         this.customerName = customerName;
         this.items = List.copyOf(items);
         this.totalAmount = totalAmount;
-        this.issuedAt = ShopClock.now();
+        this.issuedAt = TimeUtils.now();
     }
 }

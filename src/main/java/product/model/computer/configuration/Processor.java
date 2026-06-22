@@ -1,10 +1,13 @@
 package product.model.computer.configuration;
 
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 import java.math.BigDecimal;
 
 @Getter
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public enum Processor {
     INTEL_I5("Intel Core i5", new BigDecimal("500")),
     INTEL_I7("Intel Core i7", new BigDecimal("800")),
@@ -14,8 +17,4 @@ public enum Processor {
     private final String description;
     private final BigDecimal price;
 
-    Processor(String description, BigDecimal price) {
-        this.description = description;
-        this.price = price;
-    }
 }

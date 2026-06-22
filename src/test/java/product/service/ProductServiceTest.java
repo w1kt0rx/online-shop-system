@@ -1,4 +1,4 @@
-package product.facade;
+package product.service;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -7,9 +7,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import product.dto.computer.ComputerDto;
 import product.model.ProductType;
-import product.service.ComputerService;
-import product.service.ElectronicsService;
-import product.service.SmartphoneService;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -22,7 +19,7 @@ import static org.mockito.Mockito.*;
  * SmartphoneService, and ElectronicsService — one call in, one call out.
  */
 @ExtendWith(MockitoExtension.class)
-class ProductFacadeTest {
+class ProductServiceTest {
 
     @Mock
     ComputerService computerService;
@@ -32,7 +29,7 @@ class ProductFacadeTest {
     ElectronicsService electronicsService;
 
     @InjectMocks
-    ProductFacade facade;
+    ProductService facade;
 
 
     @Test

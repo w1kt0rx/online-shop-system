@@ -1,10 +1,13 @@
 package product.model.smartphone.configuration;
 
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 import java.math.BigDecimal;
 
 @Getter
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public enum BatteryCapacity {
     BATTERY_3000("3000 mAh", BigDecimal.ZERO),
     BATTERY_4000("4000 mAh", new BigDecimal("150")),
@@ -13,9 +16,4 @@ public enum BatteryCapacity {
 
     private final String description;
     private final BigDecimal price;
-
-    BatteryCapacity(String description, BigDecimal price) {
-        this.description = description;
-        this.price = price;
-    }
 }

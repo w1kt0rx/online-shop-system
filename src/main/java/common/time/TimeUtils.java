@@ -19,7 +19,7 @@ import java.time.ZonedDateTime;
  * Polish timestamps.</p>
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public final class ShopClock {
+public final class TimeUtils {
 
     /**
      * Default store time zone — Europe/Warsaw (UTC+1/UTC+2).

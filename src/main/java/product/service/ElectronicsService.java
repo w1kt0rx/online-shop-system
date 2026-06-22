@@ -6,6 +6,7 @@ import product.dto.electronics.CreateElectronicsRequest;
 import product.dto.electronics.ElectronicsDto;
 import product.dto.electronics.UpdateElectronicsRequest;
 import product.mapper.electronics.ElectronicsMapper;
+import product.model.ProductType;
 import product.model.electronics.Electronics;
 import product.repository.ElectronicsRepository;
 
@@ -27,9 +28,7 @@ public class ElectronicsService {
     }
 
     public ElectronicsDto update(Long id, UpdateElectronicsRequest request) {
-        Electronics electronics = electronicsRepository.findById(id)
-                .orElseThrow(() -> new ProductNotFoundException(
-                        "Electronics with id " + id + " not found"));
+        Electronics electronics = findElectronics(id);
 
         electronics.updateName(request.name());
         electronics.updatePrice(request.basePrice());
@@ -39,10 +38,7 @@ public class ElectronicsService {
     }
 
     public ElectronicsDto getById(Long id) {
-        return electronicsRepository.findById(id)
-                .map(ElectronicsMapper::toDTO)
-                .orElseThrow(() -> new ProductNotFoundException(
-                        "Electronics with id " + id + " not found"));
+        return ElectronicsMapper.toDTO(findElectronics(id));
     }
 
     public List<ElectronicsDto> getAll() {
@@ -52,9 +48,14 @@ public class ElectronicsService {
     }
 
     public void delete(Long id) {
-        electronicsRepository.findById(id)
-                .orElseThrow(() -> new ProductNotFoundException(
-                        "Electronics with id " + id + " not found"));
+        findElectronics(id);
         electronicsRepository.delete(id);
     }
+
+    private Electronics findElectronics(Long id) {
+        return electronicsRepository.findById(id)
+                .orElseThrow(() ->
+                        new ProductNotFoundException(ProductType.ELECTRONICS, id));
+    }
 }
+

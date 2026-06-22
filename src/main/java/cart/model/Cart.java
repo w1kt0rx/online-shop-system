@@ -1,6 +1,5 @@
 package cart.model;
 
-import cart.dto.CartItemDto;
 import product.model.Product;
 
 import java.math.BigDecimal;
@@ -25,15 +24,17 @@ public class Cart {
      */
     public CartItem addProduct(Product product, int quantity) {
         validateQuantity(quantity);
-        Optional<CartItem> existingItem = findCartItem(product);
 
-        if (existingItem.isPresent()) {
-            existingItem.get().increaseQuantity(quantity);
-            return existingItem.get();
-        }
-        CartItem cartItem = new CartItem(product, quantity);
-        cartItems.add(cartItem);
-        return cartItem;
+        return findCartItem(product)
+                .map(item -> {
+                    item.increaseQuantity(quantity);
+                    return item;
+                })
+                .orElseGet(() -> {
+                    CartItem cartItem = new CartItem(product, quantity);
+                    cartItems.add(cartItem);
+                    return cartItem;
+                });
     }
 
     /**
