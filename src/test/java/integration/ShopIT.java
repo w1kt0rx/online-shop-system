@@ -16,6 +16,7 @@ import exception.EmptyCartException;
 import exception.InsufficientStockException;
 import invoice.dto.InvoiceDto;
 import invoice.repository.impl.InMemoryInvoiceRepository;
+import invoice.service.InvoiceService;
 import order.model.OrderProcessingResult;
 import order.repository.impl.InMemoryOrderRepository;
 import order.facade.OrderFacade;
@@ -53,7 +54,7 @@ import java.util.Set;
 
 import static org.assertj.core.api.Assertions.*;
 
-class ShopIntegrationTest {
+class ShopIT {
 
     private InMemoryCustomerRepository customerRepository;
     private InMemoryComputerRepository computerRepository;
@@ -74,6 +75,7 @@ class ShopIntegrationTest {
     private AsyncOrderProcessor asyncOrderProcessor;
     private ProductService productFacade;
     private OrderFacade orderFacade;
+    private InvoiceService invoiceService;
 
     @BeforeEach
     void setUp() {
@@ -96,19 +98,19 @@ class ShopIntegrationTest {
                 smartphoneRepository, electronicsRepository
         );
 
+        invoiceService = new InvoiceService(invoiceRepository);
+
         orderProcessor = new OrderProcessor(
                 orderRepository, customerRepository,
-                invoiceRepository, discountService
+                discountService, invoiceService
         );
 
         concurrentOrderProcessor = new ConcurrentOrderProcessor(orderProcessor, 4);
-
         asyncOrderProcessor = new AsyncOrderProcessor(orderProcessor, 4);
 
         productFacade = new ProductService(computerService, smartphoneService, electronicsService);
         orderFacade = new OrderFacade(concurrentOrderProcessor, asyncOrderProcessor);
     }
-
 
     @Test
     void shouldCreateAndRetrieveComputer() {
@@ -121,7 +123,17 @@ class ShopIntegrationTest {
 
         assertThat(fetched.id()).isEqualTo(created.id());
         assertThat(fetched.name()).isEqualTo("Dell XPS 15");
-        assertThat(productFacade.getAllComputers()).hasSize(1);
+        assertThat(fetched.basePrice()).isEqualByComparingTo(new BigDecimal("5000"));
+        assertThat(fetched.quantity()).isEqualTo(10);
+        assertThat(fetched.computerConfiguration().processor()).isEqualTo(Processor.INTEL_I7);
+        assertThat(fetched.computerConfiguration().ram()).isEqualTo(Ram.RAM_16GB);
+        assertThat(fetched.computerConfiguration().storageType()).isEqualTo(StorageType.SSD_1TB);
+        assertThat(fetched.computerConfiguration().graphicsCard()).isEqualTo(GraphicsCard.RTX_3050);
+
+        assertThat(productFacade.getAllComputers())
+                .hasSize(1)
+                .extracting(ComputerDto::id)
+                .containsExactly(created.id());
     }
 
     @Test
@@ -133,8 +145,18 @@ class ShopIntegrationTest {
 
         SmartphoneDto fetched = productFacade.getSmartphoneById(created.id());
 
+        assertThat(fetched.id()).isEqualTo(created.id());
         assertThat(fetched.name()).isEqualTo("Samsung Galaxy S24");
-        assertThat(productFacade.getAllSmartphones()).hasSize(1);
+        assertThat(fetched.basePrice()).isEqualByComparingTo(new BigDecimal("3500"));
+        assertThat(fetched.quantity()).isEqualTo(20);
+        assertThat(fetched.smartphoneConfiguration().accessories()).containsExactlyInAnyOrder(Accessory.CHARGER, Accessory.PHONE_CASE);
+        assertThat(fetched.smartphoneConfiguration().batteryCapacity()).isEqualTo(BatteryCapacity.BATTERY_5000);
+        assertThat(fetched.smartphoneConfiguration().color()).isEqualTo(Color.BLACK);
+
+        assertThat(productFacade.getAllSmartphones())
+                .hasSize(1)
+                .extracting(SmartphoneDto::id)
+                .containsExactly(created.id());
     }
 
     @Test
@@ -145,8 +167,15 @@ class ShopIntegrationTest {
 
         ElectronicsDto fetched = productFacade.getElectronicsById(created.id());
 
+        assertThat(fetched.id()).isEqualTo(created.id());
         assertThat(fetched.name()).isEqualTo("Sony TV 55\"");
-        assertThat(productFacade.getAllElectronics()).hasSize(1);
+        assertThat(fetched.basePrice()).isEqualByComparingTo(new BigDecimal("2500"));
+        assertThat(fetched.quantity()).isEqualTo(5);
+
+        assertThat(productFacade.getAllElectronics())
+                .hasSize(1)
+                .extracting(ElectronicsDto::name)
+                .containsExactly("Sony TV 55\"");
     }
 
     @Test
@@ -160,20 +189,28 @@ class ShopIntegrationTest {
         assertThat(productFacade.getAllElectronics()).isEmpty();
     }
 
-
     @Test
     void shouldCreateAndRetrieveCustomer() {
-        CustomerDto customer = customerService.createCustomer(new CreateCustomerRequest("Anna Nowak", "wiktor@gmail.com", "Password!123"));
+        CustomerDto customer = customerService.createCustomer(
+                new CreateCustomerRequest("Anna Nowak", "wiktor@gmail.com", "Password!123")
+        );
 
         CustomerDto fetched = customerService.getCustomerById(customer.id());
 
         assertThat(fetched.id()).isEqualTo(customer.id());
         assertThat(fetched.name()).isEqualTo("Anna Nowak");
+        assertThat(fetched.email()).isEqualTo("wiktor@gmail.com");
+
+        CartDto cart = cartService.getCart(customer.id());
+        assertThat(cart).isNotNull();
+        assertThat(cart.items()).isEmpty();
     }
 
     @Test
     void shouldDeleteCustomer() {
-        CustomerDto customer = customerService.createCustomer(new CreateCustomerRequest("Jan Kowalski", "wiktor@gmail.com", "Password!123"));
+        CustomerDto customer = customerService.createCustomer(
+                new CreateCustomerRequest("Jan Kowalski", "wiktor@gmail.com", "Password!123")
+        );
 
         customerService.deleteCustomer(customer.id());
 
@@ -187,10 +224,11 @@ class ShopIntegrationTest {
                 .isThrownBy(() -> customerService.getCustomerById(999L));
     }
 
-
     @Test
     void shouldAddProductToCart() {
-        CustomerDto customer = customerService.createCustomer(new CreateCustomerRequest("Piotr Wiśniewski", "wiktor@gmail.com", "Password!123"));
+        CustomerDto customer = customerService.createCustomer(
+                new CreateCustomerRequest("Piotr Wiśniewski", "wiktor@gmail.com", "Password!123")
+        );
         ElectronicsDto monitor = productFacade.createElectronics(
                 new CreateElectronicsRequest("Monitor 27\"", new BigDecimal("1200"), 5)
         );
@@ -198,12 +236,37 @@ class ShopIntegrationTest {
         CartDto cart = cartService.addProduct(customer.id(), monitor.id(), ProductType.ELECTRONICS, 2);
 
         assertThat(cart.items()).hasSize(1);
+        assertThat(cart.items().get(0).productId()).isEqualTo(monitor.id());
+        assertThat(cart.items().get(0).productType()).isEqualTo(ProductType.ELECTRONICS);
         assertThat(cart.items().get(0).quantity()).isEqualTo(2);
+
+        CartDto fetchedCart = cartService.getCart(customer.id());
+        assertThat(fetchedCart.items()).hasSize(1);
+        assertThat(fetchedCart.items().get(0).productId()).isEqualTo(monitor.id());
+    }
+
+    @Test
+    void shouldIncreaseQuantityWhenAddingSameProductTwice() {
+        CustomerDto customer = customerService.createCustomer(
+                new CreateCustomerRequest("Adam Test", "adam@test.pl", "Password!123")
+        );
+        ElectronicsDto mouse = productFacade.createElectronics(
+                new CreateElectronicsRequest("Mouse", new BigDecimal("150"), 10)
+        );
+
+        cartService.addProduct(customer.id(), mouse.id(), ProductType.ELECTRONICS, 2);
+        CartDto cart = cartService.addProduct(customer.id(), mouse.id(), ProductType.ELECTRONICS, 3);
+
+        assertThat(cart.items()).hasSize(1);
+        assertThat(cart.items().get(0).productId()).isEqualTo(mouse.id());
+        assertThat(cart.items().get(0).quantity()).isEqualTo(5);
     }
 
     @Test
     void shouldRemoveProductFromCart() {
-        CustomerDto customer = customerService.createCustomer(new CreateCustomerRequest("Marta Kowalczyk", "wiktor@gmail.com", "Password!123"));
+        CustomerDto customer = customerService.createCustomer(
+                new CreateCustomerRequest("Marta Kowalczyk", "wiktor@gmail.com", "Password!123")
+        );
         ElectronicsDto speaker = productFacade.createElectronics(
                 new CreateElectronicsRequest("Speakers", new BigDecimal("300"), 10)
         );
@@ -212,11 +275,14 @@ class ShopIntegrationTest {
         CartDto afterRemove = cartService.removeProduct(customer.id(), speaker.id(), ProductType.ELECTRONICS);
 
         assertThat(afterRemove.items()).isEmpty();
+        assertThat(cartService.getCart(customer.id()).items()).isEmpty();
     }
 
     @Test
     void shouldRejectQuantityExceedingStock() {
-        CustomerDto customer = customerService.createCustomer(new CreateCustomerRequest("Tomasz Malinowski", "wiktor@gmail.com", "Password!123"));
+        CustomerDto customer = customerService.createCustomer(
+                new CreateCustomerRequest("Tomasz Malinowski", "wiktor@gmail.com", "Password!123")
+        );
         ElectronicsDto limited = productFacade.createElectronics(
                 new CreateElectronicsRequest("Projector", new BigDecimal("4000"), 2)
         );
@@ -227,17 +293,24 @@ class ShopIntegrationTest {
 
     @Test
     void shouldClearCart() {
-        CustomerDto customer = customerService.createCustomer(new CreateCustomerRequest("Agnieszka Zając", "wiktor@gmail.com", "Password!123"));
+        CustomerDto customer = customerService.createCustomer(
+                new CreateCustomerRequest("Agnieszka Zając", "wiktor@gmail.com", "Password!123")
+        );
         ElectronicsDto headphones = productFacade.createElectronics(
                 new CreateElectronicsRequest("Headphones", new BigDecimal("600"), 10)
         );
 
         cartService.addProduct(customer.id(), headphones.id(), ProductType.ELECTRONICS, 3);
+
+        CartDto beforeClear = cartService.getCart(customer.id());
+        assertThat(beforeClear.items()).hasSize(1);
+        assertThat(beforeClear.items().get(0).quantity()).isEqualTo(3);
+
         CartDto cleared = cartService.clearCart(customer.id());
 
         assertThat(cleared.items()).isEmpty();
+        assertThat(cartService.getCart(customer.id()).items()).isEmpty();
     }
-
 
     @Test
     void shouldCreateAndRetrievePercentageDiscount() {
@@ -249,7 +322,11 @@ class ShopIntegrationTest {
         DiscountDto fetched = discountService.getByCode("SUMMER10");
 
         assertThat(fetched.code()).isEqualTo("SUMMER10");
+        assertThat(fetched.description()).isEqualTo("Summer discount 10%");
         assertThat(fetched.type()).isEqualTo(DiscountType.PERCENTAGE);
+        assertThat(fetched.value()).isEqualByComparingTo(new BigDecimal("10"));
+        assertThat(fetched.minOrderValue()).isEqualByComparingTo(new BigDecimal("500"));
+        assertThat(fetched.active()).isTrue();
     }
 
     @Test
@@ -295,10 +372,11 @@ class ShopIntegrationTest {
                 .doesNotContain("INACTIVE");
     }
 
-
     @Test
     void shouldProcessFullOrderFlow() {
-        CustomerDto customer = customerService.createCustomer(new CreateCustomerRequest("Krzysztof Nowak", "wiktor@gmail.com", "Password!123"));
+        CustomerDto customer = customerService.createCustomer(
+                new CreateCustomerRequest("Krzysztof Nowak", "wiktor@gmail.com", "Password!123")
+        );
         ElectronicsDto laptop = productFacade.createElectronics(
                 new CreateElectronicsRequest("Laptop Lenovo", new BigDecimal("3000"), 5)
         );
@@ -311,11 +389,22 @@ class ShopIntegrationTest {
         assertThat(invoice.customerName()).isEqualTo("Krzysztof Nowak");
         assertThat(invoice.totalAmount()).isEqualByComparingTo(new BigDecimal("6000"));
         assertThat(invoice.items()).hasSize(1);
+
+        assertThat(invoice.items().get(0).productId()).isEqualTo(laptop.id());
+        assertThat(invoice.items().get(0).quantity()).isEqualTo(2);
+
+        assertThat(invoice.orderId()).isNotNull();
+        assertThat(invoice.id()).isNotNull();
+
+        assertThat(cartService.getCart(customer.id()).items()).isEmpty();
+        assertThat(productFacade.getElectronicsById(laptop.id()).quantity()).isEqualTo(3);
     }
 
     @Test
     void shouldDecreaseStockAfterOrder() {
-        CustomerDto customer = customerService.createCustomer(new CreateCustomerRequest("Beata Wiśniewska", "wiktor@gmail.com", "Password!123"));
+        CustomerDto customer = customerService.createCustomer(
+                new CreateCustomerRequest("Beata Wiśniewska", "wiktor@gmail.com", "Password!123")
+        );
         ElectronicsDto printer = productFacade.createElectronics(
                 new CreateElectronicsRequest("Pinter HP", new BigDecimal("800"), 10)
         );
@@ -324,11 +413,14 @@ class ShopIntegrationTest {
         orderProcessor.processOrder(customer.id());
 
         assertThat(productFacade.getElectronicsById(printer.id()).quantity()).isEqualTo(7);
+        assertThat(cartService.getCart(customer.id()).items()).isEmpty();
     }
 
     @Test
     void shouldClearCartAfterOrder() {
-        CustomerDto customer = customerService.createCustomer(new CreateCustomerRequest("Rafał Kaczmarek", "wiktor@gmail.com", "Password!123"));
+        CustomerDto customer = customerService.createCustomer(
+                new CreateCustomerRequest("Rafał Kaczmarek", "wiktor@gmail.com", "Password!123")
+        );
         ElectronicsDto webcam = productFacade.createElectronics(
                 new CreateElectronicsRequest("Camera", new BigDecimal("350"), 8)
         );
@@ -337,11 +429,14 @@ class ShopIntegrationTest {
         orderProcessor.processOrder(customer.id());
 
         assertThat(cartService.getCart(customer.id()).items()).isEmpty();
+        assertThat(productFacade.getElectronicsById(webcam.id()).quantity()).isEqualTo(7);
     }
 
     @Test
     void shouldThrowForEmptyCart() {
-        CustomerDto customer = customerService.createCustomer(new CreateCustomerRequest("Dorota Szymańska", "wiktor@gmail.com", "Password!123"));
+        CustomerDto customer = customerService.createCustomer(
+                new CreateCustomerRequest("Dorota Szymańska", "wiktor@gmail.com", "Password!123")
+        );
 
         assertThatExceptionOfType(EmptyCartException.class)
                 .isThrownBy(() -> orderProcessor.processOrder(customer.id()));
@@ -359,7 +454,9 @@ class ShopIntegrationTest {
                 "PROMO15", "15% discount", DiscountType.PERCENTAGE, new BigDecimal("15"),
                 BigDecimal.ZERO, ZonedDateTime.now().minusDays(1), ZonedDateTime.now().plusDays(30)
         ));
-        CustomerDto customer = customerService.createCustomer(new CreateCustomerRequest("Łukasz Pawlak", "wiktor@gmail.com", "Password!123"));
+        CustomerDto customer = customerService.createCustomer(
+                new CreateCustomerRequest("Łukasz Pawlak", "wiktor@gmail.com", "Password!123")
+        );
         ElectronicsDto router = productFacade.createElectronics(
                 new CreateElectronicsRequest("Router WiFi 6", new BigDecimal("500"), 5)
         );
@@ -367,13 +464,22 @@ class ShopIntegrationTest {
         cartService.addProduct(customer.id(), router.id(), ProductType.ELECTRONICS, 2);
         InvoiceDto invoice = orderProcessor.processOrder(customer.id(), "PROMO15");
 
-        // 2 × 500 = 1000, subtracting 15% = 850
+        assertThat(invoice).isNotNull();
+        assertThat(invoice.customerId()).isEqualTo(customer.id());
+        assertThat(invoice.items()).hasSize(1);
+        assertThat(invoice.items().get(0).productId()).isEqualTo(router.id());
+        assertThat(invoice.items().get(0).quantity()).isEqualTo(2);
         assertThat(invoice.totalAmount()).isEqualByComparingTo(new BigDecimal("850.00"));
+
+        assertThat(cartService.getCart(customer.id()).items()).isEmpty();
+        assertThat(productFacade.getElectronicsById(router.id()).quantity()).isEqualTo(3);
     }
 
     @Test
     void shouldFinalizeOrderWithInvalidDiscountCode() {
-        CustomerDto customer = customerService.createCustomer(new CreateCustomerRequest("Monika Lewandowska", "wiktor@gmail.com", "Password!123"));
+        CustomerDto customer = customerService.createCustomer(
+                new CreateCustomerRequest("Monika Lewandowska", "wiktor@gmail.com", "Password!123")
+        );
         ElectronicsDto keyboard = productFacade.createElectronics(
                 new CreateElectronicsRequest("Mechanical keyboard", new BigDecimal("400"), 5)
         );
@@ -383,27 +489,17 @@ class ShopIntegrationTest {
 
         assertThat(invoice).isNotNull();
         assertThat(invoice.totalAmount()).isEqualByComparingTo(new BigDecimal("400"));
-    }
-
-    @Test
-    void shouldRetrieveInvoiceByOrderId() {
-        CustomerDto customer = customerService.createCustomer(new CreateCustomerRequest("Paweł Czyżewski", "wiktor@gmail.com", "Password!123"));
-        ElectronicsDto hub = productFacade.createElectronics(
-                new CreateElectronicsRequest("Hub USB-C", new BigDecimal("200"), 10)
-        );
-
-        cartService.addProduct(customer.id(), hub.id(), ProductType.ELECTRONICS, 1);
-        InvoiceDto created = orderProcessor.processOrder(customer.id());
-
-        InvoiceDto fetched = orderProcessor.getInvoiceByOrderId(created.orderId());
-
-        assertThat(fetched.id()).isEqualTo(created.id());
-        assertThat(fetched.totalAmount()).isEqualByComparingTo(created.totalAmount());
+        assertThat(invoice.items()).hasSize(1);
+        assertThat(invoice.items().get(0).productId()).isEqualTo(keyboard.id());
+        assertThat(invoice.items().get(0).quantity()).isEqualTo(1);
+        assertThat(productFacade.getElectronicsById(keyboard.id()).quantity()).isEqualTo(4);
     }
 
     @Test
     void shouldHandleMixedCartWithComputerAndSmartphone() {
-        CustomerDto customer = customerService.createCustomer(new CreateCustomerRequest("Ewelina Baran", "wiktor@gmail.com", "Password!123"));
+        CustomerDto customer = customerService.createCustomer(
+                new CreateCustomerRequest("Ewelina Baran", "wiktor@gmail.com", "Password!123")
+        );
         ComputerDto computer = productFacade.createComputer(new CreateComputerRequest(
                 "MacBook Pro", new BigDecimal("6000"), 3,
                 Processor.INTEL_I9, Ram.RAM_32GB, StorageType.SSD_2TB, GraphicsCard.INTEGRATED
@@ -418,11 +514,58 @@ class ShopIntegrationTest {
         InvoiceDto invoice = orderProcessor.processOrder(customer.id());
 
         assertThat(invoice.items()).hasSize(2);
-        // Computer: 6000 + 1200 (i9) + 800 (32GB) + 900 (SSD 2TB) + 0 (integrated) = 8900
-        // Smartphone:  4500 + 40 (cable) + 150 (battery 4000) + 50 (white) = 4740
         assertThat(invoice.totalAmount()).isEqualByComparingTo(new BigDecimal("13640"));
+
+        assertThat(invoice.items())
+                .extracting(item -> item.productType())
+                .containsExactlyInAnyOrder(ProductType.COMPUTER, ProductType.SMARTPHONE);
+
+        assertThat(productFacade.getComputerById(computer.id()).quantity()).isEqualTo(2);
+        assertThat(productFacade.getSmartphoneById(phone.id()).quantity()).isEqualTo(4);
+        assertThat(cartService.getCart(customer.id()).items()).isEmpty();
     }
 
+    @Test
+    void shouldNotApplyDiscountWhenOrderBelowMinimumAmount() {
+        discountService.createDiscount(new CreateDiscountRequest(
+                "BIGSAVE", "Big save", DiscountType.PERCENTAGE, new BigDecimal("20"),
+                new BigDecimal("1000"), ZonedDateTime.now().minusDays(1), ZonedDateTime.now().plusDays(10)
+        ));
+
+        CustomerDto customer = customerService.createCustomer(
+                new CreateCustomerRequest("Test User", "test@test.pl", "Password!123")
+        );
+        ElectronicsDto item = productFacade.createElectronics(
+                new CreateElectronicsRequest("Keyboard", new BigDecimal("400"), 5)
+        );
+
+        cartService.addProduct(customer.id(), item.id(), ProductType.ELECTRONICS, 1);
+        InvoiceDto invoice = orderProcessor.processOrder(customer.id(), "BIGSAVE");
+
+        assertThat(invoice.totalAmount()).isEqualByComparingTo(new BigDecimal("400"));
+        assertThat(productFacade.getElectronicsById(item.id()).quantity()).isEqualTo(4);
+    }
+
+    @Test
+    void shouldNotApplyExpiredDiscount() {
+        discountService.createDiscount(new CreateDiscountRequest(
+                "OLD10", "Expired discount", DiscountType.PERCENTAGE, new BigDecimal("10"),
+                BigDecimal.ZERO, ZonedDateTime.now().minusDays(10), ZonedDateTime.now().minusDays(1)
+        ));
+
+        CustomerDto customer = customerService.createCustomer(
+                new CreateCustomerRequest("Test User", "test@test.pl", "Password!123")
+        );
+        ElectronicsDto item = productFacade.createElectronics(
+                new CreateElectronicsRequest("Monitor", new BigDecimal("1000"), 5)
+        );
+
+        cartService.addProduct(customer.id(), item.id(), ProductType.ELECTRONICS, 1);
+        InvoiceDto invoice = orderProcessor.processOrder(customer.id(), "OLD10");
+
+        assertThat(invoice.totalAmount()).isEqualByComparingTo(new BigDecimal("1000"));
+        assertThat(productFacade.getElectronicsById(item.id()).quantity()).isEqualTo(4);
+    }
 
     @Test
     void shouldProcessAllOrdersConcurrently() {
@@ -439,7 +582,12 @@ class ShopIntegrationTest {
         List<OrderProcessingResult> results = orderFacade.processBatchOrders(customerIds);
 
         assertThat(results).hasSize(3);
-        assertThat(results).allSatisfy(r -> assertThat(r.success()).isTrue());
+        assertThat(results).allSatisfy(r -> {
+            assertThat(r.success()).isTrue();
+            assertThat(r.customerId()).isIn(customerIds);
+        });
+
+        assertThat(productFacade.getElectronicsById(product.id()).quantity()).isEqualTo(47);
     }
 
     @Test
@@ -448,14 +596,32 @@ class ShopIntegrationTest {
                 new CreateElectronicsRequest("SSD 1TB", new BigDecimal("400"), 10)
         );
         long withCart = createCustomerWithProduct("With cart", product.id(), 1);
-        CustomerDto withoutCart = customerService.createCustomer(new CreateCustomerRequest("Without car", "wiktor@gmail.com", "Password!123"));
+        CustomerDto withoutCart = customerService.createCustomer(
+                new CreateCustomerRequest("Without cart", "withoutcart@example.com", "Password!123")
+        );
 
         List<OrderProcessingResult> results = orderFacade.processBatchOrders(
                 List.of(withCart, withoutCart.id())
         );
 
+        assertThat(results).hasSize(2);
+
         assertThat(results.stream().filter(OrderProcessingResult::success).count()).isEqualTo(1);
         assertThat(results.stream().filter(r -> !r.success()).count()).isEqualTo(1);
+
+        assertThat(results)
+                .filteredOn(OrderProcessingResult::success)
+                .first()
+                .extracting(OrderProcessingResult::customerId)
+                .isEqualTo(withCart);
+
+        assertThat(results)
+                .filteredOn(r -> !r.success())
+                .first()
+                .extracting(OrderProcessingResult::customerId)
+                .isEqualTo(withoutCart.id());
+
+        assertThat(productFacade.getElectronicsById(product.id()).quantity()).isEqualTo(9);
     }
 
     @Test
@@ -471,13 +637,18 @@ class ShopIntegrationTest {
                 createCustomerWithProduct("K5", limited.id(), 1)
         );
 
-        orderFacade.processBatchOrders(customerIds);
+        List<OrderProcessingResult> results = orderFacade.processBatchOrders(customerIds);
 
-        assertThat(productFacade.getElectronicsById(limited.id()).quantity()).isGreaterThanOrEqualTo(0);
+        assertThat(results).hasSize(5);
+        assertThat(results).allMatch(OrderProcessingResult::success);
+        assertThat(productFacade.getElectronicsById(limited.id()).quantity()).isEqualTo(0);
     }
 
     private long createCustomerWithProduct(String name, Long productId, int quantity) {
-        CustomerDto customer = customerService.createCustomer(new CreateCustomerRequest(name, "wiktor@gmail.com", "Password!123"));
+        String email = name.toLowerCase().replaceAll("[^a-z0-9]", "") + "@example.com";
+        CustomerDto customer = customerService.createCustomer(
+                new CreateCustomerRequest(name, email, "Password!123")
+        );
         cartService.addProduct(customer.id(), productId, ProductType.ELECTRONICS, quantity);
         return customer.id();
     }

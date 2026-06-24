@@ -46,12 +46,9 @@ class DiscountServiceTest {
                 ZonedDateTime.now().minusDays(1));
     }
 
-    // ── createDiscount ────────────────────────────────────────────────
-
     @Test
     void shouldCreateDiscountSuccessfully() {
         when(discountRepository.findByCode("SAVE10")).thenReturn(Optional.empty());
-        when(discountRepository.getNextId()).thenReturn(1L);
         when(discountRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
         DiscountDto result = discountService.createDiscount(new CreateDiscountRequest(
@@ -144,8 +141,6 @@ class DiscountServiceTest {
         assertThat(discountService.getAllActive()).isEmpty();
     }
 
-    // ── describeDiscount ──────────────────────────────────────────────
-
     @Test
     void shouldDescribePercentageDiscount() {
         when(discountRepository.findByCode("SAVE10"))
@@ -170,8 +165,6 @@ class DiscountServiceTest {
         assertThat(discountService.describeDiscount("X")).isEmpty();
     }
 
-    // ── deActivate ────────────────────────────────────────────────────
-
     @Test
     void shouldDeactivateDiscount() {
         Discount d = activeDiscount("CODE", DiscountType.PERCENTAGE, new BigDecimal("10"));
@@ -191,8 +184,6 @@ class DiscountServiceTest {
         assertThatExceptionOfType(DiscountNotFoundException.class)
                 .isThrownBy(() -> discountService.deactivate(99L));
     }
-
-    // ── previewDiscountedTotal ───────────────────────────────────────
 
     @Test
     void shouldReturnDiscountedTotalOnValidCode() {

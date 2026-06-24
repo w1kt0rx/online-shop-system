@@ -26,7 +26,7 @@ public class ComputerService {
                 request.storageType(), request.graphicsCard());
 
         Computer computer = new Computer(
-                computerRepository.getNextId(),
+                null,
                 request.name(),
                 request.basePrice(),
                 request.quantity(),

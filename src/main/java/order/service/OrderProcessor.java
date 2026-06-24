@@ -6,11 +6,7 @@ import customer.model.Customer;
 import customer.repository.CustomerRepository;
 import discount.service.DiscountService;
 import discount.util.DiscountMessageFormatter;
-import exception.CustomerNotFoundException;
-import exception.EmptyCartException;
-import exception.InsufficientStockException;
-import exception.NotEnoughStockException;
-import exception.OrderProcessingException;
+import exception.*;
 import invoice.dto.InvoiceDto;
 import invoice.service.InvoiceService;
 import lombok.RequiredArgsConstructor;
@@ -48,7 +44,7 @@ public class OrderProcessor {
             OrderValidator.validateCart(customer.getCart());
 
             Order order = Order.of(
-                    orderRepository.getNextId(),
+                    null,
                     customerId,
                     customer.getCart().getCartItems()
             );
@@ -86,16 +82,28 @@ public class OrderProcessor {
             return originalTotal;
         }
 
-        BigDecimal discounted = discountService.applyDiscount(discountCode, originalTotal);
+        try {
+            BigDecimal discounted =
+                    discountService.applyDiscount(discountCode, originalTotal);
 
-        System.out.println(
-                DiscountMessageFormatter.applied(
-                        discountCode,
-                        originalTotal,
-                        discounted
-                )
-        );
-        return discounted;
+            System.out.println(
+                    DiscountMessageFormatter.applied(
+                            discountCode,
+                            originalTotal,
+                            discounted
+                    )
+            );
+
+            return discounted;
+
+        } catch (DiscountNotFoundException | InvalidProductException e) {
+            System.out.println(
+                    "[Discount] Discount '" + discountCode +
+                            "' could not be applied: " + e.getMessage()
+            );
+
+            return originalTotal;
+        }
     }
 
     private void reserveStock(List<CartItem> items) {

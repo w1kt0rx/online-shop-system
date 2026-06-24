@@ -35,7 +35,7 @@ class InMemoryDiscountRepositoryTest {
         Discount discount = buildDiscount(1L, "CODE10");
         repository.save(discount);
 
-        Optional<Discount> result = repository.findById(1L);
+        final var result = repository.findById(1L);
 
         assertThat(result).isPresent();
         assertThat(result.get().getCode()).isEqualTo("CODE10");
@@ -52,13 +52,13 @@ class InMemoryDiscountRepositoryTest {
 
     @Test
     void shouldReturnEmptyWhenCodeNotFound() {
-        Optional<Discount> result = repository.findByCode("NONEXISTENT");
+        final var result = repository.findByCode("NONEXISTENT");
         assertThat(result).isEmpty();
     }
 
     @Test
     void shouldReturnEmptyWhenIdNotFound() {
-        Optional<Discount> result = repository.findById(999L);
+        final var result = repository.findById(999L);
         assertThat(result).isEmpty();
     }
 
@@ -79,14 +79,6 @@ class InMemoryDiscountRepositoryTest {
         repository.delete(1L);
 
         assertThat(repository.findById(1L)).isEmpty();
-    }
-
-    @Test
-    void shouldIncrementNextId() {
-        Long first = repository.getNextId();
-        Long second = repository.getNextId();
-
-        assertThat(second).isEqualTo(first + 1);
     }
 
     @Test

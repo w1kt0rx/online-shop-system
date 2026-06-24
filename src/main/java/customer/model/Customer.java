@@ -4,6 +4,7 @@ import cart.model.Cart;
 import customer.security.PasswordHasher;
 import customer.validator.CustomerValidator;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 
 /**
@@ -16,12 +17,13 @@ import lombok.ToString;
  * into logs.</p>
  */
 @Getter
-@ToString(exclude = "passwordHash")
+@ToString
 public class Customer {
-
-    private final Long id;
+    @Setter
+    private Long id;
     private String name;
     private String email;
+    @ToString.Exclude
     private String passwordHash;
     private final Cart cart;
 

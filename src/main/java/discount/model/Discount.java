@@ -2,6 +2,7 @@ package discount.model;
 
 import common.time.TimeUtils;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 
 import java.math.BigDecimal;
@@ -16,7 +17,8 @@ import java.time.ZonedDateTime;
 @Getter
 @ToString
 public class Discount {
-    private final Long id;
+    @Setter
+    private Long id;
     private final String code;
     private final String description;
     private final DiscountType type;

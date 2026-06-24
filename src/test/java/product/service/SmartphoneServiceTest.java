@@ -40,7 +40,6 @@ class SmartphoneServiceTest {
 
     @Test
     void shouldCreateSmartphone() {
-        when(smartphoneRepository.getNextId()).thenReturn(1L);
         when(smartphoneRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
         SmartphoneDto result = smartphoneService.create(new CreateSmartphoneRequest(
@@ -54,7 +53,6 @@ class SmartphoneServiceTest {
     @ParameterizedTest
     @MethodSource("provideColors")
     void shouldCreateSmartphoneForAllColors(Color color) {
-        when(smartphoneRepository.getNextId()).thenReturn(1L);
         when(smartphoneRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
         SmartphoneDto result = smartphoneService.create(new CreateSmartphoneRequest(

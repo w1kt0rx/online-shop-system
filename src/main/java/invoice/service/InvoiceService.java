@@ -24,7 +24,7 @@ public class InvoiceService {
             BigDecimal finalAmount
     ) {
         Invoice invoice = new Invoice(
-                invoiceRepository.getNextId(),
+                null,
                 orderId,
                 customerId,
                 customerName,

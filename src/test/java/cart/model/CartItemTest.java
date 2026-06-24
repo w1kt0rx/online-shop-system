@@ -59,7 +59,7 @@ class CartItemTest {
     @ParameterizedTest
     @ValueSource(ints = {0, -1, -100})
     void shouldThrowWhenIncreaseAmountIsZeroOrNegative(int amount) {
-        assertThatExceptionOfType(InvalidProductException.class)
+        assertThatExceptionOfType(IllegalArgumentException.class)
                 .isThrownBy(() -> cartItem.increaseQuantity(amount));
     }
 

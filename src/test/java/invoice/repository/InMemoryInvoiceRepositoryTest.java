@@ -35,7 +35,7 @@ class InMemoryInvoiceRepositoryTest {
         Invoice invoice = buildInvoice(1L, 10L);
         repository.save(invoice);
 
-        Optional<Invoice> result = repository.findById(1L);
+        final var result = repository.findById(1L);
 
         assertThat(result).isPresent();
         assertThat(result.get().getOrderId()).isEqualTo(10L);
@@ -61,14 +61,6 @@ class InMemoryInvoiceRepositoryTest {
         repository.save(buildInvoice(3L, 12L));
 
         assertThat(repository.getAll()).hasSize(3);
-    }
-
-    @Test
-    void shouldGenerateSequentialIds() {
-        Long first = repository.getNextId();
-        Long second = repository.getNextId();
-
-        assertThat(second).isEqualTo(first + 1);
     }
 
     @Test

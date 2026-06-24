@@ -38,6 +38,9 @@ public class FileOrderRepository implements OrderRepository {
 
     @Override
     public Order save(Order entity) {
+        if (entity.getId() == null) {
+            entity.setId(getNextId());
+        }
         cache.put(entity.getId(), entity);
         persistCurrentState();
         return entity;
@@ -60,8 +63,7 @@ public class FileOrderRepository implements OrderRepository {
         return List.copyOf(cache.values());
     }
 
-    @Override
-    public Long getNextId() {
+    private Long getNextId() {
         return idSequence.getAndIncrement();
     }
 
@@ -99,7 +101,7 @@ public class FileOrderRepository implements OrderRepository {
 
     private void updateSequence(Long orderId) {
         if (orderId >= idSequence.get()) {
-            idSequence.set(orderId + 1);
+            idSequence.incrementAndGet();
         }
     }
 

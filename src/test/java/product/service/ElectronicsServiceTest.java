@@ -39,7 +39,6 @@ class ElectronicsServiceTest {
     @ParameterizedTest
     @MethodSource("provideElectronics")
     void shouldCreateElectronicsForVariousProducts(String name, BigDecimal price, int qty) {
-        when(electronicsRepository.getNextId()).thenReturn(1L);
         when(electronicsRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
         ElectronicsDto result = electronicsService.create(

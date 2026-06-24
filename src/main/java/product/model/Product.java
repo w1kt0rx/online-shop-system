@@ -4,7 +4,7 @@ import exception.InvalidProductException;
 import exception.NotEnoughStockException;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import product.validator.ProductValidator;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -21,17 +21,20 @@ import java.util.List;
 @Getter
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public abstract class Product {
+
     @EqualsAndHashCode.Include
+    @Setter
     protected Long id;
+
     protected String name;
     protected BigDecimal basePrice;
     protected Integer quantity;
+
     @EqualsAndHashCode.Include
     protected ProductType productType;
 
-
     /**
-     * Creates a new product after validating all fields via ProductValidator.
+     * Creates a new product after validating all fields.
      *
      * @param id          unique identifier; must be non-null and positive
      * @param name        product name; must be non-null and non-blank
@@ -63,8 +66,8 @@ public abstract class Product {
      * Reduces stock by amount.
      *
      * @param amount number of units to deduct; must be non-negative
-     * @throws IllegalArgumentException  if amount is negative
-     * @throws NotEnoughStockException   if amount exceeds current stock
+     * @throws IllegalArgumentException if amount is negative
+     * @throws NotEnoughStockException  if amount exceeds current stock
      */
     public synchronized void decreaseQuantity(int amount) {
         if (amount < 0) {
@@ -72,9 +75,9 @@ public abstract class Product {
         }
         if (amount > quantity) {
             throw new NotEnoughStockException("Not enough stock available");
-        } else {
-            quantity -= amount;
         }
+
+        quantity -= amount;
     }
 
     /**
@@ -86,9 +89,9 @@ public abstract class Product {
     public synchronized void increaseQuantity(int amount) {
         if (amount <= 0) {
             throw new IllegalArgumentException("Amount must be greater than zero");
-        } else {
-            quantity += amount;
         }
+
+        quantity += amount;
     }
 
     /**
@@ -106,7 +109,7 @@ public abstract class Product {
      * @param name new name; must be non-null and non-blank
      */
     public void updateName(String name) {
-        ProductValidator.validateName(name);
+        validateName(name);
         this.name = name;
     }
 
@@ -116,7 +119,7 @@ public abstract class Product {
      * @param price new price; must be non-null and positive
      */
     public void updatePrice(BigDecimal price) {
-        ProductValidator.validatePrice(price);
+        validatePrice(price);
         this.basePrice = price;
     }
 
@@ -126,45 +129,81 @@ public abstract class Product {
      * @param quantity new quantity; must be non-null and non-negative
      */
     public void updateQuantity(Integer quantity) {
-        ProductValidator.validateQuantity(quantity);
+        validateQuantity(quantity);
         this.quantity = quantity;
     }
 
     public static void validate(Long id, String name, BigDecimal price, Integer quantity) {
         List<String> errors = new ArrayList<>();
 
-        validateId(id, errors);
-        validateName(name, errors);
-        validatePrice(price, errors);
-        validateQuantity(quantity, errors);
+        errors.addAll(validateIdErrors(id));
+        errors.addAll(validateNameErrors(name));
+        errors.addAll(validatePriceErrors(price));
+        errors.addAll(validateQuantityErrors(quantity));
 
         if (!errors.isEmpty()) {
             throw new InvalidProductException(String.join(", ", errors));
         }
     }
 
-    private static void validateId(Long id, List<String> errors) {
-        if (id == null || id < 0) {
-            errors.add("Id cannot be null or negative");
+    public static void validateName(String name) {
+        List<String> errors = validateNameErrors(name);
+        if (!errors.isEmpty()) {
+            throw new InvalidProductException(String.join(", ", errors));
         }
     }
 
-    private static void validateName(String name, List<String> errors) {
+    public static void validatePrice(BigDecimal price) {
+        List<String> errors = validatePriceErrors(price);
+        if (!errors.isEmpty()) {
+            throw new InvalidProductException(String.join(", ", errors));
+        }
+    }
+
+    public static void validateQuantity(Integer quantity) {
+        List<String> errors = validateQuantityErrors(quantity);
+        if (!errors.isEmpty()) {
+            throw new InvalidProductException(String.join(", ", errors));
+        }
+    }
+
+    private static List<String> validateIdErrors(Long id) {
+        List<String> errors = new ArrayList<>();
+
+        if (id != null && id < 0) {
+            errors.add("Id cannot be negative");
+        }
+
+        return errors;
+    }
+
+    private static List<String> validateNameErrors(String name) {
+        List<String> errors = new ArrayList<>();
+
         if (name == null || name.isBlank()) {
             errors.add("Name cannot be blank");
         }
+
+        return errors;
     }
 
-    private static void validatePrice(BigDecimal price, List<String> errors) {
+    private static List<String> validatePriceErrors(BigDecimal price) {
+        List<String> errors = new ArrayList<>();
+
         if (price == null || price.compareTo(BigDecimal.ZERO) < 0) {
             errors.add("Price cannot be negative");
         }
+
+        return errors;
     }
 
-    private static void validateQuantity(Integer quantity, List<String> errors) {
+    private static List<String> validateQuantityErrors(Integer quantity) {
+        List<String> errors = new ArrayList<>();
+
         if (quantity == null || quantity < 0) {
             errors.add("Quantity cannot be negative or null");
         }
-    }
 
+        return errors;
+    }
 }

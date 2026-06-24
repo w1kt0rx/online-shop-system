@@ -22,6 +22,9 @@ public class InMemoryDiscountRepository implements DiscountRepository {
 
     @Override
     public Discount save(Discount entity) {
+        if (entity.getId() == null) {
+            entity.setId(getNextId());
+        }
         database.put(entity.getId(), entity);
         return entity;
     }
@@ -41,8 +44,7 @@ public class InMemoryDiscountRepository implements DiscountRepository {
         return List.copyOf(database.values());
     }
 
-    @Override
-    public Long getNextId() {
+    private Long getNextId() {
         return sequenceId.getAndIncrement();
     }
 }
