@@ -45,7 +45,7 @@ public class DiscountService {
                 }
         );
         Discount discount = new Discount(
-                discountRepository.getNextId(),
+                null,
                 request.code(),
                 request.description(),
                 request.type(),

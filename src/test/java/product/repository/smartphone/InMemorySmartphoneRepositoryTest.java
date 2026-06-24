@@ -38,7 +38,7 @@ class InMemorySmartphoneRepositoryTest {
         );
 
         repository.save(smartphone);
-        Optional<Smartphone> result = repository.findById(1L);
+        final var result = repository.findById(1L);
 
         assertTrue(result.isPresent());
         assertEquals("iPhone 15", result.get().getName());
@@ -46,7 +46,7 @@ class InMemorySmartphoneRepositoryTest {
 
     @Test
     void shouldReturnEmptyWhenSmartphoneNotFound() {
-        Optional<Smartphone> result = repository.findById(99L);
+        final var result = repository.findById(99L);
 
         assertTrue(result.isEmpty());
     }
@@ -65,18 +65,10 @@ class InMemorySmartphoneRepositoryTest {
 
     @Test
     void shouldReturnAllSmartphones() {
-        repository.save(new Smartphone(repository.getNextId(), "iPhone 15", BigDecimal.valueOf(4000), 5, new SmartphoneConfiguration()));
-        repository.save(new Smartphone(repository.getNextId(), "Samsung S24", BigDecimal.valueOf(3500), 10, new SmartphoneConfiguration()));
+        repository.save(new Smartphone(null, "iPhone 15", BigDecimal.valueOf(4000), 5, new SmartphoneConfiguration()));
+        repository.save(new Smartphone(null, "Samsung S24", BigDecimal.valueOf(3500), 10, new SmartphoneConfiguration()));
 
         assertEquals(2, repository.getAll().size());
-    }
-
-    @Test
-    void shouldGenerateSequentialIds() {
-        Long firstId = repository.getNextId();
-        Long secondId = repository.getNextId();
-
-        assertEquals(firstId + 1, secondId);
     }
 
     @Test

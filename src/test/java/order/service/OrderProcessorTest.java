@@ -2,13 +2,12 @@ package order.service;
 
 import customer.model.Customer;
 import customer.repository.CustomerRepository;
+import discount.service.DiscountService;
 import exception.CustomerNotFoundException;
 import exception.EmptyCartException;
 import exception.InsufficientStockException;
-import exception.OrderNotFoundException;
 import invoice.dto.InvoiceDto;
-import invoice.model.Invoice;
-import invoice.repository.InvoiceRepository;
+import invoice.service.InvoiceService;
 import order.repository.OrderRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,12 +18,16 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import product.model.electronics.Electronics;
 
 import java.math.BigDecimal;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -35,7 +38,9 @@ class OrderProcessorTest {
     @Mock
     private CustomerRepository customerRepository;
     @Mock
-    private InvoiceRepository invoiceRepository;
+    private DiscountService discountService;
+    @Mock
+    private InvoiceService invoiceService;
 
     @InjectMocks
     private OrderProcessor orderProcessor;
@@ -50,13 +55,16 @@ class OrderProcessorTest {
         customer.getCart().addProduct(product, 2);
     }
 
+    private InvoiceDto buildInvoiceDto(Long customerId, String customerName, BigDecimal total) {
+        return new InvoiceDto(1L, 1L, customerId, customerName, List.of(), total, ZonedDateTime.now());
+    }
+
     @Test
     void shouldProcessOrderAndReturnInvoice() {
         when(customerRepository.findById(1L)).thenReturn(Optional.of(customer));
-        when(orderRepository.getNextId()).thenReturn(1L);
         when(orderRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
-        when(invoiceRepository.getNextId()).thenReturn(1L);
-        when(invoiceRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+        when(invoiceService.createInvoice(any(), anyLong(), anyString(), anyList(), any()))
+                .thenReturn(buildInvoiceDto(1L, "Jan Kowalski", new BigDecimal("1600")));
 
         InvoiceDto result = orderProcessor.processOrder(1L);
 
@@ -69,10 +77,9 @@ class OrderProcessorTest {
     @Test
     void shouldDecreaseProductStockAfterOrder() {
         when(customerRepository.findById(1L)).thenReturn(Optional.of(customer));
-        when(orderRepository.getNextId()).thenReturn(1L);
         when(orderRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
-        when(invoiceRepository.getNextId()).thenReturn(1L);
-        when(invoiceRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+        when(invoiceService.createInvoice(any(), anyLong(), anyString(), anyList(), any()))
+                .thenReturn(buildInvoiceDto(1L, "Jan Kowalski", new BigDecimal("1600")));
 
         orderProcessor.processOrder(1L);
 
@@ -82,10 +89,9 @@ class OrderProcessorTest {
     @Test
     void shouldClearCartAfterSuccessfulOrder() {
         when(customerRepository.findById(1L)).thenReturn(Optional.of(customer));
-        when(orderRepository.getNextId()).thenReturn(1L);
         when(orderRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
-        when(invoiceRepository.getNextId()).thenReturn(1L);
-        when(invoiceRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+        when(invoiceService.createInvoice(any(), anyLong(), anyString(), anyList(), any()))
+                .thenReturn(buildInvoiceDto(1L, "Jan Kowalski", new BigDecimal("1600")));
 
         orderProcessor.processOrder(1L);
 
@@ -95,10 +101,9 @@ class OrderProcessorTest {
     @Test
     void shouldSaveOrderToRepository() {
         when(customerRepository.findById(1L)).thenReturn(Optional.of(customer));
-        when(orderRepository.getNextId()).thenReturn(1L);
         when(orderRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
-        when(invoiceRepository.getNextId()).thenReturn(1L);
-        when(invoiceRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+        when(invoiceService.createInvoice(any(), anyLong(), anyString(), anyList(), any()))
+                .thenReturn(buildInvoiceDto(1L, "Jan Kowalski", new BigDecimal("1600")));
 
         orderProcessor.processOrder(1L);
 
@@ -106,16 +111,15 @@ class OrderProcessorTest {
     }
 
     @Test
-    void shouldSaveInvoiceToRepository() {
+    void shouldDelegateInvoiceCreationToInvoiceService() {
         when(customerRepository.findById(1L)).thenReturn(Optional.of(customer));
-        when(orderRepository.getNextId()).thenReturn(1L);
         when(orderRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
-        when(invoiceRepository.getNextId()).thenReturn(1L);
-        when(invoiceRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+        when(invoiceService.createInvoice(any(), anyLong(), anyString(), anyList(), any()))
+                .thenReturn(buildInvoiceDto(1L, "Jan Kowalski", new BigDecimal("1600")));
 
         orderProcessor.processOrder(1L);
 
-        verify(invoiceRepository).save(any(Invoice.class));
+        verify(invoiceService).createInvoice(any(), eq(1L), eq("Jan Kowalski"), anyList(), any());
     }
 
     @Test
@@ -136,7 +140,7 @@ class OrderProcessorTest {
                 .isThrownBy(() -> orderProcessor.processOrder(2L));
 
         verify(orderRepository, never()).save(any());
-        verify(invoiceRepository, never()).save(any());
+        verify(invoiceService, never()).createInvoice(any(), anyLong(), anyString(), anyList(), any());
     }
 
     @Test
@@ -148,38 +152,5 @@ class OrderProcessorTest {
         assertThatExceptionOfType(InsufficientStockException.class)
                 .isThrownBy(() -> orderProcessor.processOrder(3L))
                 .withMessageContaining("Monitor");
-    }
-
-    @Test
-    void shouldGetInvoiceByOrderId() {
-        List<Invoice> invoices = List.of(
-                new Invoice(1L, 5L, 1L, "Jan", List.of(), new BigDecimal("1600"))
-        );
-        when(invoiceRepository.getAll()).thenReturn(invoices);
-
-        InvoiceDto result = orderProcessor.getInvoiceByOrderId(5L);
-
-        assertThat(result.orderId()).isEqualTo(5L);
-    }
-
-    @Test
-    void shouldThrowWhenInvoiceForOrderNotFound() {
-        when(invoiceRepository.getAll()).thenReturn(List.of());
-
-        assertThatExceptionOfType(OrderNotFoundException.class)
-                .isThrownBy(() -> orderProcessor.getInvoiceByOrderId(99L));
-    }
-
-    @Test
-    void shouldGetAllInvoices() {
-        List<Invoice> invoices = List.of(
-                new Invoice(1L, 1L, 1L, "Jan", List.of(), new BigDecimal("1000")),
-                new Invoice(2L, 2L, 2L, "Anna", List.of(), new BigDecimal("2000"))
-        );
-        when(invoiceRepository.getAll()).thenReturn(invoices);
-
-        List<InvoiceDto> result = orderProcessor.getAllInvoices();
-
-        assertThat(result).hasSize(2);
     }
 }

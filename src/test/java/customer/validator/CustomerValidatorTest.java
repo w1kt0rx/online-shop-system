@@ -25,17 +25,10 @@ class CustomerValidatorTest {
     }
 
     @Test
-    void shouldThrowWhenIdIsNull() {
-        assertThatExceptionOfType(InvalidProductException.class)
-                .isThrownBy(() -> CustomerValidator.validate(null, "Jan", "wiktor@gmail.com", "Password!123"))
-                .withMessageContaining("Customer id cannot be null or negative");
-    }
-
-    @Test
     void shouldThrowWhenIdIsNegative() {
         assertThatExceptionOfType(InvalidProductException.class)
                 .isThrownBy(() -> CustomerValidator.validate(-1L, "Jan", "wiktor@gmail.com", "Password!123"))
-                .withMessageContaining("Customer id cannot be null or negative");
+                .withMessageContaining("Customer id cannot be negative");
     }
 
     @ParameterizedTest
@@ -51,7 +44,6 @@ class CustomerValidatorTest {
     void shouldCollectBothErrorsWhenBothInvalid() {
         assertThatExceptionOfType(InvalidProductException.class)
                 .isThrownBy(() -> CustomerValidator.validate(null, "", "wiktor@gmail.com", "Password!123"))
-                .withMessageContaining("Customer id cannot be null or negative")
                 .withMessageContaining("Customer name cannot be blank");
     }
 

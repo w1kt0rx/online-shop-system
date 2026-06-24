@@ -106,12 +106,6 @@ class CustomerTest {
     }
 
     @Test
-    void shouldThrowWhenIdIsNull() {
-        assertThatExceptionOfType(InvalidProductException.class)
-                .isThrownBy(() -> new Customer(null, "Jan", VALID_EMAIL, VALID_PASSWORD));
-    }
-
-    @Test
     void shouldThrowWhenIdIsNegative() {
         assertThatExceptionOfType(InvalidProductException.class)
                 .isThrownBy(() -> new Customer(-1L, "Jan", VALID_EMAIL, VALID_PASSWORD));
@@ -175,7 +169,6 @@ class CustomerTest {
     void shouldCollectMultipleValidationErrorsOnCreation() {
         assertThatExceptionOfType(InvalidProductException.class)
                 .isThrownBy(() -> new Customer(null, "", "", ""))
-                .withMessageContaining("Customer id cannot be null or negative")
                 .withMessageContaining("Customer name cannot be blank")
                 .withMessageContaining("Email cannot be blank")
                 .withMessageContaining("Password cannot be blank");

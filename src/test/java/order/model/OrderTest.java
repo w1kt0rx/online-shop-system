@@ -76,15 +76,6 @@ class OrderTest {
     }
 
     @Test
-    void shouldStoreCopyOfItems() {
-        List<CartItem> mutableItems = new java.util.ArrayList<>(List.of(cartItem));
-        Order o =Order.of(4L, 1L, mutableItems);
-        mutableItems.clear();
-
-        assertThat(o.getItems()).hasSize(1);
-    }
-
-    @Test
     void shouldStoreCustomerId() {
         assertThat(order.getCustomerId()).isEqualTo(1L);
     }

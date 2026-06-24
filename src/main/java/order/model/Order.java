@@ -2,10 +2,7 @@ package order.model;
 
 import cart.model.CartItem;
 import common.time.TimeUtils;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.ToString;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
@@ -23,7 +20,8 @@ import java.util.List;
 @ToString
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Order {
-    private final Long id;
+    @Setter
+    private  Long id;
     private final Long customerId;
     private final List<CartItem> items;
     private BigDecimal totalPrice;

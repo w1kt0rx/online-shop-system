@@ -39,7 +39,6 @@ class CustomerServiceTest {
     @Test
     void shouldCreateCustomer() {
         when(customerRepository.findByEmail(EMAIL)).thenReturn(Optional.empty());
-        when(customerRepository.getNextId()).thenReturn(1L);
         Customer saved = new Customer(1L, "Jan Kowalski", EMAIL, PASSWORD);
         when(customerRepository.save(any())).thenReturn(saved);
 
@@ -56,7 +55,6 @@ class CustomerServiceTest {
     @Test
     void shouldThrowWhenCreatingCustomerWithBlankName() {
         when(customerRepository.findByEmail(EMAIL)).thenReturn(Optional.empty());
-        when(customerRepository.getNextId()).thenReturn(1L);
 
         assertThrows(InvalidProductException.class,
                 () -> customerService.createCustomer(new CreateCustomerRequest("", EMAIL, PASSWORD)));

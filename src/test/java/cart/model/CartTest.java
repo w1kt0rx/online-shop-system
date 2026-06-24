@@ -1,11 +1,13 @@
 package cart.model;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import product.model.electronics.Electronics;
 
 import java.math.BigDecimal;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.*;
 
 class CartTest {
@@ -98,14 +100,18 @@ class CartTest {
 
     @Test
     void shouldThrowWhenAddingZeroQuantity() {
-        assertThrows(IllegalArgumentException.class,
-                () -> cart.addProduct(monitor, 0));
+        assertThatExceptionOfType(IllegalArgumentException.class)
+                .isThrownBy(() -> cart.addProduct(monitor, 0))
+                        .extracting(Throwable::getMessage)
+                                .isEqualTo("Quantity must be bigger than zero");
     }
 
     @Test
     void shouldThrowWhenAddingNegativeQuantity() {
-        assertThrows(IllegalArgumentException.class,
-                () -> cart.addProduct(monitor, -1));
+        assertThatExceptionOfType(IllegalArgumentException.class)
+                .isThrownBy(() -> cart.addProduct(monitor, -1))
+                .extracting(Throwable::getMessage)
+                .isEqualTo("Quantity must be bigger than zero");
     }
 
     @Test

@@ -45,10 +45,4 @@ public interface Repository<T> {
      */
     List<T> getAll();
 
-    /**
-     * Returns the next available id and advances the internal sequence.
-     *
-     * @return the next unique id; guaranteed to be unique within this repository
-     */
-    Long getNextId();
 }

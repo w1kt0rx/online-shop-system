@@ -53,7 +53,7 @@ class InMemoryComputerRepositoryTest {
 
         repository.save(computer);
 
-        Optional<Computer> result =
+        final var result =
                 repository.findById(1L);
 
         assertTrue(result.isPresent());
@@ -76,18 +76,6 @@ class InMemoryComputerRepositoryTest {
 
         assertTrue(
                 repository.findById(1L).isEmpty()
-        );
-    }
-
-    @Test
-    void shouldGenerateNextId() {
-
-        Long firstId = repository.getNextId();
-        Long secondId = repository.getNextId();
-
-        assertEquals(
-                firstId + 1,
-                secondId
         );
     }
 }

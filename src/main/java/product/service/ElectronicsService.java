@@ -19,7 +19,7 @@ public class ElectronicsService {
 
     public ElectronicsDto create(CreateElectronicsRequest request) {
         Electronics electronics = new Electronics(
-                electronicsRepository.getNextId(),
+                null,
                 request.name(),
                 request.basePrice(),
                 request.quantity());

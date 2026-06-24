@@ -13,7 +13,7 @@ import static org.assertj.core.api.Assertions.within;
 
 import java.time.temporal.ChronoUnit;
 
-class ShopClockTest {
+class TimeUtilsTest {
 
     @Test
     void shouldReturnCurrentTimeInWarsawZone() {

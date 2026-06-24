@@ -3,6 +3,7 @@ package invoice.model;
 import cart.dto.CartItemDto;
 import common.time.TimeUtils;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 
 import java.math.BigDecimal;
@@ -12,7 +13,8 @@ import java.util.List;
 @Getter
 @ToString
 public class Invoice {
-    private final Long id;
+    @Setter
+    private Long id;
     private final Long orderId;
     private final Long customerId;
     private final String customerName;

@@ -28,7 +28,7 @@ public class SmartphoneService {
         );
 
         Smartphone smartphone = new Smartphone(
-                smartphoneRepository.getNextId(),
+                null,
                 request.name(),
                 request.basePrice(),
                 request.quantity(),

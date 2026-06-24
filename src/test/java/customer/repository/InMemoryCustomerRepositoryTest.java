@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 class InMemoryCustomerRepositoryTest {
 
@@ -26,7 +27,7 @@ class InMemoryCustomerRepositoryTest {
         Customer customer = new Customer(1L, "Jan Kowalski", "jan@example.com", PASSWORD);
         repository.save(customer);
 
-        Optional<Customer> result = repository.findById(1L);
+        final var result = repository.findById(1L);
 
         assertThat(result).isPresent();
         assertThat(result.get().getName()).isEqualTo("Jan Kowalski");
@@ -67,23 +68,13 @@ class InMemoryCustomerRepositoryTest {
     }
 
     @Test
-    void shouldGenerateSequentialIds() {
-        Long first = repository.getNextId();
-        Long second = repository.getNextId();
-        Long third = repository.getNextId();
-
-        assertThat(second).isEqualTo(first + 1);
-        assertThat(third).isEqualTo(first + 2);
-    }
-
-    @Test
     void shouldReturnEmptyListWhenNoCustomersSaved() {
         assertThat(repository.getAll()).isEmpty();
     }
 
     @Test
     void shouldNotThrowWhenDeletingNonExistentId() {
-        org.junit.jupiter.api.Assertions.assertDoesNotThrow(
+        assertDoesNotThrow(
                 () -> repository.delete(999L)
         );
     }
@@ -92,7 +83,7 @@ class InMemoryCustomerRepositoryTest {
     void shouldFindCustomerByEmail() {
         repository.save(new Customer(1L, "Jan Kowalski", "jan@example.com", PASSWORD));
 
-        Optional<Customer> result = repository.findByEmail("jan@example.com");
+        final var result = repository.findByEmail("jan@example.com");
 
         assertThat(result).isPresent();
         assertThat(result.get().getId()).isEqualTo(1L);
@@ -102,7 +93,7 @@ class InMemoryCustomerRepositoryTest {
     void shouldFindCustomerByEmailCaseInsensitively() {
         repository.save(new Customer(1L, "Jan Kowalski", "jan@example.com", PASSWORD));
 
-        Optional<Customer> result = repository.findByEmail("JAN@EXAMPLE.COM");
+        final var result = repository.findByEmail("JAN@EXAMPLE.COM");
 
         assertThat(result).isPresent();
     }

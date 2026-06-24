@@ -43,7 +43,7 @@ class FileOrderRepositoryTest {
         Order order = makeOrder(1L);
         repository.save(order);
 
-        Optional<Order> result = repository.findById(1L);
+        final var result = repository.findById(1L);
         assertThat(result).isPresent();
         assertThat(result.get().getId()).isEqualTo(1L);
     }
@@ -64,14 +64,6 @@ class FileOrderRepositoryTest {
         assertThat(repository.findById(1L)).isEmpty();
         assertThat(repository.getAll()).isEmpty();
     }
-
-    @Test
-    void shouldGenerateSequentialIds() {
-        assertThat(repository.getNextId()).isEqualTo(1L);
-        assertThat(repository.getNextId()).isEqualTo(2L);
-        assertThat(repository.getNextId()).isEqualTo(3L);
-    }
-
 
     @Test
     void shouldCreateFileOnFirstSave() {
@@ -95,22 +87,12 @@ class FileOrderRepositoryTest {
     void shouldRemoveSnapshotFromFileOnDelete() {
         repository.save(makeOrder(1L));
         repository.save(makeOrder(2L));
-        repository.delete(1L); // usuwa z cache i z pliku
+        repository.delete(1L);
 
         FileOrderRepository reloaded = new FileOrderRepository(TEST_FILE);
 
         assertThat(reloaded.getPersistedSnapshots()).hasSize(1);
         assertThat(reloaded.getPersistedSnapshots().get(0).id()).isEqualTo(2L);
-    }
-
-    @Test
-    void shouldResumeIdSequenceAfterReload() {
-        repository.save(makeOrder(repository.getNextId())); // id=1
-        repository.save(makeOrder(repository.getNextId())); // id=2
-
-        FileOrderRepository reloaded = new FileOrderRepository(TEST_FILE);
-
-        assertThat(reloaded.getNextId()).isEqualTo(3L);
     }
 
     @Test
@@ -135,18 +117,6 @@ class FileOrderRepositoryTest {
         assertThat(snapshot.status()).isEqualTo(OrderStatus.CONFIRMED.name());
         assertThat(snapshot.createdAt()).isNotNull();
         assertThat(snapshot.confirmedAt()).isNotNull();
-    }
-
-    @Test
-    void shouldAccumulateSnapshotsAcrossSessions() {
-        repository.save(makeOrder(repository.getNextId()));
-        repository.save(makeOrder(repository.getNextId()));
-
-        FileOrderRepository session2 = new FileOrderRepository(TEST_FILE);
-        session2.save(makeOrder(session2.getNextId()));
-
-        FileOrderRepository session3 = new FileOrderRepository(TEST_FILE);
-        assertThat(session3.getPersistedSnapshots()).hasSize(3);
     }
 
     @Test

@@ -16,6 +16,9 @@ public class InMemoryElectronicsRepository implements ElectronicsRepository {
 
     @Override
     public Electronics save(Electronics entity) {
+        if (entity.getId() == null) {
+            entity.setId(getNextId());
+        }
         database.put(entity.getId(), entity);
         return entity;
     }
@@ -35,8 +38,7 @@ public class InMemoryElectronicsRepository implements ElectronicsRepository {
         return database.values().stream().toList();
     }
 
-    @Override
-    public Long getNextId() {
+    private Long getNextId() {
         return sequenceId.getAndIncrement();
     }
 }

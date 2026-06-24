@@ -39,7 +39,6 @@ class ComputerServiceTest {
 
     @Test
     void shouldCreateComputerAndSaveToRepository() {
-        when(computerRepository.getNextId()).thenReturn(1L);
         when(computerRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
         ComputerDto result = computerService.create(new CreateComputerRequest(
@@ -55,7 +54,6 @@ class ComputerServiceTest {
     @MethodSource("provideCreateRequests")
     void shouldCreateComputerForVariousConfigurations(
             String name, BigDecimal price, Processor proc, Ram ram) {
-        when(computerRepository.getNextId()).thenReturn(1L);
         when(computerRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
         ComputerDto result = computerService.create(new CreateComputerRequest(

@@ -35,7 +35,7 @@ public class CustomerService {
         });
 
         Customer customer = new Customer(
-                customerRepository.getNextId(),
+                null,
                 request.name(),
                 request.email(),
                 request.password()
