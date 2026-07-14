@@ -10,13 +10,13 @@ public final class InvoiceMapper {
 
     public static InvoiceDto toDto(Invoice invoice) {
         return new InvoiceDto(
-                invoice.getId(),
-                invoice.getOrderId(),
-                invoice.getCustomerId(),
-                invoice.getCustomerName(),
-                invoice.getItems(),
-                invoice.getTotalAmount(),
-                invoice.getIssuedAt()
+            invoice.getId(),
+            invoice.getOrderId(),
+            invoice.getCustomerId(),
+            invoice.getCustomerName(),
+            invoice.getItems(),
+            invoice.getTotalAmount(),
+            invoice.getIssuedAt()
         );
     }
 }

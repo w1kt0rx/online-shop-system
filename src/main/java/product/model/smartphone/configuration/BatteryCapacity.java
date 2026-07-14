@@ -1,10 +1,9 @@
 package product.model.smartphone.configuration;
 
+import java.math.BigDecimal;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-
-import java.math.BigDecimal;
 
 @Getter
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)

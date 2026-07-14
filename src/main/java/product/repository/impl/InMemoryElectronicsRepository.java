@@ -1,16 +1,16 @@
 package product.repository.impl;
 
-import product.model.electronics.Electronics;
-import product.repository.ElectronicsRepository;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
+import product.model.electronics.Electronics;
+import product.repository.ElectronicsRepository;
 
 public class InMemoryElectronicsRepository implements ElectronicsRepository {
+
     private final Map<Long, Electronics> database = new ConcurrentHashMap<>();
     private final AtomicLong sequenceId = new AtomicLong(1L);
 

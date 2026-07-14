@@ -1,13 +1,12 @@
 package customer.security;
 
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
-
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Base64;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
 /**
  * Hashes and verifies passwords using SHA-256 with a per-password random salt.

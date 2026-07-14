@@ -3,19 +3,14 @@ package cli;
 import cart.dto.CartDto;
 import cart.service.CartService;
 import exception.handler.GlobalExceptionHandler;
+import java.util.Scanner;
 import product.model.ProductType;
 
-import java.util.Scanner;
-
 public class CartMenu extends BaseMenu {
+
     private final CartService cartService;
 
-    public CartMenu(
-            Scanner scanner,
-            Session session,
-            GlobalExceptionHandler exHandler,
-            CartService cartService
-    ) {
+    public CartMenu(Scanner scanner, Session session, GlobalExceptionHandler exHandler, CartService cartService) {
         super(scanner, session, exHandler);
         this.cartService = cartService;
     }
@@ -29,9 +24,18 @@ public class CartMenu extends BaseMenu {
             if (cart.items().isEmpty()) {
                 print("  Cart is empty.");
             } else {
-                cart.items().forEach(i -> print(String.format(
-                        "  %-30s  x%-3d  %10.2f PLN",
-                        i.productName(), i.quantity(), i.totalPrice().doubleValue())));
+                cart
+                    .items()
+                    .forEach(i ->
+                        print(
+                            String.format(
+                                "  %-30s  x%-3d  %10.2f PLN",
+                                i.productName(),
+                                i.quantity(),
+                                i.totalPrice().doubleValue()
+                            )
+                        )
+                    );
                 print(LINE);
                 print(String.format("  %-34s  %10.2f PLN", "TOTAL:", cart.totalPrice().doubleValue()));
             }

@@ -1,17 +1,16 @@
 package cart.mapper;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import cart.dto.CartDto;
 import cart.dto.CartItemDto;
 import cart.model.Cart;
+import java.math.BigDecimal;
 import org.junit.jupiter.api.Test;
 import product.model.ProductType;
 import product.model.computer.Computer;
 import product.model.computer.configuration.ComputerConfiguration;
 import product.model.electronics.Electronics;
-
-import java.math.BigDecimal;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 class CartMapperTest {
 

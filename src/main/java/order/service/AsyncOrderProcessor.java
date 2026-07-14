@@ -2,13 +2,12 @@ package order.service;
 
 import exception.OrderProcessingException;
 import invoice.dto.InvoiceDto;
-import lombok.RequiredArgsConstructor;
-import order.model.OrderProcessingResult;
-
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import lombok.RequiredArgsConstructor;
+import order.model.OrderProcessingResult;
 
 /**
  * This class is responsible for asynchronous order processing using CompletableFuture.
@@ -53,8 +52,7 @@ public class AsyncOrderProcessor {
      * or completed exceptionally with OrderProcessingException on failure
      */
     public CompletableFuture<InvoiceDto> processOrderAsync(Long customerId, String discountCode) {
-        return CompletableFuture
-                .supplyAsync(() -> orderProcessor.processOrder(customerId, discountCode), executor);
+        return CompletableFuture.supplyAsync(() -> orderProcessor.processOrder(customerId, discountCode), executor);
     }
 
     /**
@@ -69,20 +67,23 @@ public class AsyncOrderProcessor {
      * in the same order as the input list
      */
     public CompletableFuture<List<OrderProcessingResult>> processBatchAsync(List<Long> customerIds) {
-        List<CompletableFuture<OrderProcessingResult>> futures = customerIds.stream()
-                .map(id -> CompletableFuture
-                        .supplyAsync(() -> orderProcessor.processOrder(id), executor)
-                        .handle((invoice, ex) -> ex == null
-                                ? OrderProcessingResult.success(id, invoice)
-                                : OrderProcessingResult.failure(id,
-                                ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage())))
-                .toList();
+        List<CompletableFuture<OrderProcessingResult>> futures = customerIds
+            .stream()
+            .map(id ->
+                CompletableFuture.supplyAsync(() -> orderProcessor.processOrder(id), executor).handle((invoice, ex) ->
+                    ex == null
+                        ? OrderProcessingResult.success(id, invoice)
+                        : OrderProcessingResult.failure(
+                            id,
+                            ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()
+                        )
+                )
+            )
+            .toList();
 
-        return CompletableFuture
-                .allOf(futures.toArray(new CompletableFuture[0]))
-                .thenApply(v -> futures.stream()
-                        .map(CompletableFuture::join)
-                        .toList());
+        return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).thenApply(v ->
+            futures.stream().map(CompletableFuture::join).toList()
+        );
     }
 
     /**

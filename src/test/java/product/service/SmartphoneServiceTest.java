@@ -1,6 +1,15 @@
 package product.service;
 
+import static org.assertj.core.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
 import exception.ProductNotFoundException;
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -16,21 +25,12 @@ import product.model.smartphone.Smartphone;
 import product.model.smartphone.configuration.*;
 import product.repository.SmartphoneRepository;
 
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Stream;
-
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
-
 @ExtendWith(MockitoExtension.class)
 class SmartphoneServiceTest {
 
     @Mock
     SmartphoneRepository smartphoneRepository;
+
     @InjectMocks
     SmartphoneService smartphoneService;
 
@@ -42,9 +42,16 @@ class SmartphoneServiceTest {
     void shouldCreateSmartphone() {
         when(smartphoneRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
-        SmartphoneDto result = smartphoneService.create(new CreateSmartphoneRequest(
-                "iPhone 15", new BigDecimal("4000"), 10,
-                Set.of(Accessory.CHARGER), BatteryCapacity.BATTERY_5000, Color.GOLD));
+        SmartphoneDto result = smartphoneService.create(
+            new CreateSmartphoneRequest(
+                "iPhone 15",
+                new BigDecimal("4000"),
+                10,
+                Set.of(Accessory.CHARGER),
+                BatteryCapacity.BATTERY_5000,
+                Color.GOLD
+            )
+        );
 
         assertThat(result.name()).isEqualTo("iPhone 15");
         verify(smartphoneRepository).save(any());
@@ -55,9 +62,16 @@ class SmartphoneServiceTest {
     void shouldCreateSmartphoneForAllColors(Color color) {
         when(smartphoneRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
-        SmartphoneDto result = smartphoneService.create(new CreateSmartphoneRequest(
-                "Phone", new BigDecimal("3000"), 5,
-                Set.of(), BatteryCapacity.BATTERY_4000, color));
+        SmartphoneDto result = smartphoneService.create(
+            new CreateSmartphoneRequest(
+                "Phone",
+                new BigDecimal("3000"),
+                5,
+                Set.of(),
+                BatteryCapacity.BATTERY_4000,
+                color
+            )
+        );
 
         assertThat(result).isNotNull();
     }
@@ -80,8 +94,8 @@ class SmartphoneServiceTest {
         when(smartphoneRepository.findById(99L)).thenReturn(Optional.empty());
 
         assertThatExceptionOfType(ProductNotFoundException.class)
-                .isThrownBy(() -> smartphoneService.getById(99L))
-                .withMessageContaining("99");
+            .isThrownBy(() -> smartphoneService.getById(99L))
+            .withMessageContaining("99");
     }
 
     @Test
@@ -104,8 +118,7 @@ class SmartphoneServiceTest {
     void shouldThrowWhenDeletingNonExistentSmartphone() {
         when(smartphoneRepository.findById(99L)).thenReturn(Optional.empty());
 
-        assertThatExceptionOfType(ProductNotFoundException.class)
-                .isThrownBy(() -> smartphoneService.delete(99L));
+        assertThatExceptionOfType(ProductNotFoundException.class).isThrownBy(() -> smartphoneService.delete(99L));
         verify(smartphoneRepository, never()).delete(any());
     }
 
@@ -115,9 +128,17 @@ class SmartphoneServiceTest {
         when(smartphoneRepository.findById(1L)).thenReturn(Optional.of(phone));
         when(smartphoneRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
-        SmartphoneDto result = smartphoneService.update(1L, new UpdateSmartphoneRequest(
-                "Samsung S24", new BigDecimal("4200"), 8,
-                Set.of(Accessory.PHONE_CASE), BatteryCapacity.BATTERY_6000, Color.WHITE));
+        SmartphoneDto result = smartphoneService.update(
+            1L,
+            new UpdateSmartphoneRequest(
+                "Samsung S24",
+                new BigDecimal("4200"),
+                8,
+                Set.of(Accessory.PHONE_CASE),
+                BatteryCapacity.BATTERY_6000,
+                Color.WHITE
+            )
+        );
 
         assertThat(result.name()).isEqualTo("Samsung S24");
         assertThat(result.quantity()).isEqualTo(8);

@@ -1,11 +1,10 @@
 package common.time;
 
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
-
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
 /**
  * <p>Solves time zone issues by consistently using
@@ -68,5 +67,4 @@ public final class TimeUtils {
     public static Instant toInstant(ZonedDateTime dateTime) {
         return dateTime.toInstant();
     }
-
 }

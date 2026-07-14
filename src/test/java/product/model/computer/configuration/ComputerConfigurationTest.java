@@ -1,17 +1,16 @@
 package product.model.computer.configuration;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+
 import exception.InvalidConfigurationException;
+import java.math.BigDecimal;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-
-import java.math.BigDecimal;
-import java.util.stream.Stream;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 class ComputerConfigurationTest {
 
@@ -83,32 +82,30 @@ class ComputerConfigurationTest {
 
     @Test
     void shouldThrowWhenConfiguringWithNullProcessor() {
-        assertThatExceptionOfType(InvalidConfigurationException.class)
-                .isThrownBy(() -> config.configure(null, Ram.RAM_8GB, StorageType.SSD_512GB, GraphicsCard.INTEGRATED));
+        assertThatExceptionOfType(InvalidConfigurationException.class).isThrownBy(() ->
+            config.configure(null, Ram.RAM_8GB, StorageType.SSD_512GB, GraphicsCard.INTEGRATED)
+        );
     }
 
     @Test
     void shouldThrowWhenUpdatingProcessorToNull() {
-        assertThatExceptionOfType(InvalidConfigurationException.class)
-                .isThrownBy(() -> config.updateProcessor(null));
+        assertThatExceptionOfType(InvalidConfigurationException.class).isThrownBy(() -> config.updateProcessor(null));
     }
 
     @Test
     void shouldThrowWhenUpdatingRamToNull() {
-        assertThatExceptionOfType(InvalidConfigurationException.class)
-                .isThrownBy(() -> config.updateRam(null));
+        assertThatExceptionOfType(InvalidConfigurationException.class).isThrownBy(() -> config.updateRam(null));
     }
 
     @Test
     void shouldThrowWhenUpdatingStorageToNull() {
-        assertThatExceptionOfType(InvalidConfigurationException.class)
-                .isThrownBy(() -> config.updateStorageType(null));
+        assertThatExceptionOfType(InvalidConfigurationException.class).isThrownBy(() -> config.updateStorageType(null));
     }
 
     @Test
     void shouldThrowWhenUpdatingGraphicsCardToNull() {
-        assertThatExceptionOfType(InvalidConfigurationException.class)
-                .isThrownBy(() -> config.updateGraphicsCard(null));
+        assertThatExceptionOfType(InvalidConfigurationException.class).isThrownBy(() -> config.updateGraphicsCard(null)
+        );
     }
 
     private static Stream<Arguments> provideAllProcessors() {

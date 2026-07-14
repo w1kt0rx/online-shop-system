@@ -2,7 +2,6 @@ package order.repository.impl.file;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -26,9 +25,7 @@ public class OrderSnapshotFileStore {
         try {
             return mapper.readValue(file, new TypeReference<List<OrderSnapshot>>() {});
         } catch (IOException e) {
-            throw new IllegalStateException(
-                    "Could not load order snapshots from file: " + file.getPath(), e
-            );
+            throw new IllegalStateException("Could not load order snapshots from file: " + file.getPath(), e);
         }
     }
 
@@ -36,9 +33,7 @@ public class OrderSnapshotFileStore {
         try {
             mapper.writerWithDefaultPrettyPrinter().writeValue(file, snapshots);
         } catch (IOException e) {
-            throw new IllegalStateException(
-                    "Could not persist order snapshots to file: " + file.getPath(), e
-            );
+            throw new IllegalStateException("Could not persist order snapshots to file: " + file.getPath(), e);
         }
     }
 }

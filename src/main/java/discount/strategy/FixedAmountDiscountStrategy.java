@@ -8,6 +8,7 @@ import java.math.BigDecimal;
  * clamped to BigDecimal.ZERO.
  */
 public class FixedAmountDiscountStrategy implements DiscountStrategy {
+
     private static final BigDecimal MAX_DISCOUNT_AMOUNT = BigDecimal.valueOf(1000);
     private final BigDecimal amount;
 
@@ -22,9 +23,7 @@ public class FixedAmountDiscountStrategy implements DiscountStrategy {
             throw new IllegalArgumentException("Discount amount must be positive");
         }
         if (amount.compareTo(MAX_DISCOUNT_AMOUNT) > 0) {
-            throw new IllegalArgumentException(
-                    "Discount amount cannot exceed " + MAX_DISCOUNT_AMOUNT + " zł"
-            );
+            throw new IllegalArgumentException("Discount amount cannot exceed " + MAX_DISCOUNT_AMOUNT + " zł");
         }
         this.amount = amount;
     }

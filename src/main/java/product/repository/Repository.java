@@ -14,7 +14,6 @@ import java.util.Optional;
  * @param <T> the entity type managed by this repository
  */
 public interface Repository<T> {
-
     /**
      * Persists or updates the given entity.
      *
@@ -44,5 +43,4 @@ public interface Repository<T> {
      * @return an unmodifiable list; never null, may be empty
      */
     List<T> getAll();
-
 }

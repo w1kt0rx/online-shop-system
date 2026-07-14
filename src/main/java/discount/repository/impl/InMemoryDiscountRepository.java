@@ -2,7 +2,6 @@ package discount.repository.impl;
 
 import discount.model.Discount;
 import discount.repository.DiscountRepository;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -10,14 +9,13 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class InMemoryDiscountRepository implements DiscountRepository {
+
     private final Map<Long, Discount> database = new ConcurrentHashMap<>();
     private final AtomicLong sequenceId = new AtomicLong(1L);
 
     @Override
     public Optional<Discount> findByCode(String code) {
-        return database.values().stream()
-                .filter(discount -> discount.getCode().equalsIgnoreCase(code))
-                .findFirst();
+        return database.values().stream().filter(discount -> discount.getCode().equalsIgnoreCase(code)).findFirst();
     }
 
     @Override

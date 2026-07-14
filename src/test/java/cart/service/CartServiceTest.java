@@ -1,5 +1,8 @@
 package cart.service;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.when;
+
 import cart.dto.CartDto;
 import customer.model.Customer;
 import customer.repository.CustomerRepository;
@@ -7,6 +10,8 @@ import exception.CustomerNotFoundException;
 import exception.InsufficientStockException;
 import exception.InvalidProductException;
 import exception.ProductNotFoundException;
+import java.math.BigDecimal;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,21 +28,18 @@ import product.repository.ComputerRepository;
 import product.repository.ElectronicsRepository;
 import product.repository.SmartphoneRepository;
 
-import java.math.BigDecimal;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
-
 @ExtendWith(MockitoExtension.class)
 class CartServiceTest {
 
     @Mock
     private CustomerRepository customerRepository;
+
     @Mock
     private ComputerRepository computerRepository;
+
     @Mock
     private SmartphoneRepository smartphoneRepository;
+
     @Mock
     private ElectronicsRepository electronicsRepository;
 
@@ -144,8 +146,7 @@ class CartServiceTest {
     void shouldThrowWhenCustomerNotFound() {
         when(customerRepository.findById(99L)).thenReturn(Optional.empty());
 
-        assertThrows(CustomerNotFoundException.class,
-                () -> cartService.addProduct(99L, 1L, ProductType.COMPUTER, 1));
+        assertThrows(CustomerNotFoundException.class, () -> cartService.addProduct(99L, 1L, ProductType.COMPUTER, 1));
     }
 
     @Test
@@ -153,8 +154,7 @@ class CartServiceTest {
         when(customerRepository.findById(1L)).thenReturn(Optional.of(customer));
         when(computerRepository.findById(99L)).thenReturn(Optional.empty());
 
-        assertThrows(ProductNotFoundException.class,
-                () -> cartService.addProduct(1L, 99L, ProductType.COMPUTER, 1));
+        assertThrows(ProductNotFoundException.class, () -> cartService.addProduct(1L, 99L, ProductType.COMPUTER, 1));
     }
 
     @Test
@@ -162,10 +162,8 @@ class CartServiceTest {
         when(customerRepository.findById(1L)).thenReturn(Optional.of(customer));
         when(computerRepository.findById(1L)).thenReturn(Optional.of(computer));
 
-        assertThrows(InsufficientStockException.class,
-                () -> cartService.addProduct(1L, 1L, ProductType.COMPUTER, 999));
+        assertThrows(InsufficientStockException.class, () -> cartService.addProduct(1L, 1L, ProductType.COMPUTER, 999));
     }
-
 
     @Test
     void shouldGetCartForCustomer() {

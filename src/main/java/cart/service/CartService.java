@@ -46,7 +46,7 @@ public class CartService {
 
         if (quantity > product.getQuantity()) {
             throw new InsufficientStockException(
-                    "Requested quantity " + quantity + " exceeds available stock " + product.getQuantity()
+                "Requested quantity " + quantity + " exceeds available stock " + product.getQuantity()
             );
         }
 
@@ -98,21 +98,20 @@ public class CartService {
     }
 
     private Customer findCustomer(Long customerId) {
-        return customerRepository.findById(customerId)
-                .orElseThrow(() -> new CustomerNotFoundException(customerId));
+        return customerRepository.findById(customerId).orElseThrow(() -> new CustomerNotFoundException(customerId));
     }
 
     private Product findProduct(Long productId, ProductType productType) {
         return switch (productType) {
-            case COMPUTER -> computerRepository.findById(productId)
-                    .orElseThrow(() -> new ProductNotFoundException(productType, productId));
-
-            case SMARTPHONE -> smartphoneRepository.findById(productId)
-                    .orElseThrow(() -> new ProductNotFoundException(productType, productId));
-
-            case ELECTRONICS -> electronicsRepository.findById(productId)
-                    .orElseThrow(() -> new ProductNotFoundException(productType, productId));
-
+            case COMPUTER -> computerRepository
+                .findById(productId)
+                .orElseThrow(() -> new ProductNotFoundException(productType, productId));
+            case SMARTPHONE -> smartphoneRepository
+                .findById(productId)
+                .orElseThrow(() -> new ProductNotFoundException(productType, productId));
+            case ELECTRONICS -> electronicsRepository
+                .findById(productId)
+                .orElseThrow(() -> new ProductNotFoundException(productType, productId));
             default -> throw new IllegalArgumentException("Unknown product type: " + productType);
         };
     }

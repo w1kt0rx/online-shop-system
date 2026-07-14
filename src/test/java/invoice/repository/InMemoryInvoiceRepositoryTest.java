@@ -1,17 +1,16 @@
 package invoice.repository;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import cart.dto.CartItemDto;
 import invoice.model.Invoice;
 import invoice.repository.impl.InMemoryInvoiceRepository;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import product.model.ProductType;
-
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import product.model.ProductType;
 
 class InMemoryInvoiceRepositoryTest {
 
@@ -19,8 +18,7 @@ class InMemoryInvoiceRepositoryTest {
 
     private Invoice buildInvoice(Long id, Long orderId) {
         List<CartItemDto> items = List.of(
-                new CartItemDto(1L, "Monitor", ProductType.ELECTRONICS,
-                        new BigDecimal("800"), 1, new BigDecimal("800"))
+            new CartItemDto(1L, "Monitor", ProductType.ELECTRONICS, new BigDecimal("800"), 1, new BigDecimal("800"))
         );
         return new Invoice(id, orderId, 1L, "Jan Kowalski", items, new BigDecimal("800"));
     }

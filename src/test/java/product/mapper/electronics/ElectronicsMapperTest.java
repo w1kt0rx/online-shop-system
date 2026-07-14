@@ -1,5 +1,9 @@
 package product.mapper.electronics;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.math.BigDecimal;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -7,11 +11,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 import product.dto.electronics.ElectronicsDto;
 import product.model.ProductType;
 import product.model.electronics.Electronics;
-
-import java.math.BigDecimal;
-import java.util.stream.Stream;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 class ElectronicsMapperTest {
 
@@ -55,9 +54,9 @@ class ElectronicsMapperTest {
 
     private static Stream<Arguments> provideElectronics() {
         return Stream.of(
-                Arguments.of(1L, "Headphones", new BigDecimal("200"), 50),
-                Arguments.of(2L, "Webcam", new BigDecimal("350"), 30),
-                Arguments.of(3L, "USB Hub", new BigDecimal("80"), 100)
+            Arguments.of(1L, "Headphones", new BigDecimal("200"), 50),
+            Arguments.of(2L, "Webcam", new BigDecimal("350"), 30),
+            Arguments.of(3L, "USB Hub", new BigDecimal("80"), 100)
         );
     }
 }

@@ -2,13 +2,12 @@ package product.model;
 
 import exception.InvalidProductException;
 import exception.NotEnoughStockException;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Abstract base class for all products in the shop.

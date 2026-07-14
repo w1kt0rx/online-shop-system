@@ -1,11 +1,10 @@
 package discount.strategy;
 
-import org.junit.jupiter.api.Test;
-
-import java.math.BigDecimal;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+import java.math.BigDecimal;
+import org.junit.jupiter.api.Test;
 
 class PercentageDiscountStrategyTest {
 
@@ -53,13 +52,15 @@ class PercentageDiscountStrategyTest {
 
     @Test
     void shouldThrowWhenPercentageIsNegative() {
-        assertThatThrownBy(() -> new PercentageDiscountStrategy(new BigDecimal("-1")))
-                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> new PercentageDiscountStrategy(new BigDecimal("-1"))).isInstanceOf(
+            IllegalArgumentException.class
+        );
     }
 
     @Test
     void shouldThrowWhenPercentageExceedsHundred() {
-        assertThatThrownBy(() -> new PercentageDiscountStrategy(new BigDecimal("101")))
-                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> new PercentageDiscountStrategy(new BigDecimal("101"))).isInstanceOf(
+            IllegalArgumentException.class
+        );
     }
 }

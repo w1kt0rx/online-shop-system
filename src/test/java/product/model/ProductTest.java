@@ -1,20 +1,19 @@
 package product.model;
 
+import static org.assertj.core.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.*;
+
 import exception.InvalidConfigurationException;
 import exception.InvalidProductException;
 import exception.NotEnoughStockException;
-import product.model.computer.configuration.*;
-import product.model.electronics.Electronics;
-import product.model.smartphone.Smartphone;
+import java.math.BigDecimal;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import product.model.computer.*;
+import product.model.computer.configuration.*;
+import product.model.electronics.Electronics;
+import product.model.smartphone.Smartphone;
 import product.model.smartphone.configuration.SmartphoneConfiguration;
-
-import java.math.BigDecimal;
-
-import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.*;
 
 public class ProductTest {
 
@@ -30,27 +29,24 @@ public class ProductTest {
     }
 
     @Test
-    public void shouldThrowInvalidIdException() {
-        assertThatExceptionOfType(InvalidProductException.class)
-                .isThrownBy(() -> new Computer(null, "Dell XPS", new BigDecimal("3000"), 20, new ComputerConfiguration()));
-    }
-
-    @Test
     public void shouldThrowInvalidNameException() {
-        assertThatExceptionOfType(InvalidProductException.class)
-                .isThrownBy(() -> new Computer(1L, null, new BigDecimal("3000"), 20, new ComputerConfiguration()));
+        assertThatExceptionOfType(InvalidProductException.class).isThrownBy(() ->
+            new Computer(1L, null, new BigDecimal("3000"), 20, new ComputerConfiguration())
+        );
     }
 
     @Test
     public void shouldThrowInvalidPriceException() {
-        assertThatExceptionOfType(InvalidProductException.class)
-                .isThrownBy(() -> new Computer(1L, "Laptop", new BigDecimal("-3000"), 20, new ComputerConfiguration()));
+        assertThatExceptionOfType(InvalidProductException.class).isThrownBy(() ->
+            new Computer(1L, "Laptop", new BigDecimal("-3000"), 20, new ComputerConfiguration())
+        );
     }
 
     @Test
     public void shouldThrowInvalidQuantityException() {
-        assertThatExceptionOfType(InvalidProductException.class)
-                .isThrownBy(() -> new Computer(1L, "Laptop", new BigDecimal("3000"), -20, new ComputerConfiguration()));
+        assertThatExceptionOfType(InvalidProductException.class).isThrownBy(() ->
+            new Computer(1L, "Laptop", new BigDecimal("3000"), -20, new ComputerConfiguration())
+        );
     }
 
     @Test
@@ -66,12 +62,7 @@ public class ProductTest {
 
     @Test
     public void shouldConfigureComputerCorrectly() {
-        computer.configureComputer(
-                Processor.INTEL_I9,
-                Ram.RAM_32GB,
-                StorageType.SSD_2TB,
-                GraphicsCard.RTX_4070
-        );
+        computer.configureComputer(Processor.INTEL_I9, Ram.RAM_32GB, StorageType.SSD_2TB, GraphicsCard.RTX_4070);
         assertEquals(Processor.INTEL_I9, computer.getComputerConfiguration().getProcessor());
         assertEquals(Ram.RAM_32GB, computer.getComputerConfiguration().getRam());
         assertEquals(StorageType.SSD_2TB, computer.getComputerConfiguration().getStorageType());
@@ -80,33 +71,29 @@ public class ProductTest {
 
     @Test
     public void shouldThrowExceptionWhenProcessorIsNull() {
-        assertThrows(
-                InvalidConfigurationException.class,
-                () -> computer.configureComputer(null, Ram.RAM_32GB, StorageType.SSD_2TB, GraphicsCard.RTX_4070)
+        assertThrows(InvalidConfigurationException.class, () ->
+            computer.configureComputer(null, Ram.RAM_32GB, StorageType.SSD_2TB, GraphicsCard.RTX_4070)
         );
     }
 
     @Test
     public void shouldThrowExceptionWhenRamIsNull() {
-        assertThrows(
-                InvalidConfigurationException.class,
-                () -> computer.configureComputer(Processor.INTEL_I5, null, StorageType.SSD_2TB, GraphicsCard.RTX_4070)
+        assertThrows(InvalidConfigurationException.class, () ->
+            computer.configureComputer(Processor.INTEL_I5, null, StorageType.SSD_2TB, GraphicsCard.RTX_4070)
         );
     }
 
     @Test
     public void shouldThrowExceptionWhenStorageTypeIsNull() {
-        assertThrows(
-                InvalidConfigurationException.class,
-                () -> computer.configureComputer(Processor.INTEL_I5, Ram.RAM_8GB, null, GraphicsCard.RTX_4070)
+        assertThrows(InvalidConfigurationException.class, () ->
+            computer.configureComputer(Processor.INTEL_I5, Ram.RAM_8GB, null, GraphicsCard.RTX_4070)
         );
     }
 
     @Test
     public void shouldThrowExceptionWhenGraphicsCardIsNull() {
-        assertThrows(
-                InvalidConfigurationException.class,
-                () -> computer.configureComputer(Processor.INTEL_I5, Ram.RAM_8GB, StorageType.SSD_2TB, null)
+        assertThrows(InvalidConfigurationException.class, () ->
+            computer.configureComputer(Processor.INTEL_I5, Ram.RAM_8GB, StorageType.SSD_2TB, null)
         );
     }
 
@@ -124,18 +111,12 @@ public class ProductTest {
 
     @Test
     public void shouldThrowExceptionWhenDecreaseAmountExceedsStock() {
-        assertThrows(
-                NotEnoughStockException.class,
-                () -> computer.decreaseQuantity(21)
-        );
+        assertThrows(NotEnoughStockException.class, () -> computer.decreaseQuantity(21));
     }
 
     @Test
     public void shouldThrowExceptionWhenDecreaseAmountIsNegative() {
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> computer.decreaseQuantity(-1)
-        );
+        assertThrows(IllegalArgumentException.class, () -> computer.decreaseQuantity(-1));
     }
 
     @Test

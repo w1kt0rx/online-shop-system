@@ -1,17 +1,15 @@
 package common.time;
 
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.within;
 
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.within;
-
 import java.time.temporal.ChronoUnit;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 class TimeUtilsTest {
 
@@ -33,7 +31,7 @@ class TimeUtilsTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"Europe/London", "America/New_York", "Asia/Tokyo", "UTC"})
+    @ValueSource(strings = { "Europe/London", "America/New_York", "Asia/Tokyo", "UTC" })
     void shouldReturnTimeInRequestedZone(String zoneId) {
         ZoneId zone = ZoneId.of(zoneId);
         ZonedDateTime result = TimeUtils.nowIn(zone);
@@ -69,8 +67,7 @@ class TimeUtilsTest {
         ZonedDateTime warsaw = TimeUtils.now();
         ZonedDateTime tokyo = TimeUtils.nowIn(ZoneId.of("Asia/Tokyo"));
 
-        assertThat(warsaw.toInstant())
-                .isCloseTo(tokyo.toInstant(), within(2, ChronoUnit.SECONDS));
+        assertThat(warsaw.toInstant()).isCloseTo(tokyo.toInstant(), within(2, ChronoUnit.SECONDS));
 
         assertThat(warsaw.getZone()).isNotEqualTo(tokyo.getZone());
     }

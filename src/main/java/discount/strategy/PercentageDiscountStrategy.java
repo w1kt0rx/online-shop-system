@@ -9,6 +9,7 @@ import java.math.RoundingMode;
  * rounded to two decimal places using RoundingMode.HALF_UP.
  */
 public class PercentageDiscountStrategy implements DiscountStrategy {
+
     private final BigDecimal percentage;
 
     /**
@@ -30,9 +31,7 @@ public class PercentageDiscountStrategy implements DiscountStrategy {
      */
     @Override
     public BigDecimal apply(BigDecimal originalPrice) {
-        BigDecimal discount = originalPrice
-                .multiply(percentage)
-                .divide(new BigDecimal("100"), 2, RoundingMode.HALF_UP);
+        BigDecimal discount = originalPrice.multiply(percentage).divide(new BigDecimal("100"), 2, RoundingMode.HALF_UP);
         return originalPrice.subtract(discount);
     }
 

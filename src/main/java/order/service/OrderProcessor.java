@@ -9,14 +9,13 @@ import discount.util.DiscountMessageFormatter;
 import exception.*;
 import invoice.dto.InvoiceDto;
 import invoice.service.InvoiceService;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import order.model.Order;
 import order.repository.OrderRepository;
 import order.validator.OrderValidator;
-
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Orchestrates the full order placement pipeline:
@@ -38,16 +37,13 @@ public class OrderProcessor {
 
     public InvoiceDto processOrder(Long customerId, String discountCode) {
         try {
-            Customer customer = customerRepository.findById(customerId)
-                    .orElseThrow(() -> new CustomerNotFoundException(customerId));
+            Customer customer = customerRepository
+                .findById(customerId)
+                .orElseThrow(() -> new CustomerNotFoundException(customerId));
 
             OrderValidator.validateCart(customer.getCart());
 
-            Order order = Order.of(
-                    null,
-                    customerId,
-                    customer.getCart().getCartItems()
-            );
+            Order order = Order.of(null, customerId, customer.getCart().getCartItems());
 
             reserveStock(order.getItems());
 
@@ -59,21 +55,16 @@ public class OrderProcessor {
             BigDecimal finalAmount = resolveTotal(order.getTotalPrice(), discountCode);
 
             return invoiceService.createInvoice(
-                    order.getId(),
-                    customer.getId(),
-                    customer.getName(),
-                    order.getItems().stream()
-                            .map(CartMapper::toItemDto)
-                            .toList(),
-                    finalAmount
+                order.getId(),
+                customer.getId(),
+                customer.getName(),
+                order.getItems().stream().map(CartMapper::toItemDto).toList(),
+                finalAmount
             );
-
         } catch (CustomerNotFoundException | EmptyCartException | InsufficientStockException e) {
             throw e;
         } catch (Exception e) {
-            throw new OrderProcessingException(
-                    "Order processing failed for customer " + customerId, e
-            );
+            throw new OrderProcessingException("Order processing failed for customer " + customerId, e);
         }
     }
 
@@ -83,24 +74,13 @@ public class OrderProcessor {
         }
 
         try {
-            BigDecimal discounted =
-                    discountService.applyDiscount(discountCode, originalTotal);
+            BigDecimal discounted = discountService.applyDiscount(discountCode, originalTotal);
 
-            System.out.println(
-                    DiscountMessageFormatter.applied(
-                            discountCode,
-                            originalTotal,
-                            discounted
-                    )
-            );
+            System.out.println(DiscountMessageFormatter.applied(discountCode, originalTotal, discounted));
 
             return discounted;
-
         } catch (DiscountNotFoundException | InvalidProductException e) {
-            System.out.println(
-                    "[Discount] Discount '" + discountCode +
-                            "' could not be applied: " + e.getMessage()
-            );
+            System.out.println("[Discount] Discount '" + discountCode + "' could not be applied: " + e.getMessage());
 
             return originalTotal;
         }
@@ -116,9 +96,12 @@ public class OrderProcessor {
             } catch (NotEnoughStockException e) {
                 reserved.forEach(r -> r.getProduct().increaseQuantity(r.getQuantity()));
                 throw new InsufficientStockException(
-                        "Not enough stock for product: " + product.getName()
-                                + ". Available: " + product.getQuantity()
-                                + ", requested: " + item.getQuantity()
+                    "Not enough stock for product: " +
+                    product.getName() +
+                    ". Available: " +
+                    product.getQuantity() +
+                    ", requested: " +
+                    item.getQuantity()
                 );
             }
             reserved.add(item);

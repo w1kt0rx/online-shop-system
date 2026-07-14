@@ -10,19 +10,21 @@ public final class ComputerConfigurationMapper {
 
     public static ComputerConfigurationDto toDto(ComputerConfiguration computerConfiguration) {
         return new ComputerConfigurationDto(
-                computerConfiguration.getProcessor(),
-                computerConfiguration.getRam(),
-                computerConfiguration.getStorageType(),
-                computerConfiguration.getGraphicsCard());
+            computerConfiguration.getProcessor(),
+            computerConfiguration.getRam(),
+            computerConfiguration.getStorageType(),
+            computerConfiguration.getGraphicsCard()
+        );
     }
 
     public static ComputerConfiguration toEntity(ComputerConfigurationDto computerConfigurationDto) {
         ComputerConfiguration configuration = new ComputerConfiguration();
         configuration.configure(
-                computerConfigurationDto.processor(),
-                computerConfigurationDto.ram(),
-                computerConfigurationDto.storageType(),
-                computerConfigurationDto.graphicsCard());
+            computerConfigurationDto.processor(),
+            computerConfigurationDto.ram(),
+            computerConfigurationDto.storageType(),
+            computerConfigurationDto.graphicsCard()
+        );
         return configuration;
     }
 }

@@ -1,22 +1,26 @@
 package product.mapper.smartphone;
 
+import static org.assertj.core.api.Assertions.assertThat;
 
+import java.math.BigDecimal;
+import java.util.Set;
 import org.junit.jupiter.api.Test;
 import product.dto.smartphone.SmartphoneDto;
 import product.model.ProductType;
 import product.model.smartphone.Smartphone;
 import product.model.smartphone.configuration.*;
 
-import java.math.BigDecimal;
-import java.util.Set;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
 class SmartphoneMapperTest {
 
     @Test
     void shouldMapSmartphoneToDtoWithAllFields() {
-        Smartphone smartphone = new Smartphone(1L, "iPhone 15", new BigDecimal("4000"), 10, new SmartphoneConfiguration());
+        Smartphone smartphone = new Smartphone(
+            1L,
+            "iPhone 15",
+            new BigDecimal("4000"),
+            10,
+            new SmartphoneConfiguration()
+        );
 
         SmartphoneDto dto = SmartphoneMapper.toDTO(smartphone);
 
@@ -30,7 +34,13 @@ class SmartphoneMapperTest {
 
     @Test
     void shouldMapDtoBackToEntity() {
-        Smartphone original = new Smartphone(2L, "Samsung S24", new BigDecimal("3500"), 8, new SmartphoneConfiguration());
+        Smartphone original = new Smartphone(
+            2L,
+            "Samsung S24",
+            new BigDecimal("3500"),
+            8,
+            new SmartphoneConfiguration()
+        );
         SmartphoneDto dto = SmartphoneMapper.toDTO(original);
 
         Smartphone entity = SmartphoneMapper.toEntity(dto);

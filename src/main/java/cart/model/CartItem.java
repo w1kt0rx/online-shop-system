@@ -2,13 +2,13 @@ package cart.model;
 
 import exception.InvalidProductException;
 import exception.NotEnoughStockException;
-import product.model.Product;
-import lombok.Getter;
-
 import java.math.BigDecimal;
+import lombok.Getter;
+import product.model.Product;
 
 @Getter
 public class CartItem {
+
     private final Product product;
     private Integer quantity;
 
@@ -41,12 +41,10 @@ public class CartItem {
             throw new IllegalArgumentException("Quantity must be greater than 0");
         }
     }
+
     private void validateProduct(Product product) {
         if (product == null) {
             throw new InvalidProductException("Product cannot be null");
         }
     }
-
 }
-
-

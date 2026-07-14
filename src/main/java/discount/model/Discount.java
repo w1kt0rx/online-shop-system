@@ -1,12 +1,11 @@
 package discount.model;
 
 import common.time.TimeUtils;
+import java.math.BigDecimal;
+import java.time.ZonedDateTime;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-
-import java.math.BigDecimal;
-import java.time.ZonedDateTime;
 
 /**
  * Represents a discount that can be applied to an order.
@@ -17,8 +16,10 @@ import java.time.ZonedDateTime;
 @Getter
 @ToString
 public class Discount {
+
     @Setter
     private Long id;
+
     private final String code;
     private final String description;
     private final DiscountType type;
@@ -43,8 +44,16 @@ public class Discount {
      * @param validFrom     start of the validity window
      * @param validTo       end of the validity window
      */
-    public Discount(Long id, String code, String description, DiscountType type, BigDecimal value,
-                    BigDecimal minOrderValue, ZonedDateTime validFrom, ZonedDateTime validTo) {
+    public Discount(
+        Long id,
+        String code,
+        String description,
+        DiscountType type,
+        BigDecimal value,
+        BigDecimal minOrderValue,
+        ZonedDateTime validFrom,
+        ZonedDateTime validTo
+    ) {
         this.id = id;
         this.code = code;
         this.description = description;

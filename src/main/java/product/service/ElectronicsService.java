@@ -1,6 +1,7 @@
 package product.service;
 
 import exception.ProductNotFoundException;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import product.dto.electronics.CreateElectronicsRequest;
 import product.dto.electronics.ElectronicsDto;
@@ -10,19 +11,13 @@ import product.model.ProductType;
 import product.model.electronics.Electronics;
 import product.repository.ElectronicsRepository;
 
-import java.util.List;
-
 @RequiredArgsConstructor
 public class ElectronicsService {
 
     private final ElectronicsRepository electronicsRepository;
 
     public ElectronicsDto create(CreateElectronicsRequest request) {
-        Electronics electronics = new Electronics(
-                null,
-                request.name(),
-                request.basePrice(),
-                request.quantity());
+        Electronics electronics = new Electronics(null, request.name(), request.basePrice(), request.quantity());
 
         return ElectronicsMapper.toDTO(electronicsRepository.save(electronics));
     }
@@ -42,9 +37,7 @@ public class ElectronicsService {
     }
 
     public List<ElectronicsDto> getAll() {
-        return electronicsRepository.getAll().stream()
-                .map(ElectronicsMapper::toDTO)
-                .toList();
+        return electronicsRepository.getAll().stream().map(ElectronicsMapper::toDTO).toList();
     }
 
     public void delete(Long id) {
@@ -53,9 +46,8 @@ public class ElectronicsService {
     }
 
     private Electronics findElectronics(Long id) {
-        return electronicsRepository.findById(id)
-                .orElseThrow(() ->
-                        new ProductNotFoundException(ProductType.ELECTRONICS, id));
+        return electronicsRepository
+            .findById(id)
+            .orElseThrow(() -> new ProductNotFoundException(ProductType.ELECTRONICS, id));
     }
 }
-

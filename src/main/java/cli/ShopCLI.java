@@ -5,12 +5,11 @@ import customer.dto.CustomerDto;
 import customer.service.CustomerService;
 import discount.service.DiscountService;
 import exception.handler.GlobalExceptionHandler;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 import order.facade.OrderFacade;
 import order.service.OrderService;
 import product.service.ProductService;
-
-import java.time.format.DateTimeFormatter;
-import java.util.*;
 
 public class ShopCLI {
 
@@ -29,61 +28,35 @@ public class ShopCLI {
     private final OrderMenu orderMenu;
     private final DiscountMenu discountMenu;
 
-    public ShopCLI(ProductService productFacade,
-                   CartService cartService,
-                   CustomerService customerService,
-                   OrderService orderService,
-                   OrderFacade orderFacade,
-                   DiscountService discountService,
-                   GlobalExceptionHandler exHandler) {
+    public ShopCLI(
+        ProductService productFacade,
+        CartService cartService,
+        CustomerService customerService,
+        OrderService orderService,
+        OrderFacade orderFacade,
+        DiscountService discountService,
+        GlobalExceptionHandler exHandler
+    ) {
         this.customerService = customerService;
         session = new Session();
-        this.customerMenu =
-                new CustomerMenu(
-                        scanner,
-                        session,
-                        exHandler,
-                        customerService
-                );
-        this.productMenu =
-                new ProductMenu(
-                        scanner,
-                        session,
-                        exHandler,
-                        productFacade,
-                        cartService
-                );
+        this.customerMenu = new CustomerMenu(scanner, session, exHandler, customerService);
+        this.productMenu = new ProductMenu(scanner, session, exHandler, productFacade, cartService);
 
-        this.cartMenu =
-                new CartMenu(
-                        scanner,
-                        session,
-                        exHandler,
-                        cartService
-                );
+        this.cartMenu = new CartMenu(scanner, session, exHandler, cartService);
 
-        this.orderMenu =
-                new OrderMenu(
-                        scanner,
-                        session,
-                        exHandler,
-                        orderService,
-                        orderFacade,
-                        discountService,
-                        cartService,
-                        cartMenu
-                );
+        this.orderMenu = new OrderMenu(
+            scanner,
+            session,
+            exHandler,
+            orderService,
+            orderFacade,
+            discountService,
+            cartService,
+            cartMenu
+        );
 
-        this.discountMenu =
-                new DiscountMenu(
-                        scanner,
-                        session,
-                        exHandler,
-                        discountService
-                );
-
+        this.discountMenu = new DiscountMenu(scanner, session, exHandler, discountService);
     }
-
 
     public void start() {
         printBanner();
@@ -146,6 +119,7 @@ public class ShopCLI {
             return -1;
         }
     }
+
     private void print(String text) {
         System.out.println(text);
     }

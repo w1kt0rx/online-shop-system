@@ -1,17 +1,16 @@
 package cart.model;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
+
 import exception.InvalidProductException;
 import exception.NotEnoughStockException;
+import java.math.BigDecimal;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import product.model.electronics.Electronics;
-
-import java.math.BigDecimal;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
 
 class CartItemTest {
 
@@ -37,7 +36,7 @@ class CartItemTest {
     }
 
     @ParameterizedTest
-    @ValueSource(ints = {1, 5, 10})
+    @ValueSource(ints = { 1, 5, 10 })
     void shouldIncreaseQuantityByVariousAmounts(int amount) {
         int initial = cartItem.getQuantity();
         cartItem.increaseQuantity(amount);
@@ -57,28 +56,24 @@ class CartItemTest {
     }
 
     @ParameterizedTest
-    @ValueSource(ints = {0, -1, -100})
+    @ValueSource(ints = { 0, -1, -100 })
     void shouldThrowWhenIncreaseAmountIsZeroOrNegative(int amount) {
-        assertThatExceptionOfType(IllegalArgumentException.class)
-                .isThrownBy(() -> cartItem.increaseQuantity(amount));
+        assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> cartItem.increaseQuantity(amount));
     }
 
     @Test
     void shouldThrowWhenDecreaseExceedsQuantity() {
-        assertThatExceptionOfType(NotEnoughStockException.class)
-                .isThrownBy(() -> cartItem.decreaseQuantity(3));
+        assertThatExceptionOfType(NotEnoughStockException.class).isThrownBy(() -> cartItem.decreaseQuantity(3));
     }
 
     @Test
     void shouldThrowWhenDecreaseAmountIsNegative() {
-        assertThatExceptionOfType(NotEnoughStockException.class)
-                .isThrownBy(() -> cartItem.decreaseQuantity(-1));
+        assertThatExceptionOfType(NotEnoughStockException.class).isThrownBy(() -> cartItem.decreaseQuantity(-1));
     }
 
     @Test
     void shouldThrowWhenProductIsNull() {
-        assertThatExceptionOfType(InvalidProductException.class)
-                .isThrownBy(() -> new CartItem(null, 1));
+        assertThatExceptionOfType(InvalidProductException.class).isThrownBy(() -> new CartItem(null, 1));
     }
 
     @Test

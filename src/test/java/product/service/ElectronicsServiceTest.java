@@ -1,6 +1,14 @@
 package product.service;
 
+import static org.assertj.core.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
 import exception.ProductNotFoundException;
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -15,20 +23,12 @@ import product.dto.electronics.UpdateElectronicsRequest;
 import product.model.electronics.Electronics;
 import product.repository.ElectronicsRepository;
 
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Stream;
-
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
-
 @ExtendWith(MockitoExtension.class)
 class ElectronicsServiceTest {
 
     @Mock
     ElectronicsRepository electronicsRepository;
+
     @InjectMocks
     ElectronicsService electronicsService;
 
@@ -41,8 +41,7 @@ class ElectronicsServiceTest {
     void shouldCreateElectronicsForVariousProducts(String name, BigDecimal price, int qty) {
         when(electronicsRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
-        ElectronicsDto result = electronicsService.create(
-                new CreateElectronicsRequest(name, price, qty));
+        ElectronicsDto result = electronicsService.create(new CreateElectronicsRequest(name, price, qty));
 
         assertThat(result.name()).isEqualTo(name);
         assertThat(result.basePrice()).isEqualByComparingTo(price);
@@ -51,10 +50,10 @@ class ElectronicsServiceTest {
 
     private static Stream<Arguments> provideElectronics() {
         return Stream.of(
-                Arguments.of("Monitor 4K", new BigDecimal("1500"), 12),
-                Arguments.of("Keyboard", new BigDecimal("350"), 40),
-                Arguments.of("Headphones", new BigDecimal("800"), 20),
-                Arguments.of("Webcam", new BigDecimal("250"), 30)
+            Arguments.of("Monitor 4K", new BigDecimal("1500"), 12),
+            Arguments.of("Keyboard", new BigDecimal("350"), 40),
+            Arguments.of("Headphones", new BigDecimal("800"), 20),
+            Arguments.of("Webcam", new BigDecimal("250"), 30)
         );
     }
 
@@ -73,14 +72,13 @@ class ElectronicsServiceTest {
         when(electronicsRepository.findById(99L)).thenReturn(Optional.empty());
 
         assertThatExceptionOfType(ProductNotFoundException.class)
-                .isThrownBy(() -> electronicsService.getById(99L))
-                .withMessageContaining("99");
+            .isThrownBy(() -> electronicsService.getById(99L))
+            .withMessageContaining("99");
     }
 
     @Test
     void shouldReturnAllElectronics() {
-        when(electronicsRepository.getAll()).thenReturn(
-                List.of(makeProduct(1L), makeProduct(2L), makeProduct(3L)));
+        when(electronicsRepository.getAll()).thenReturn(List.of(makeProduct(1L), makeProduct(2L), makeProduct(3L)));
 
         assertThat(electronicsService.getAll()).hasSize(3);
     }
@@ -98,8 +96,7 @@ class ElectronicsServiceTest {
     void shouldThrowWhenDeletingNonExistentElectronics() {
         when(electronicsRepository.findById(99L)).thenReturn(Optional.empty());
 
-        assertThatExceptionOfType(ProductNotFoundException.class)
-                .isThrownBy(() -> electronicsService.delete(99L));
+        assertThatExceptionOfType(ProductNotFoundException.class).isThrownBy(() -> electronicsService.delete(99L));
         verify(electronicsRepository, never()).delete(any());
     }
 
@@ -109,8 +106,10 @@ class ElectronicsServiceTest {
         when(electronicsRepository.findById(1L)).thenReturn(Optional.of(product));
         when(electronicsRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
-        ElectronicsDto result = electronicsService.update(1L, new UpdateElectronicsRequest(
-                "Monitor 8K", new BigDecimal("3000"), 5));
+        ElectronicsDto result = electronicsService.update(
+            1L,
+            new UpdateElectronicsRequest("Monitor 8K", new BigDecimal("3000"), 5)
+        );
 
         assertThat(result.name()).isEqualTo("Monitor 8K");
         assertThat(result.basePrice()).isEqualByComparingTo(new BigDecimal("3000"));
@@ -121,9 +120,9 @@ class ElectronicsServiceTest {
     void shouldThrowWhenUpdatingNonExistentElectronics() {
         when(electronicsRepository.findById(99L)).thenReturn(Optional.empty());
 
-        assertThatExceptionOfType(ProductNotFoundException.class)
-                .isThrownBy(() -> electronicsService.update(99L,
-                        new UpdateElectronicsRequest("X", BigDecimal.ONE, 1)));
+        assertThatExceptionOfType(ProductNotFoundException.class).isThrownBy(() ->
+            electronicsService.update(99L, new UpdateElectronicsRequest("X", BigDecimal.ONE, 1))
+        );
         verify(electronicsRepository, never()).save(any());
     }
 }

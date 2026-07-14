@@ -1,5 +1,7 @@
 package integration;
 
+import static org.assertj.core.api.Assertions.*;
+
 import cart.service.CartService;
 import customer.dto.CreateCustomerRequest;
 import customer.dto.CustomerDto;
@@ -13,6 +15,9 @@ import exception.*;
 import invoice.dto.InvoiceDto;
 import invoice.repository.impl.InMemoryInvoiceRepository;
 import invoice.service.InvoiceService;
+import java.math.BigDecimal;
+import java.time.ZonedDateTime;
+import java.util.List;
 import order.dto.OrderDto;
 import order.model.OrderStatus;
 import order.repository.impl.InMemoryOrderRepository;
@@ -25,12 +30,6 @@ import product.dto.electronics.ElectronicsDto;
 import product.model.ProductType;
 import product.repository.impl.*;
 import product.service.*;
-
-import java.math.BigDecimal;
-import java.time.ZonedDateTime;
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.*;
 
 /**
  * Integration tests for the order placement pipeline — happy paths,
@@ -49,37 +48,35 @@ class OrderProcessingIT {
 
     @BeforeEach
     void setUp() {
-        InMemoryCustomerRepository customerRepo   = new InMemoryCustomerRepository();
-        InMemoryComputerRepository computerRepo   = new InMemoryComputerRepository();
-        InMemorySmartphoneRepository phoneRepo    = new InMemorySmartphoneRepository();
-        InMemoryElectronicsRepository elRepo      = new InMemoryElectronicsRepository();
-        InMemoryOrderRepository orderRepo         = new InMemoryOrderRepository();
-        InMemoryInvoiceRepository invoiceRepo     = new InMemoryInvoiceRepository();
-        InMemoryDiscountRepository discountRepo   = new InMemoryDiscountRepository();
+        InMemoryCustomerRepository customerRepo = new InMemoryCustomerRepository();
+        InMemoryComputerRepository computerRepo = new InMemoryComputerRepository();
+        InMemorySmartphoneRepository phoneRepo = new InMemorySmartphoneRepository();
+        InMemoryElectronicsRepository elRepo = new InMemoryElectronicsRepository();
+        InMemoryOrderRepository orderRepo = new InMemoryOrderRepository();
+        InMemoryInvoiceRepository invoiceRepo = new InMemoryInvoiceRepository();
+        InMemoryDiscountRepository discountRepo = new InMemoryDiscountRepository();
 
-        customerService    = new CustomerService(customerRepo);
+        customerService = new CustomerService(customerRepo);
         electronicsService = new ElectronicsService(elRepo);
-        discountService    = new DiscountService(discountRepo);
-        invoiceService     = new InvoiceService(invoiceRepo);
-        cartService        = new CartService(customerRepo, computerRepo, phoneRepo, elRepo);
-        orderService       = new OrderService(orderRepo, customerRepo);
-        orderProcessor     = new OrderProcessor(orderRepo, customerRepo, discountService, invoiceService);
+        discountService = new DiscountService(discountRepo);
+        invoiceService = new InvoiceService(invoiceRepo);
+        cartService = new CartService(customerRepo, computerRepo, phoneRepo, elRepo);
+        orderService = new OrderService(orderRepo, customerRepo);
+        orderProcessor = new OrderProcessor(orderRepo, customerRepo, discountService, invoiceService);
     }
 
     private CustomerDto newCustomer(String name, String email) {
-        return customerService.createCustomer(
-                new CreateCustomerRequest(name, email, "Password123"));
+        return customerService.createCustomer(new CreateCustomerRequest(name, email, "Password123"));
     }
 
     private ElectronicsDto newProduct(String name, BigDecimal price, int stock) {
-        return electronicsService.create(
-                new CreateElectronicsRequest(name, price, stock));
+        return electronicsService.create(new CreateElectronicsRequest(name, price, stock));
     }
 
     @Test
     void processOrder_singleItem_invoiceIssuedAndCartCleared() {
         ElectronicsDto product = newProduct("Monitor", new BigDecimal("1200"), 5);
-        CustomerDto customer   = newCustomer("Jan", "jan@example.com");
+        CustomerDto customer = newCustomer("Jan", "jan@example.com");
 
         cartService.addProduct(customer.id(), product.id(), ProductType.ELECTRONICS, 2);
         InvoiceDto invoice = orderProcessor.processOrder(customer.id());
@@ -101,8 +98,8 @@ class OrderProcessingIT {
     @Test
     void processOrder_multipleItems_totalSumsAllLines() {
         ElectronicsDto a = newProduct("Keyboard", new BigDecimal("300"), 10);
-        ElectronicsDto b = newProduct("Mouse",    new BigDecimal("150"), 10);
-        ElectronicsDto c = newProduct("Webcam",   new BigDecimal("250"), 10);
+        ElectronicsDto b = newProduct("Mouse", new BigDecimal("150"), 10);
+        ElectronicsDto c = newProduct("Webcam", new BigDecimal("250"), 10);
         CustomerDto customer = newCustomer("Anna", "anna@example.com");
 
         cartService.addProduct(customer.id(), a.id(), ProductType.ELECTRONICS, 2);
@@ -118,7 +115,7 @@ class OrderProcessingIT {
     @Test
     void processOrder_orderAppearsInHistoryWithConfirmedStatus() {
         ElectronicsDto product = newProduct("SSD", new BigDecimal("400"), 5);
-        CustomerDto customer   = newCustomer("Piotr", "piotr@example.com");
+        CustomerDto customer = newCustomer("Piotr", "piotr@example.com");
 
         cartService.addProduct(customer.id(), product.id(), ProductType.ELECTRONICS, 1);
         InvoiceDto invoice = orderProcessor.processOrder(customer.id());
@@ -139,7 +136,7 @@ class OrderProcessingIT {
     @Test
     void processOrder_multipleOrdersSameCustomer_allInHistory() {
         ElectronicsDto product = newProduct("USB Hub", new BigDecimal("100"), 10);
-        CustomerDto customer   = newCustomer("Ewa", "ewa@example.com");
+        CustomerDto customer = newCustomer("Ewa", "ewa@example.com");
 
         cartService.addProduct(customer.id(), product.id(), ProductType.ELECTRONICS, 1);
         orderProcessor.processOrder(customer.id());
@@ -152,8 +149,7 @@ class OrderProcessingIT {
 
         List<OrderDto> history = orderService.getOrdersByCustomer(customer.id());
         assertThat(history).hasSize(3);
-        assertThat(history).allSatisfy(o ->
-                assertThat(o.orderStatus()).isEqualTo(OrderStatus.CONFIRMED));
+        assertThat(history).allSatisfy(o -> assertThat(o.orderStatus()).isEqualTo(OrderStatus.CONFIRMED));
         // stock: 10 − 1 − 2 − 1 = 6
         assertThat(electronicsService.getById(product.id()).quantity()).isEqualTo(6);
     }
@@ -161,13 +157,20 @@ class OrderProcessingIT {
     @Test
     void processOrder_withPercentageDiscount_totalReducedCorrectly() {
         ZonedDateTime now = ZonedDateTime.now();
-        discountService.createDiscount(CreateDiscountRequest.of(
-                "SAVE10", "10% off", DiscountType.PERCENTAGE,
-                new BigDecimal("10"), BigDecimal.ZERO,
-                now.minusDays(1), now.plusDays(30)));
+        discountService.createDiscount(
+            CreateDiscountRequest.of(
+                "SAVE10",
+                "10% off",
+                DiscountType.PERCENTAGE,
+                new BigDecimal("10"),
+                BigDecimal.ZERO,
+                now.minusDays(1),
+                now.plusDays(30)
+            )
+        );
 
         ElectronicsDto product = newProduct("Laptop", new BigDecimal("3000"), 2);
-        CustomerDto customer   = newCustomer("Maria", "maria@example.com");
+        CustomerDto customer = newCustomer("Maria", "maria@example.com");
 
         cartService.addProduct(customer.id(), product.id(), ProductType.ELECTRONICS, 1);
         InvoiceDto invoice = orderProcessor.processOrder(customer.id(), "SAVE10");
@@ -181,13 +184,20 @@ class OrderProcessingIT {
     @Test
     void processOrder_withFixedAmountDiscount_totalReducedCorrectly() {
         ZonedDateTime now = ZonedDateTime.now();
-        discountService.createDiscount(CreateDiscountRequest.of(
-                "MINUS500", "500 PLN off", DiscountType.FIXED_AMOUNT,
-                new BigDecimal("500"), new BigDecimal("2000"),
-                now.minusDays(1), now.plusDays(30)));
+        discountService.createDiscount(
+            CreateDiscountRequest.of(
+                "MINUS500",
+                "500 PLN off",
+                DiscountType.FIXED_AMOUNT,
+                new BigDecimal("500"),
+                new BigDecimal("2000"),
+                now.minusDays(1),
+                now.plusDays(30)
+            )
+        );
 
         ElectronicsDto product = newProduct("TV", new BigDecimal("3500"), 2);
-        CustomerDto customer   = newCustomer("Karol", "karol@example.com");
+        CustomerDto customer = newCustomer("Karol", "karol@example.com");
 
         cartService.addProduct(customer.id(), product.id(), ProductType.ELECTRONICS, 1);
         InvoiceDto invoice = orderProcessor.processOrder(customer.id(), "MINUS500");
@@ -198,13 +208,20 @@ class OrderProcessingIT {
     @Test
     void processOrder_expiredDiscountCode_orderSucceedsAtFullPrice() {
         ZonedDateTime now = ZonedDateTime.now();
-        discountService.createDiscount(CreateDiscountRequest.of(
-                "EXPIRED", "Old deal", DiscountType.PERCENTAGE,
-                new BigDecimal("20"), BigDecimal.ZERO,
-                now.minusDays(30), now.minusDays(1)));  // already expired
+        discountService.createDiscount(
+            CreateDiscountRequest.of(
+                "EXPIRED",
+                "Old deal",
+                DiscountType.PERCENTAGE,
+                new BigDecimal("20"),
+                BigDecimal.ZERO,
+                now.minusDays(30),
+                now.minusDays(1)
+            )
+        ); // already expired
 
         ElectronicsDto product = newProduct("Monitor", new BigDecimal("1000"), 3);
-        CustomerDto customer   = newCustomer("Test", "test@example.com");
+        CustomerDto customer = newCustomer("Test", "test@example.com");
 
         cartService.addProduct(customer.id(), product.id(), ProductType.ELECTRONICS, 1);
         // Expired code → order still goes through at full price (graceful fallback)
@@ -212,12 +229,13 @@ class OrderProcessingIT {
 
         assertThat(invoice.totalAmount()).isEqualByComparingTo(new BigDecimal("1000"));
     }
+
     @Test
     void processOrder_emptyCart_throwsEmptyCartException_noInvoiceCreated() {
         CustomerDto customer = newCustomer("Empty", "empty@example.com");
 
-        assertThatExceptionOfType(EmptyCartException.class)
-                .isThrownBy(() -> orderProcessor.processOrder(customer.id()));
+        assertThatExceptionOfType(EmptyCartException.class).isThrownBy(() -> orderProcessor.processOrder(customer.id())
+        );
 
         assertThat(invoiceService.getAllInvoices()).isEmpty();
         assertThat(orderService.getAllOrders()).isEmpty();
@@ -226,7 +244,7 @@ class OrderProcessingIT {
     @Test
     void processOrder_insufficientStock_throwsAndNoInvoiceCreated() {
         ElectronicsDto product = newProduct("Rare Item", new BigDecimal("500"), 1);
-        CustomerDto c1 = newCustomer("First",  "first@example.com");
+        CustomerDto c1 = newCustomer("First", "first@example.com");
         CustomerDto c2 = newCustomer("Second", "second@example.com");
 
         cartService.addProduct(c1.id(), product.id(), ProductType.ELECTRONICS, 1);
@@ -235,8 +253,8 @@ class OrderProcessingIT {
         orderProcessor.processOrder(c1.id());
 
         assertThatExceptionOfType(InsufficientStockException.class)
-                .isThrownBy(() -> orderProcessor.processOrder(c2.id()))
-                .withMessageContaining("Rare Item");
+            .isThrownBy(() -> orderProcessor.processOrder(c2.id()))
+            .withMessageContaining("Rare Item");
 
         assertThat(invoiceService.getAllInvoices()).hasSize(1);
         assertThat(invoiceService.getAllInvoices().get(0).customerId()).isEqualTo(c1.id());
@@ -244,8 +262,7 @@ class OrderProcessingIT {
 
     @Test
     void processOrder_unknownCustomer_throwsCustomerNotFoundException() {
-        assertThatExceptionOfType(CustomerNotFoundException.class)
-                .isThrownBy(() -> orderProcessor.processOrder(999L));
+        assertThatExceptionOfType(CustomerNotFoundException.class).isThrownBy(() -> orderProcessor.processOrder(999L));
     }
 
     @Test
@@ -253,18 +270,19 @@ class OrderProcessingIT {
         ElectronicsDto goodItem = newProduct("Keyboard", new BigDecimal("200"), 5);
         ElectronicsDto lastItem = newProduct("Last GPU", new BigDecimal("1000"), 1);
 
-        CustomerDto buyer   = newCustomer("Buyer",   "buyer@example.com");
-        CustomerDto sniper  = newCustomer("Sniper",  "sniper@example.com");
+        CustomerDto buyer = newCustomer("Buyer", "buyer@example.com");
+        CustomerDto sniper = newCustomer("Sniper", "sniper@example.com");
 
-        cartService.addProduct(buyer.id(),  goodItem.id(), ProductType.ELECTRONICS, 2);
-        cartService.addProduct(buyer.id(),  lastItem.id(), ProductType.ELECTRONICS, 1);
+        cartService.addProduct(buyer.id(), goodItem.id(), ProductType.ELECTRONICS, 2);
+        cartService.addProduct(buyer.id(), lastItem.id(), ProductType.ELECTRONICS, 1);
         cartService.addProduct(sniper.id(), lastItem.id(), ProductType.ELECTRONICS, 1);
 
         orderProcessor.processOrder(sniper.id());
         assertThat(electronicsService.getById(lastItem.id()).quantity()).isEqualTo(0);
 
-        assertThatExceptionOfType(InsufficientStockException.class)
-                .isThrownBy(() -> orderProcessor.processOrder(buyer.id()));
+        assertThatExceptionOfType(InsufficientStockException.class).isThrownBy(() ->
+            orderProcessor.processOrder(buyer.id())
+        );
 
         assertThat(electronicsService.getById(goodItem.id()).quantity()).isEqualTo(5);
         assertThat(invoiceService.getAllInvoices()).hasSize(1);

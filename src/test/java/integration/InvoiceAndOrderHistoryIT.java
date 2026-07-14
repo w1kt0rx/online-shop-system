@@ -1,5 +1,7 @@
 package integration;
 
+import static org.assertj.core.api.Assertions.*;
+
 import cart.service.CartService;
 import customer.dto.CreateCustomerRequest;
 import customer.dto.CustomerDto;
@@ -11,6 +13,8 @@ import exception.OrderNotFoundException;
 import invoice.dto.InvoiceDto;
 import invoice.repository.impl.InMemoryInvoiceRepository;
 import invoice.service.InvoiceService;
+import java.math.BigDecimal;
+import java.util.List;
 import order.dto.OrderDto;
 import order.model.OrderStatus;
 import order.repository.impl.InMemoryOrderRepository;
@@ -24,11 +28,6 @@ import product.model.ProductType;
 import product.repository.impl.*;
 import product.service.ElectronicsService;
 
-import java.math.BigDecimal;
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.*;
-
 class InvoiceAndOrderHistoryIT {
 
     private CustomerService customerService;
@@ -40,36 +39,38 @@ class InvoiceAndOrderHistoryIT {
 
     @BeforeEach
     void setUp() {
-        InMemoryCustomerRepository customerRepo   = new InMemoryCustomerRepository();
-        InMemoryComputerRepository computerRepo   = new InMemoryComputerRepository();
-        InMemorySmartphoneRepository phoneRepo    = new InMemorySmartphoneRepository();
-        InMemoryElectronicsRepository elRepo      = new InMemoryElectronicsRepository();
-        InMemoryOrderRepository orderRepo         = new InMemoryOrderRepository();
-        InMemoryInvoiceRepository invoiceRepo     = new InMemoryInvoiceRepository();
+        InMemoryCustomerRepository customerRepo = new InMemoryCustomerRepository();
+        InMemoryComputerRepository computerRepo = new InMemoryComputerRepository();
+        InMemorySmartphoneRepository phoneRepo = new InMemorySmartphoneRepository();
+        InMemoryElectronicsRepository elRepo = new InMemoryElectronicsRepository();
+        InMemoryOrderRepository orderRepo = new InMemoryOrderRepository();
+        InMemoryInvoiceRepository invoiceRepo = new InMemoryInvoiceRepository();
 
-        customerService    = new CustomerService(customerRepo);
+        customerService = new CustomerService(customerRepo);
         electronicsService = new ElectronicsService(elRepo);
-        invoiceService     = new InvoiceService(invoiceRepo);
-        cartService        = new CartService(customerRepo, computerRepo, phoneRepo, elRepo);
-        orderService       = new OrderService(orderRepo, customerRepo);
-        orderProcessor     = new OrderProcessor(orderRepo, customerRepo,
-                new DiscountService(new InMemoryDiscountRepository()), invoiceService);
+        invoiceService = new InvoiceService(invoiceRepo);
+        cartService = new CartService(customerRepo, computerRepo, phoneRepo, elRepo);
+        orderService = new OrderService(orderRepo, customerRepo);
+        orderProcessor = new OrderProcessor(
+            orderRepo,
+            customerRepo,
+            new DiscountService(new InMemoryDiscountRepository()),
+            invoiceService
+        );
     }
 
     private CustomerDto newCustomer(String name, String email) {
-        return customerService.createCustomer(
-                new CreateCustomerRequest(name, email, "Password123"));
+        return customerService.createCustomer(new CreateCustomerRequest(name, email, "Password123"));
     }
 
     private ElectronicsDto newProduct(String name, BigDecimal price, int stock) {
-        return electronicsService.create(
-                new CreateElectronicsRequest(name, price, stock));
+        return electronicsService.create(new CreateElectronicsRequest(name, price, stock));
     }
 
     @Test
     void invoice_containsAllRequiredFields() {
         ElectronicsDto product = newProduct("Headphones", new BigDecimal("500"), 5);
-        CustomerDto customer   = newCustomer("Tomasz Bąk", "tomasz@example.com");
+        CustomerDto customer = newCustomer("Tomasz Bąk", "tomasz@example.com");
 
         cartService.addProduct(customer.id(), product.id(), ProductType.ELECTRONICS, 2);
         InvoiceDto invoice = orderProcessor.processOrder(customer.id());
@@ -91,7 +92,7 @@ class InvoiceAndOrderHistoryIT {
     @Test
     void invoice_retrievableByOrderId() {
         ElectronicsDto product = newProduct("Webcam", new BigDecimal("250"), 3);
-        CustomerDto customer   = newCustomer("Monika", "monika@example.com");
+        CustomerDto customer = newCustomer("Monika", "monika@example.com");
 
         cartService.addProduct(customer.id(), product.id(), ProductType.ELECTRONICS, 1);
         InvoiceDto created = orderProcessor.processOrder(customer.id());
@@ -106,15 +107,16 @@ class InvoiceAndOrderHistoryIT {
 
     @Test
     void invoice_unknownOrderId_throws() {
-        assertThatExceptionOfType(OrderNotFoundException.class)
-                .isThrownBy(() -> invoiceService.getInvoiceByOrderId(999L));
+        assertThatExceptionOfType(OrderNotFoundException.class).isThrownBy(() ->
+            invoiceService.getInvoiceByOrderId(999L)
+        );
     }
 
     @Test
     void getAllInvoices_returnsOnePerOrder() {
         ElectronicsDto product = newProduct("Mouse", new BigDecimal("120"), 10);
         CustomerDto c1 = newCustomer("Alice", "alice@example.com");
-        CustomerDto c2 = newCustomer("Bob",   "bob@example.com");
+        CustomerDto c2 = newCustomer("Bob", "bob@example.com");
 
         cartService.addProduct(c1.id(), product.id(), ProductType.ELECTRONICS, 1);
         orderProcessor.processOrder(c1.id());
@@ -124,15 +126,14 @@ class InvoiceAndOrderHistoryIT {
 
         List<InvoiceDto> all = invoiceService.getAllInvoices();
         assertThat(all).hasSize(2);
-        assertThat(all).extracting(InvoiceDto::customerId)
-                .containsExactlyInAnyOrder(c1.id(), c2.id());
+        assertThat(all).extracting(InvoiceDto::customerId).containsExactlyInAnyOrder(c1.id(), c2.id());
         assertThat(all).allSatisfy(inv -> assertThat(inv.issuedAt()).isNotNull());
     }
 
     @Test
     void order_timestamps_setCorrectlyInWarsawZone() {
         ElectronicsDto product = newProduct("SSD", new BigDecimal("300"), 5);
-        CustomerDto customer   = newCustomer("Zofia", "zofia@example.com");
+        CustomerDto customer = newCustomer("Zofia", "zofia@example.com");
 
         cartService.addProduct(customer.id(), product.id(), ProductType.ELECTRONICS, 1);
         InvoiceDto invoice = orderProcessor.processOrder(customer.id());
@@ -150,7 +151,7 @@ class InvoiceAndOrderHistoryIT {
     void getOrdersByCustomer_returnsOnlyThatCustomersOrders() {
         ElectronicsDto product = newProduct("Charger", new BigDecimal("80"), 20);
         CustomerDto alice = newCustomer("Alice", "alice@example.com");
-        CustomerDto bob   = newCustomer("Bob",   "bob@example.com");
+        CustomerDto bob = newCustomer("Bob", "bob@example.com");
 
         cartService.addProduct(alice.id(), product.id(), ProductType.ELECTRONICS, 1);
         orderProcessor.processOrder(alice.id());
@@ -162,7 +163,7 @@ class InvoiceAndOrderHistoryIT {
         orderProcessor.processOrder(bob.id());
 
         List<OrderDto> aliceHistory = orderService.getOrdersByCustomer(alice.id());
-        List<OrderDto> bobHistory   = orderService.getOrdersByCustomer(bob.id());
+        List<OrderDto> bobHistory = orderService.getOrdersByCustomer(bob.id());
 
         assertThat(aliceHistory).hasSize(2);
         assertThat(aliceHistory).allSatisfy(o -> {
@@ -191,7 +192,7 @@ class InvoiceAndOrderHistoryIT {
     @Test
     void cancelOrder_statusChangedToCANCELLED_updatedAtRefreshed() {
         ElectronicsDto product = newProduct("Monitor", new BigDecimal("900"), 5);
-        CustomerDto customer   = newCustomer("Bartek", "bartek@example.com");
+        CustomerDto customer = newCustomer("Bartek", "bartek@example.com");
 
         cartService.addProduct(customer.id(), product.id(), ProductType.ELECTRONICS, 1);
         InvoiceDto invoice = orderProcessor.processOrder(customer.id());
@@ -208,14 +209,13 @@ class InvoiceAndOrderHistoryIT {
 
     @Test
     void cancelOrder_nonExistentId_throws() {
-        assertThatExceptionOfType(OrderNotFoundException.class)
-                .isThrownBy(() -> orderService.cancelOrder(999L));
+        assertThatExceptionOfType(OrderNotFoundException.class).isThrownBy(() -> orderService.cancelOrder(999L));
     }
 
     @Test
     void cancelOrder_invoiceStillExists_notDeleted() {
         ElectronicsDto product = newProduct("Keyboard", new BigDecimal("200"), 3);
-        CustomerDto customer   = newCustomer("Test", "test@example.com");
+        CustomerDto customer = newCustomer("Test", "test@example.com");
 
         cartService.addProduct(customer.id(), product.id(), ProductType.ELECTRONICS, 1);
         InvoiceDto invoice = orderProcessor.processOrder(customer.id());

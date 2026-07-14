@@ -1,18 +1,17 @@
 package discount.repository;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import discount.model.Discount;
 import discount.model.DiscountType;
 import discount.repository.impl.InMemoryDiscountRepository;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 class InMemoryDiscountRepositoryTest {
 
@@ -24,10 +23,16 @@ class InMemoryDiscountRepositoryTest {
     }
 
     private Discount buildDiscount(Long id, String code) {
-        return new Discount(id, code, "desc", DiscountType.PERCENTAGE,
-                new BigDecimal("10"), null,
-                ZonedDateTime.now().minusDays(1),
-                ZonedDateTime.now().plusDays(7));
+        return new Discount(
+            id,
+            code,
+            "desc",
+            DiscountType.PERCENTAGE,
+            new BigDecimal("10"),
+            null,
+            ZonedDateTime.now().minusDays(1),
+            ZonedDateTime.now().plusDays(7)
+        );
     }
 
     @Test

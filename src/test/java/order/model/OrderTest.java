@@ -1,16 +1,15 @@
 package order.model;
 
-import cart.model.CartItem;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import product.model.electronics.Electronics;
+import static org.assertj.core.api.Assertions.assertThat;
 
+import cart.model.CartItem;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import product.model.electronics.Electronics;
 
 class OrderTest {
 
@@ -49,7 +48,7 @@ class OrderTest {
     void shouldCalculateTotalPriceForMultipleItems() {
         Electronics keyboard = new Electronics(2L, "Keyboard", new BigDecimal("150"), 5);
         CartItem keyboardItem = new CartItem(keyboard, 3);
-        Order multiOrder =Order.of(3L, 1L, List.of(cartItem, keyboardItem));
+        Order multiOrder = Order.of(3L, 1L, List.of(cartItem, keyboardItem));
 
         // (2*800) + (3*150) = 1600 + 450 = 2050
         assertThat(multiOrder.getTotalPrice()).isEqualByComparingTo(new BigDecimal("2050"));
@@ -69,9 +68,8 @@ class OrderTest {
 
     @Test
     void shouldHaveImmutableItems() {
-        org.junit.jupiter.api.Assertions.assertThrows(
-                UnsupportedOperationException.class,
-                () -> order.getItems().add(cartItem)
+        org.junit.jupiter.api.Assertions.assertThrows(UnsupportedOperationException.class, () ->
+            order.getItems().add(cartItem)
         );
     }
 

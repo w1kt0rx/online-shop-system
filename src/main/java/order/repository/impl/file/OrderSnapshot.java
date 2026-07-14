@@ -5,12 +5,11 @@ import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 
 public record OrderSnapshot(
-        Long id,
-        Long customerId,
-        BigDecimal totalPrice,
-        ZonedDateTime createdAt,
-        ZonedDateTime updatedAt,
-        ZonedDateTime confirmedAt,
-        String status
-) {
-}
+    Long id,
+    Long customerId,
+    BigDecimal totalPrice,
+    ZonedDateTime createdAt,
+    ZonedDateTime updatedAt,
+    ZonedDateTime confirmedAt,
+    String status
+) {}

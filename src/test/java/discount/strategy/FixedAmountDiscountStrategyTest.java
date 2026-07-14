@@ -1,11 +1,10 @@
 package discount.strategy;
 
-import org.junit.jupiter.api.Test;
-
-import java.math.BigDecimal;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+import java.math.BigDecimal;
+import org.junit.jupiter.api.Test;
 
 class FixedAmountDiscountStrategyTest {
 
@@ -38,13 +37,15 @@ class FixedAmountDiscountStrategyTest {
 
     @Test
     void shouldThrowWhenAmountIsZero() {
-        assertThatThrownBy(() -> new FixedAmountDiscountStrategy(BigDecimal.ZERO))
-                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> new FixedAmountDiscountStrategy(BigDecimal.ZERO)).isInstanceOf(
+            IllegalArgumentException.class
+        );
     }
 
     @Test
     void shouldThrowWhenAmountIsNegative() {
-        assertThatThrownBy(() -> new FixedAmountDiscountStrategy(new BigDecimal("-10")))
-                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> new FixedAmountDiscountStrategy(new BigDecimal("-10"))).isInstanceOf(
+            IllegalArgumentException.class
+        );
     }
 }

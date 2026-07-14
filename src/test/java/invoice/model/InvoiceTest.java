@@ -1,30 +1,27 @@
 package invoice.model;
 
-import cart.dto.CartItemDto;
-import org.junit.jupiter.api.Test;
-import product.model.ProductType;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import cart.dto.CartItemDto;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import org.junit.jupiter.api.Test;
+import product.model.ProductType;
 
 class InvoiceTest {
 
     private List<CartItemDto> sampleItems() {
         return List.of(
-                new CartItemDto(1L, "Monitor", ProductType.ELECTRONICS,
-                        new BigDecimal("800"), 2, new BigDecimal("1600"))
+            new CartItemDto(1L, "Monitor", ProductType.ELECTRONICS, new BigDecimal("800"), 2, new BigDecimal("1600"))
         );
     }
 
     @Test
     void shouldCreateInvoiceWithCorrectData() {
-        Invoice invoice = new Invoice(1L, 10L, 5L, "Jan Kowalski",
-                sampleItems(), new BigDecimal("1600"));
+        Invoice invoice = new Invoice(1L, 10L, 5L, "Jan Kowalski", sampleItems(), new BigDecimal("1600"));
 
         assertThat(invoice.getId()).isEqualTo(1L);
         assertThat(invoice.getOrderId()).isEqualTo(10L);
@@ -47,8 +44,7 @@ class InvoiceTest {
     void shouldHaveImmutableItems() {
         Invoice invoice = new Invoice(1L, 1L, 1L, "Test", sampleItems(), BigDecimal.TEN);
 
-        assertThrows(UnsupportedOperationException.class,
-                () -> invoice.getItems().add(sampleItems().get(0)));
+        assertThrows(UnsupportedOperationException.class, () -> invoice.getItems().add(sampleItems().get(0)));
     }
 
     @Test

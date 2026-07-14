@@ -1,15 +1,14 @@
 package customer.repository;
 
-import customer.model.Customer;
-import customer.repository.impl.InMemoryCustomerRepository;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import java.util.List;
-import java.util.Optional;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+
+import customer.model.Customer;
+import customer.repository.impl.InMemoryCustomerRepository;
+import java.util.List;
+import java.util.Optional;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 class InMemoryCustomerRepositoryTest {
 
@@ -74,9 +73,7 @@ class InMemoryCustomerRepositoryTest {
 
     @Test
     void shouldNotThrowWhenDeletingNonExistentId() {
-        assertDoesNotThrow(
-                () -> repository.delete(999L)
-        );
+        assertDoesNotThrow(() -> repository.delete(999L));
     }
 
     @Test

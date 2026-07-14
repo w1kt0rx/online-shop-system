@@ -1,12 +1,12 @@
 package product.model.computer.configuration;
 
+import java.math.BigDecimal;
 import lombok.Getter;
 import product.validator.ComputerConfigurationValidator;
 
-import java.math.BigDecimal;
-
 @Getter
 public class ComputerConfiguration {
+
     private Processor processor;
     private Ram ram;
     private StorageType storageType;
@@ -29,49 +29,26 @@ public class ComputerConfiguration {
     }
 
     public BigDecimal calculatePrice() {
-        return processor.getPrice()
-                .add(ram.getPrice())
-                .add(storageType.getPrice())
-                .add(graphicsCard.getPrice());
+        return processor.getPrice().add(ram.getPrice()).add(storageType.getPrice()).add(graphicsCard.getPrice());
     }
 
     public void updateProcessor(Processor processor) {
-        ComputerConfigurationValidator.validate(
-                processor,
-                this.ram,
-                this.storageType,
-                this.graphicsCard
-        );
+        ComputerConfigurationValidator.validate(processor, this.ram, this.storageType, this.graphicsCard);
         this.processor = processor;
     }
 
     public void updateRam(Ram ram) {
-        ComputerConfigurationValidator.validate(
-                this.processor,
-                ram,
-                this.storageType,
-                this.graphicsCard
-        );
+        ComputerConfigurationValidator.validate(this.processor, ram, this.storageType, this.graphicsCard);
         this.ram = ram;
     }
 
     public void updateStorageType(StorageType storageType) {
-        ComputerConfigurationValidator.validate(
-                this.processor,
-                this.ram,
-                storageType,
-                this.graphicsCard
-        );
+        ComputerConfigurationValidator.validate(this.processor, this.ram, storageType, this.graphicsCard);
         this.storageType = storageType;
     }
 
     public void updateGraphicsCard(GraphicsCard graphicsCard) {
-        ComputerConfigurationValidator.validate(
-                this.processor,
-                this.ram,
-                this.storageType,
-                graphicsCard
-        );
+        ComputerConfigurationValidator.validate(this.processor, this.ram, this.storageType, graphicsCard);
         this.graphicsCard = graphicsCard;
     }
 }

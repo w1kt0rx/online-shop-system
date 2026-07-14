@@ -1,14 +1,13 @@
 package product.repository.electronics;
 
+import static org.junit.jupiter.api.Assertions.*;
+
+import java.math.BigDecimal;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import product.model.electronics.Electronics;
 import product.repository.impl.InMemoryElectronicsRepository;
-
-import java.math.BigDecimal;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class InMemoryElectronicsRepositoryTest {
 
@@ -60,7 +59,7 @@ class InMemoryElectronicsRepositoryTest {
     void shouldReturnAllElectronics() {
         repository.save(new Electronics(null, "Monitor 4K", BigDecimal.valueOf(1500), 10));
         repository.save(new Electronics(null, "Keyboard", BigDecimal.valueOf(300), 25));
-        repository.save(new Electronics(null,"Headphones", BigDecimal.valueOf(500), 15));
+        repository.save(new Electronics(null, "Headphones", BigDecimal.valueOf(500), 15));
 
         assertEquals(3, repository.getAll().size());
     }

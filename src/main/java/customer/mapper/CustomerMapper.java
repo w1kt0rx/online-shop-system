@@ -15,10 +15,10 @@ public final class CustomerMapper {
      */
     public static CustomerDto toDto(Customer customer) {
         return new CustomerDto(
-                customer.getId(),
-                customer.getName(),
-                customer.getEmail(),
-                CartMapper.toDto(customer.getCart())
+            customer.getId(),
+            customer.getName(),
+            customer.getEmail(),
+            CartMapper.toDto(customer.getCart())
         );
     }
 }

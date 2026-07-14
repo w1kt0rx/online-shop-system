@@ -1,10 +1,17 @@
 package order.service;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
 import customer.model.Customer;
 import customer.repository.CustomerRepository;
 import exception.CustomerNotFoundException;
 import exception.EmptyCartException;
 import exception.OrderNotFoundException;
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Optional;
 import order.dto.OrderDto;
 import order.model.Order;
 import order.model.OrderStatus;
@@ -17,19 +24,12 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import product.model.electronics.Electronics;
 
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
-
 @ExtendWith(MockitoExtension.class)
 class OrderServiceTest {
 
     @Mock
     private OrderRepository orderRepository;
+
     @Mock
     private CustomerRepository customerRepository;
 
@@ -44,7 +44,7 @@ class OrderServiceTest {
     void setup() {
         product = new Electronics(1L, "Monitor", new BigDecimal("800"), 10);
 
-        customerWithItems =new Customer(1L, "Anna", "fdfdsfsfds@gmail.com", "Password");
+        customerWithItems = new Customer(1L, "Anna", "fdfdsfsfds@gmail.com", "Password");
         customerWithItems.getCart().addProduct(product, 2);
 
         emptyCustomer = new Customer(2L, "Anna", "fdfdsfsfds@gmail.com", "Password");
@@ -65,8 +65,7 @@ class OrderServiceTest {
     void shouldThrowWhenOrderNotFound() {
         when(orderRepository.findById(99L)).thenReturn(Optional.empty());
 
-        assertThrows(OrderNotFoundException.class,
-                () -> orderService.getOrderById(99L));
+        assertThrows(OrderNotFoundException.class, () -> orderService.getOrderById(99L));
     }
 
     @Test
@@ -108,7 +107,6 @@ class OrderServiceTest {
     void shouldThrowWhenCancellingNonExistentOrder() {
         when(orderRepository.findById(99L)).thenReturn(Optional.empty());
 
-        assertThrows(OrderNotFoundException.class,
-                () -> orderService.cancelOrder(99L));
+        assertThrows(OrderNotFoundException.class, () -> orderService.cancelOrder(99L));
     }
 }

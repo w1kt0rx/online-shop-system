@@ -1,5 +1,10 @@
 package product.service;
 
+import static org.assertj.core.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+import java.math.BigDecimal;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -7,12 +12,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import product.dto.computer.ComputerDto;
 import product.model.ProductType;
-
-import java.math.BigDecimal;
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
 /**
  * ProductFacade should do nothing but delegate to ComputerService,
@@ -23,14 +22,15 @@ class ProductServiceTest {
 
     @Mock
     ComputerService computerService;
+
     @Mock
     SmartphoneService smartphoneService;
+
     @Mock
     ElectronicsService electronicsService;
 
     @InjectMocks
     ProductService facade;
-
 
     @Test
     void shouldDelegateGetAllComputersToComputerService() {
@@ -79,8 +79,7 @@ class ProductServiceTest {
 
     @Test
     void shouldDelegateGetComputerByIdToComputerService() {
-        ComputerDto dto = new ComputerDto(1L, "Dell", BigDecimal.TEN, BigDecimal.TEN,
-                5, ProductType.COMPUTER, null);
+        ComputerDto dto = new ComputerDto(1L, "Dell", BigDecimal.TEN, BigDecimal.TEN, 5, ProductType.COMPUTER, null);
         when(computerService.getById(1L)).thenReturn(dto);
 
         assertThat(facade.getComputerById(1L).id()).isEqualTo(1L);
