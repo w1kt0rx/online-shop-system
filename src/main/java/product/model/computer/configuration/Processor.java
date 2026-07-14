@@ -1,10 +1,9 @@
 package product.model.computer.configuration;
 
+import java.math.BigDecimal;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-
-import java.math.BigDecimal;
 
 @Getter
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
@@ -14,7 +13,7 @@ public enum Processor {
     INTEL_I9("Intel Core i9", new BigDecimal("1200")),
     AMD_RYZEN_5("AMD Ryzen 5", new BigDecimal("550")),
     AMD_RYZEN_7("AMD Ryzen 7", new BigDecimal("850"));
+
     private final String description;
     private final BigDecimal price;
-
 }

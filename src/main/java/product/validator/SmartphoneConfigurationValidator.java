@@ -1,18 +1,18 @@
 package product.validator;
 
-import product.model.smartphone.configuration.Accessory;
-import product.model.smartphone.configuration.BatteryCapacity;
-import product.model.smartphone.configuration.Color;
 import exception.InvalidConfigurationException;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+import product.model.smartphone.configuration.Accessory;
+import product.model.smartphone.configuration.BatteryCapacity;
+import product.model.smartphone.configuration.Color;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class SmartphoneConfigurationValidator {
+
     public static void validate(Color color, BatteryCapacity batteryCapacity, Set<Accessory> accessories) {
         List<String> errors = new ArrayList<>();
         validateColor(color, errors);
@@ -22,7 +22,6 @@ public final class SmartphoneConfigurationValidator {
         if (!errors.isEmpty()) {
             throw new InvalidConfigurationException(String.join(", ", errors));
         }
-
     }
 
     private static void validateBattery(BatteryCapacity batteryCapacity, List<String> errors) {
@@ -42,7 +41,6 @@ public final class SmartphoneConfigurationValidator {
             errors.add("Color cannot be null");
         }
     }
-
 
     public static void validateBattery(BatteryCapacity batteryCapacity) {
         if (batteryCapacity == null) {

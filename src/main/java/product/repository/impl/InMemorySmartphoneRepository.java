@@ -1,16 +1,16 @@
 package product.repository.impl;
 
-import product.model.smartphone.Smartphone;
-import product.repository.SmartphoneRepository;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
+import product.model.smartphone.Smartphone;
+import product.repository.SmartphoneRepository;
 
 public class InMemorySmartphoneRepository implements SmartphoneRepository {
+
     private final Map<Long, Smartphone> database = new ConcurrentHashMap<>();
     private final AtomicLong sequenceId = new AtomicLong(1L);
 

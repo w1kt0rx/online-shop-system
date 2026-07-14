@@ -12,9 +12,8 @@ import customer.validator.CustomerValidator;
 import exception.CustomerNotFoundException;
 import exception.EmailAlreadyInUseException;
 import exception.InvalidCredentialsException;
-import lombok.RequiredArgsConstructor;
-
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class CustomerService {
@@ -30,16 +29,13 @@ public class CustomerService {
      * @throws EmailAlreadyInUseException if the email is already registered
      */
     public CustomerDto createCustomer(CreateCustomerRequest request) {
-        customerRepository.findByEmail(request.email()).ifPresent(existing -> {
-            throw new EmailAlreadyInUseException(request.email());
-        });
+        customerRepository
+            .findByEmail(request.email())
+            .ifPresent(existing -> {
+                throw new EmailAlreadyInUseException(request.email());
+            });
 
-        Customer customer = new Customer(
-                null,
-                request.name(),
-                request.email(),
-                request.password()
-        );
+        Customer customer = new Customer(null, request.name(), request.email(), request.password());
         return CustomerMapper.toDto(customerRepository.save(customer));
     }
 
@@ -55,8 +51,9 @@ public class CustomerService {
      * @throws InvalidCredentialsException if the email is unknown or the password is wrong
      */
     public CustomerDto login(LoginRequest request) {
-        Customer customer = customerRepository.findByEmail(request.email())
-                .orElseThrow(InvalidCredentialsException::new);
+        Customer customer = customerRepository
+            .findByEmail(request.email())
+            .orElseThrow(InvalidCredentialsException::new);
 
         if (!customer.checkPassword(request.password())) {
             throw new InvalidCredentialsException();
@@ -65,15 +62,12 @@ public class CustomerService {
     }
 
     public CustomerDto getCustomerById(Long id) {
-        Customer customer = customerRepository.findById(id)
-                .orElseThrow(() -> new CustomerNotFoundException(id));
+        Customer customer = customerRepository.findById(id).orElseThrow(() -> new CustomerNotFoundException(id));
         return CustomerMapper.toDto(customer);
     }
 
     public List<CustomerDto> getAllCustomers() {
-        return customerRepository.getAll().stream()
-                .map(CustomerMapper::toDto)
-                .toList();
+        return customerRepository.getAll().stream().map(CustomerMapper::toDto).toList();
     }
 
     /**
@@ -81,13 +75,14 @@ public class CustomerService {
      * not already belong to another customer.
      */
     public CustomerDto updateCustomer(Long id, UpdateCustomerRequest request) {
-        Customer customer = customerRepository.findById(id)
-                .orElseThrow(() -> new CustomerNotFoundException(id));
+        Customer customer = customerRepository.findById(id).orElseThrow(() -> new CustomerNotFoundException(id));
 
         if (!customer.getEmail().equalsIgnoreCase(request.email())) {
-            customerRepository.findByEmail(request.email()).ifPresent(existing -> {
-                throw new EmailAlreadyInUseException(request.email());
-            });
+            customerRepository
+                .findByEmail(request.email())
+                .ifPresent(existing -> {
+                    throw new EmailAlreadyInUseException(request.email());
+                });
         }
 
         customer.updateName(request.name());
@@ -103,8 +98,7 @@ public class CustomerService {
      * @throws InvalidCredentialsException if currentPassword does not match
      */
     public CustomerDto changePassword(Long id, ChangePasswordRequest request) {
-        Customer customer = customerRepository.findById(id)
-                .orElseThrow(() -> new CustomerNotFoundException(id));
+        Customer customer = customerRepository.findById(id).orElseThrow(() -> new CustomerNotFoundException(id));
 
         if (!customer.checkPassword(request.currentPassword())) {
             throw new InvalidCredentialsException();
@@ -114,8 +108,7 @@ public class CustomerService {
     }
 
     public void deleteCustomer(Long id) {
-        customerRepository.findById(id)
-                .orElseThrow(() -> new CustomerNotFoundException(id));
+        customerRepository.findById(id).orElseThrow(() -> new CustomerNotFoundException(id));
         customerRepository.delete(id);
     }
 }

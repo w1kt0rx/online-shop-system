@@ -19,12 +19,16 @@ import lombok.ToString;
 @Getter
 @ToString
 public class Customer {
+
     @Setter
     private Long id;
+
     private String name;
     private String email;
+
     @ToString.Exclude
     private String passwordHash;
+
     private final Cart cart;
 
     /**

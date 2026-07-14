@@ -1,5 +1,9 @@
 package order.service;
 
+import static org.assertj.core.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.when;
+
 import cart.dto.CartItemDto;
 import common.time.TimeUtils;
 import customer.model.Customer;
@@ -8,6 +12,12 @@ import discount.service.DiscountService;
 import exception.EmptyCartException;
 import invoice.dto.InvoiceDto;
 import invoice.service.InvoiceService;
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicLong;
 import order.model.Order;
 import order.model.OrderProcessingResult;
 import order.repository.OrderRepository;
@@ -19,26 +29,18 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import product.model.electronics.Electronics;
 
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.atomic.AtomicLong;
-
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.when;
-
 @ExtendWith(MockitoExtension.class)
 class AsyncOrderProcessorTest {
 
     @Mock
     private OrderRepository orderRepository;
+
     @Mock
     private CustomerRepository customerRepository;
+
     @Mock
     private DiscountService discountService;
+
     @Mock
     private InvoiceService invoiceService;
 
@@ -47,12 +49,7 @@ class AsyncOrderProcessorTest {
 
     @BeforeEach
     void setUp() {
-        orderProcessor = new OrderProcessor(
-                orderRepository,
-                customerRepository,
-                discountService,
-                invoiceService
-        );
+        orderProcessor = new OrderProcessor(orderRepository, customerRepository, discountService, invoiceService);
         asyncProcessor = new AsyncOrderProcessor(orderProcessor, 2);
     }
 
@@ -68,7 +65,13 @@ class AsyncOrderProcessorTest {
         return customer;
     }
 
-    private InvoiceDto buildInvoiceDto(Long invoiceId, Long orderId, Long customerId, String customerName, BigDecimal totalPrice) {
+    private InvoiceDto buildInvoiceDto(
+        Long invoiceId,
+        Long orderId,
+        Long customerId,
+        String customerName,
+        BigDecimal totalPrice
+    ) {
         return new InvoiceDto(invoiceId, orderId, customerId, customerName, List.of(), totalPrice, TimeUtils.now());
     }
 
@@ -84,14 +87,13 @@ class AsyncOrderProcessorTest {
     }
 
     private void stubInvoiceCreation() {
-        when(invoiceService.createInvoice(any(), anyLong(), anyString(), anyList(), any()))
-                .thenAnswer(invocation -> {
-                    Long orderId      = invocation.getArgument(0);
-                    Long customerId   = invocation.getArgument(1);
-                    String name       = invocation.getArgument(2);
-                    BigDecimal amount = invocation.getArgument(4);
-                    return buildInvoiceDto(1000L + customerId, orderId, customerId, name, amount);
-                });
+        when(invoiceService.createInvoice(any(), anyLong(), anyString(), anyList(), any())).thenAnswer(invocation -> {
+            Long orderId = invocation.getArgument(0);
+            Long customerId = invocation.getArgument(1);
+            String name = invocation.getArgument(2);
+            BigDecimal amount = invocation.getArgument(4);
+            return buildInvoiceDto(1000L + customerId, orderId, customerId, name, amount);
+        });
     }
 
     @Test
@@ -119,8 +121,8 @@ class AsyncOrderProcessorTest {
         CompletableFuture<InvoiceDto> future = asyncProcessor.processOrderAsync(2L);
 
         assertThatThrownBy(future::get)
-                .isInstanceOf(ExecutionException.class)
-                .hasCauseInstanceOf(EmptyCartException.class);
+            .isInstanceOf(ExecutionException.class)
+            .hasCauseInstanceOf(EmptyCartException.class);
     }
 
     @Test
@@ -152,20 +154,16 @@ class AsyncOrderProcessorTest {
         stubOrderSaveAssigningIds();
         stubInvoiceCreation();
 
-        List<OrderProcessingResult> results = asyncProcessor
-                .processBatchAsync(List.of(1L, 2L, 3L))
-                .get();
+        List<OrderProcessingResult> results = asyncProcessor.processBatchAsync(List.of(1L, 2L, 3L)).get();
 
         assertThat(results).hasSize(3);
         assertThat(results).allMatch(OrderProcessingResult::success);
-        assertThat(results)
-                .extracting(OrderProcessingResult::customerId)
-                .containsExactly(1L, 2L, 3L);
+        assertThat(results).extracting(OrderProcessingResult::customerId).containsExactly(1L, 2L, 3L);
     }
 
     @Test
     void shouldHandleMixedSuccessAndFailureInBatch() throws Exception {
-        Customer ok   = customerWithProduct(1L, "Jan", 5);
+        Customer ok = customerWithProduct(1L, "Jan", 5);
         Customer fail = new Customer(2L, "Anna", "anna@example.com", "Password123");
 
         when(customerRepository.findById(1L)).thenReturn(Optional.of(ok));
@@ -174,23 +172,19 @@ class AsyncOrderProcessorTest {
         stubOrderSaveAssigningIds();
         stubInvoiceCreation();
 
-        List<OrderProcessingResult> results = asyncProcessor
-                .processBatchAsync(List.of(1L, 2L))
-                .get();
+        List<OrderProcessingResult> results = asyncProcessor.processBatchAsync(List.of(1L, 2L)).get();
 
         assertThat(results).hasSize(2);
         assertThat(results.stream().filter(OrderProcessingResult::success)).hasSize(1);
         assertThat(results.stream().filter(r -> !r.success())).hasSize(1);
 
-        OrderProcessingResult success = results.stream()
-                .filter(OrderProcessingResult::success)
-                .findFirst()
-                .orElseThrow();
+        OrderProcessingResult success = results
+            .stream()
+            .filter(OrderProcessingResult::success)
+            .findFirst()
+            .orElseThrow();
 
-        OrderProcessingResult failure = results.stream()
-                .filter(r -> !r.success())
-                .findFirst()
-                .orElseThrow();
+        OrderProcessingResult failure = results.stream().filter(r -> !r.success()).findFirst().orElseThrow();
 
         assertThat(success.customerId()).isEqualTo(1L);
         assertThat(failure.customerId()).isEqualTo(2L);
@@ -208,9 +202,7 @@ class AsyncOrderProcessorTest {
         stubOrderSaveAssigningIds();
         stubInvoiceCreation();
 
-        List<OrderProcessingResult> results = asyncProcessor
-                .processBatchAsync(List.of(1L, 2L))
-                .get();
+        List<OrderProcessingResult> results = asyncProcessor.processBatchAsync(List.of(1L, 2L)).get();
 
         assertThat(results).hasSize(2);
         assertThat(results.get(0).customerId()).isEqualTo(1L);
@@ -220,9 +212,7 @@ class AsyncOrderProcessorTest {
 
     @Test
     void shouldHandleEmptyBatch() throws Exception {
-        List<OrderProcessingResult> results = asyncProcessor
-                .processBatchAsync(List.of())
-                .get();
+        List<OrderProcessingResult> results = asyncProcessor.processBatchAsync(List.of()).get();
 
         assertThat(results).isEmpty();
     }

@@ -1,12 +1,11 @@
 package customer.validator;
 
 import exception.InvalidProductException;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.apache.commons.validator.routines.EmailValidator;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class CustomerValidator {

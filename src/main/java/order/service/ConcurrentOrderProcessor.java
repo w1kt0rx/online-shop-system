@@ -2,12 +2,11 @@ package order.service;
 
 import exception.OrderProcessingException;
 import invoice.dto.InvoiceDto;
-import lombok.RequiredArgsConstructor;
-import order.model.OrderProcessingResult;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
+import lombok.RequiredArgsConstructor;
+import order.model.OrderProcessingResult;
 
 /**
  * Processes multiple orders in parallel using a fixed-size thread pool.

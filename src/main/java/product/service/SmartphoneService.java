@@ -1,6 +1,7 @@
 package product.service;
 
 import exception.ProductNotFoundException;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import product.dto.smartphone.CreateSmartphoneRequest;
 import product.dto.smartphone.SmartphoneDto;
@@ -11,9 +12,6 @@ import product.model.smartphone.Smartphone;
 import product.model.smartphone.configuration.SmartphoneConfiguration;
 import product.repository.SmartphoneRepository;
 
-import java.util.List;
-
-
 @RequiredArgsConstructor
 public class SmartphoneService {
 
@@ -21,18 +19,14 @@ public class SmartphoneService {
 
     public SmartphoneDto create(CreateSmartphoneRequest request) {
         SmartphoneConfiguration configuration = new SmartphoneConfiguration();
-        configuration.configure(
-                request.color(),
-                request.batteryCapacity(),
-                request.accessory()
-        );
+        configuration.configure(request.color(), request.batteryCapacity(), request.accessory());
 
         Smartphone smartphone = new Smartphone(
-                null,
-                request.name(),
-                request.basePrice(),
-                request.quantity(),
-                configuration
+            null,
+            request.name(),
+            request.basePrice(),
+            request.quantity(),
+            configuration
         );
 
         return SmartphoneMapper.toDTO(smartphoneRepository.save(smartphone));
@@ -44,11 +38,9 @@ public class SmartphoneService {
         smartphone.updateName(request.name());
         smartphone.updatePrice(request.basePrice());
         smartphone.updateQuantity(request.quantity());
-        smartphone.getSmartphoneConfiguration().configure(
-                request.color(),
-                request.batteryCapacity(),
-                request.accessory()
-        );
+        smartphone
+            .getSmartphoneConfiguration()
+            .configure(request.color(), request.batteryCapacity(), request.accessory());
 
         return SmartphoneMapper.toDTO(smartphoneRepository.save(smartphone));
     }
@@ -58,9 +50,7 @@ public class SmartphoneService {
     }
 
     public List<SmartphoneDto> getAll() {
-        return smartphoneRepository.getAll().stream()
-                .map(SmartphoneMapper::toDTO)
-                .toList();
+        return smartphoneRepository.getAll().stream().map(SmartphoneMapper::toDTO).toList();
     }
 
     public void delete(Long id) {
@@ -69,8 +59,8 @@ public class SmartphoneService {
     }
 
     private Smartphone findSmartphone(Long id) {
-        return smartphoneRepository.findById(id)
-                .orElseThrow(() ->
-                        new ProductNotFoundException(ProductType.SMARTPHONE, id));
+        return smartphoneRepository
+            .findById(id)
+            .orElseThrow(() -> new ProductNotFoundException(ProductType.SMARTPHONE, id));
     }
 }

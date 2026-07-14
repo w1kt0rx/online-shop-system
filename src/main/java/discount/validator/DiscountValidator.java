@@ -3,13 +3,12 @@ package discount.validator;
 import discount.dto.CreateDiscountRequest;
 import discount.model.DiscountType;
 import exception.InvalidProductException;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
-
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class DiscountValidator {
@@ -33,9 +32,7 @@ public final class DiscountValidator {
     }
 
     private static void validateCode(CreateDiscountRequest request, List<String> errors) {
-        if (Optional.ofNullable(request.code())
-                .filter(code -> !code.isBlank())
-                .isEmpty()) {
+        if (Optional.ofNullable(request.code()).filter(code -> !code.isBlank()).isEmpty()) {
             errors.add("Discount code cannot be blank");
         }
     }
@@ -47,9 +44,7 @@ public final class DiscountValidator {
     }
 
     private static void validateValue(CreateDiscountRequest request, List<String> errors) {
-        if (Optional.ofNullable(request.value())
-                .filter(value -> value.compareTo(ZERO) > 0)
-                .isEmpty()) {
+        if (Optional.ofNullable(request.value()).filter(value -> value.compareTo(ZERO) > 0).isEmpty()) {
             errors.add("Discount value must be positive");
         }
     }
@@ -70,13 +65,11 @@ public final class DiscountValidator {
             return;
         }
 
-        if (request.type() == DiscountType.PERCENTAGE
-                && request.value().compareTo(MAX_PERCENTAGE_DISCOUNT) > 0) {
+        if (request.type() == DiscountType.PERCENTAGE && request.value().compareTo(MAX_PERCENTAGE_DISCOUNT) > 0) {
             errors.add("Percentage discount cannot exceed 100");
         }
 
-        if (request.type() == DiscountType.FIXED_AMOUNT
-                && request.value().compareTo(MAX_FIXED_AMOUNT_DISCOUNT) > 0) {
+        if (request.type() == DiscountType.FIXED_AMOUNT && request.value().compareTo(MAX_FIXED_AMOUNT_DISCOUNT) > 0) {
             errors.add("Fixed amount discount cannot exceed 1000");
         }
     }

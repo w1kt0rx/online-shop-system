@@ -1,10 +1,9 @@
 package product.model.computer.configuration;
 
+import java.math.BigDecimal;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-
-import java.math.BigDecimal;
 
 @Getter
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
@@ -17,5 +16,4 @@ public enum StorageType {
 
     private final String description;
     private final BigDecimal price;
-
 }

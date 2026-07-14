@@ -1,5 +1,7 @@
 package integration;
 
+import static org.assertj.core.api.Assertions.*;
+
 import cart.service.CartService;
 import customer.dto.CreateCustomerRequest;
 import customer.dto.CustomerDto;
@@ -10,6 +12,12 @@ import discount.service.DiscountService;
 import invoice.dto.InvoiceDto;
 import invoice.repository.impl.InMemoryInvoiceRepository;
 import invoice.service.InvoiceService;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.IntStream;
 import order.facade.OrderFacade;
 import order.model.OrderProcessingResult;
 import order.repository.impl.InMemoryOrderRepository;
@@ -24,15 +32,6 @@ import product.dto.electronics.ElectronicsDto;
 import product.model.ProductType;
 import product.repository.impl.*;
 import product.service.ElectronicsService;
-
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.IntStream;
-
-import static org.assertj.core.api.Assertions.*;
 
 /**
  * Integration tests for concurrent and async order processing — thread-safety,
@@ -49,22 +48,26 @@ class ConcurrentOrdersIT {
 
     @BeforeEach
     void setUp() {
-        InMemoryCustomerRepository customerRepo   = new InMemoryCustomerRepository();
-        InMemoryComputerRepository computerRepo   = new InMemoryComputerRepository();
-        InMemorySmartphoneRepository phoneRepo    = new InMemorySmartphoneRepository();
-        InMemoryElectronicsRepository elRepo      = new InMemoryElectronicsRepository();
-        InMemoryOrderRepository orderRepo         = new InMemoryOrderRepository();
-        InMemoryInvoiceRepository invoiceRepo     = new InMemoryInvoiceRepository();
+        InMemoryCustomerRepository customerRepo = new InMemoryCustomerRepository();
+        InMemoryComputerRepository computerRepo = new InMemoryComputerRepository();
+        InMemorySmartphoneRepository phoneRepo = new InMemorySmartphoneRepository();
+        InMemoryElectronicsRepository elRepo = new InMemoryElectronicsRepository();
+        InMemoryOrderRepository orderRepo = new InMemoryOrderRepository();
+        InMemoryInvoiceRepository invoiceRepo = new InMemoryInvoiceRepository();
 
-        customerService    = new CustomerService(customerRepo);
+        customerService = new CustomerService(customerRepo);
         electronicsService = new ElectronicsService(elRepo);
-        invoiceService     = new InvoiceService(invoiceRepo);
-        cartService        = new CartService(customerRepo, computerRepo, phoneRepo, elRepo);
-        orderProcessor     = new OrderProcessor(orderRepo, customerRepo,
-                new DiscountService(new InMemoryDiscountRepository()), invoiceService);
+        invoiceService = new InvoiceService(invoiceRepo);
+        cartService = new CartService(customerRepo, computerRepo, phoneRepo, elRepo);
+        orderProcessor = new OrderProcessor(
+            orderRepo,
+            customerRepo,
+            new DiscountService(new InMemoryDiscountRepository()),
+            invoiceService
+        );
 
         ConcurrentOrderProcessor concurrent = new ConcurrentOrderProcessor(orderProcessor, 4);
-        AsyncOrderProcessor async           = new AsyncOrderProcessor(orderProcessor, 4);
+        AsyncOrderProcessor async = new AsyncOrderProcessor(orderProcessor, 4);
         orderFacade = new OrderFacade(concurrent, async);
     }
 
@@ -75,26 +78,27 @@ class ConcurrentOrdersIT {
 
     private CustomerDto newCustomer(int n) {
         return customerService.createCustomer(
-                new CreateCustomerRequest("Customer " + n, "c" + n + "@example.com", "Password123"));
+            new CreateCustomerRequest("Customer " + n, "c" + n + "@example.com", "Password123")
+        );
     }
 
     private List<Long> prepareCustomers(int count, Long productId, int qty) {
         AtomicInteger seq = new AtomicInteger(1);
         return IntStream.range(0, count)
-                .mapToObj(i -> {
-                    CustomerDto c = newCustomer(seq.getAndIncrement());
-                    cartService.addProduct(c.id(), productId, ProductType.ELECTRONICS, qty);
-                    return c.id();
-                })
-                .toList();
+            .mapToObj(i -> {
+                CustomerDto c = newCustomer(seq.getAndIncrement());
+                cartService.addProduct(c.id(), productId, ProductType.ELECTRONICS, qty);
+                return c.id();
+            })
+            .toList();
     }
-
 
     @Test
     void concurrentBatch_allSucceed_stockExactlyZero() {
         final int UNITS = 6;
         ElectronicsDto product = electronicsService.create(
-                new CreateElectronicsRequest("USB Hub", new BigDecimal("150"), UNITS));
+            new CreateElectronicsRequest("USB Hub", new BigDecimal("150"), UNITS)
+        );
 
         List<Long> customerIds = prepareCustomers(UNITS, product.id(), 1);
 
@@ -116,7 +120,8 @@ class ConcurrentOrdersIT {
         final int STOCK = 5;
         final int CUSTOMERS = 8;
         ElectronicsDto product = electronicsService.create(
-                new CreateElectronicsRequest("Limited Item", new BigDecimal("200"), STOCK));
+            new CreateElectronicsRequest("Limited Item", new BigDecimal("200"), STOCK)
+        );
 
         List<Long> customerIds = prepareCustomers(CUSTOMERS, product.id(), 1);
 
@@ -125,7 +130,7 @@ class ConcurrentOrdersIT {
         assertThat(results).hasSize(CUSTOMERS);
 
         long successes = results.stream().filter(OrderProcessingResult::success).count();
-        long failures  = results.stream().filter(r -> !r.success()).count();
+        long failures = results.stream().filter(r -> !r.success()).count();
 
         assertThat(successes).isEqualTo(STOCK);
         assertThat(failures).isEqualTo(CUSTOMERS - STOCK);
@@ -137,7 +142,8 @@ class ConcurrentOrdersIT {
     void concurrentBatch_resultsReturnedInInputOrder() {
         final int COUNT = 4;
         ElectronicsDto product = electronicsService.create(
-                new CreateElectronicsRequest("Ordered Item", new BigDecimal("100"), COUNT));
+            new CreateElectronicsRequest("Ordered Item", new BigDecimal("100"), COUNT)
+        );
 
         List<CustomerDto> customers = new ArrayList<>();
         for (int i = 1; i <= COUNT; i++) {
@@ -165,17 +171,17 @@ class ConcurrentOrdersIT {
     @Test
     void concurrentBatch_customerWithEmptyCart_recordedAsFailure_othersUnaffected() {
         ElectronicsDto product = electronicsService.create(
-                new CreateElectronicsRequest("Item", new BigDecimal("300"), 5));
+            new CreateElectronicsRequest("Item", new BigDecimal("300"), 5)
+        );
 
-        CustomerDto withCart    = newCustomer(200);
+        CustomerDto withCart = newCustomer(200);
         CustomerDto withoutCart = newCustomer(201);
         cartService.addProduct(withCart.id(), product.id(), ProductType.ELECTRONICS, 1);
 
-        List<OrderProcessingResult> results =
-                orderFacade.processBatchOrders(List.of(withCart.id(), withoutCart.id()));
+        List<OrderProcessingResult> results = orderFacade.processBatchOrders(List.of(withCart.id(), withoutCart.id()));
 
         assertThat(results).hasSize(2);
-        OrderProcessingResult ok   = results.stream().filter(OrderProcessingResult::success).findFirst().orElseThrow();
+        OrderProcessingResult ok = results.stream().filter(OrderProcessingResult::success).findFirst().orElseThrow();
         OrderProcessingResult fail = results.stream().filter(r -> !r.success()).findFirst().orElseThrow();
 
         assertThat(ok.customerId()).isEqualTo(withCart.id());
@@ -184,16 +190,15 @@ class ConcurrentOrdersIT {
         assertThat(fail.errorMessage()).isNotBlank();
     }
 
-
     @Test
     void asyncSingle_completesWithCorrectInvoice() throws Exception {
         ElectronicsDto product = electronicsService.create(
-                new CreateElectronicsRequest("SSD 1TB", new BigDecimal("400"), 5));
+            new CreateElectronicsRequest("SSD 1TB", new BigDecimal("400"), 5)
+        );
         CustomerDto customer = newCustomer(300);
         cartService.addProduct(customer.id(), product.id(), ProductType.ELECTRONICS, 2);
 
-        CompletableFuture<InvoiceDto> future =
-                orderFacade.processOrderAsync(customer.id());
+        CompletableFuture<InvoiceDto> future = orderFacade.processOrderAsync(customer.id());
         InvoiceDto invoice = future.get();
 
         assertThat(invoice).isNotNull();
@@ -208,12 +213,12 @@ class ConcurrentOrdersIT {
     void asyncBatch_allSucceed_noOverselling() throws Exception {
         final int UNITS = 4;
         ElectronicsDto product = electronicsService.create(
-                new CreateElectronicsRequest("RAM 32GB", new BigDecimal("250"), UNITS));
+            new CreateElectronicsRequest("RAM 32GB", new BigDecimal("250"), UNITS)
+        );
 
         List<Long> ids = prepareCustomers(UNITS, product.id(), 1);
 
-        List<OrderProcessingResult> results =
-                orderFacade.processBatchAsync(ids).get();
+        List<OrderProcessingResult> results = orderFacade.processBatchAsync(ids).get();
 
         assertThat(results).hasSize(UNITS);
         assertThat(results).allSatisfy(r -> assertThat(r.success()).isTrue());
@@ -223,7 +228,8 @@ class ConcurrentOrdersIT {
     @Test
     void asyncBatch_mixedResults_failuresCarryErrorMessages() throws Exception {
         ElectronicsDto product = electronicsService.create(
-                new CreateElectronicsRequest("Last Unit", new BigDecimal("500"), 1));
+            new CreateElectronicsRequest("Last Unit", new BigDecimal("500"), 1)
+        );
 
         CustomerDto buyer1 = newCustomer(400);
         CustomerDto buyer2 = newCustomer(401); // empty cart
@@ -231,18 +237,20 @@ class ConcurrentOrdersIT {
         cartService.addProduct(buyer1.id(), product.id(), ProductType.ELECTRONICS, 1);
         cartService.addProduct(buyer3.id(), product.id(), ProductType.ELECTRONICS, 1);
 
-        List<OrderProcessingResult> results =
-                orderFacade.processBatchAsync(
-                        List.of(buyer1.id(), buyer2.id(), buyer3.id())).get();
+        List<OrderProcessingResult> results = orderFacade
+            .processBatchAsync(List.of(buyer1.id(), buyer2.id(), buyer3.id()))
+            .get();
 
         assertThat(results).hasSize(3);
         long successes = results.stream().filter(OrderProcessingResult::success).count();
 
         assertThat(successes).isEqualTo(1);
-        assertThat(results.stream()
+        assertThat(
+            results
+                .stream()
                 .filter(r -> !r.success())
-                .allMatch(r -> r.errorMessage() != null && !r.errorMessage().isBlank()))
-                .isTrue();
+                .allMatch(r -> r.errorMessage() != null && !r.errorMessage().isBlank())
+        ).isTrue();
         assertThat(electronicsService.getById(product.id()).quantity()).isEqualTo(0);
     }
 }

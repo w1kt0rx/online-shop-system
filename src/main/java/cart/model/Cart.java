@@ -1,11 +1,10 @@
 package cart.model;
 
-import product.model.Product;
-
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import product.model.Product;
 
 /**
  * Represents a customer's shopping cart.
@@ -13,6 +12,7 @@ import java.util.Optional;
  * multiple times merges quantities rather than creating duplicate entries.
  */
 public class Cart {
+
     private final List<CartItem> cartItems = new ArrayList<>();
 
     /**
@@ -26,15 +26,15 @@ public class Cart {
         validateQuantity(quantity);
 
         return findCartItem(product)
-                .map(item -> {
-                    item.increaseQuantity(quantity);
-                    return item;
-                })
-                .orElseGet(() -> {
-                    CartItem cartItem = new CartItem(product, quantity);
-                    cartItems.add(cartItem);
-                    return cartItem;
-                });
+            .map(item -> {
+                item.increaseQuantity(quantity);
+                return item;
+            })
+            .orElseGet(() -> {
+                CartItem cartItem = new CartItem(product, quantity);
+                cartItems.add(cartItem);
+                return cartItem;
+            });
     }
 
     /**
@@ -69,9 +69,7 @@ public class Cart {
      * if the cart is empty
      */
     public BigDecimal getTotalPrice() {
-        return cartItems.stream()
-                .map(CartItem::calculateTotalPrice)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        return cartItems.stream().map(CartItem::calculateTotalPrice).reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
     /**
@@ -84,9 +82,7 @@ public class Cart {
     }
 
     private Optional<CartItem> findCartItem(Product product) {
-        return cartItems.stream()
-                .filter(item -> item.getProduct().equals(product))
-                .findFirst();
+        return cartItems.stream().filter(item -> item.getProduct().equals(product)).findFirst();
     }
 
     private void validateQuantity(int quantity) {
@@ -95,4 +91,3 @@ public class Cart {
         }
     }
 }
-

@@ -10,18 +10,19 @@ public final class SmartphoneConfigurationMapper {
 
     public static SmartphoneConfigurationDto toDto(SmartphoneConfiguration smartphoneConfiguration) {
         return new SmartphoneConfigurationDto(
-                smartphoneConfiguration.getColor(),
-                smartphoneConfiguration.getBatteryCapacity(),
-                smartphoneConfiguration.getAccessories()
+            smartphoneConfiguration.getColor(),
+            smartphoneConfiguration.getBatteryCapacity(),
+            smartphoneConfiguration.getAccessories()
         );
     }
 
     public static SmartphoneConfiguration toEntity(SmartphoneConfigurationDto smartphoneConfigurationDto) {
         SmartphoneConfiguration configuration = new SmartphoneConfiguration();
         configuration.configure(
-                smartphoneConfigurationDto.color(),
-                smartphoneConfigurationDto.batteryCapacity(),
-                smartphoneConfigurationDto.accessories());
+            smartphoneConfigurationDto.color(),
+            smartphoneConfigurationDto.batteryCapacity(),
+            smartphoneConfigurationDto.accessories()
+        );
         return configuration;
     }
 }

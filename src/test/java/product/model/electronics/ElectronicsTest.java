@@ -1,12 +1,11 @@
 package product.model.electronics;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import exception.InvalidProductException;
+import java.math.BigDecimal;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import java.math.BigDecimal;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 public class ElectronicsTest {
 
@@ -14,12 +13,7 @@ public class ElectronicsTest {
 
     @BeforeEach
     void setup() {
-        electronics = new Electronics(
-                1L,
-                "Mouse",
-                BigDecimal.valueOf(100),
-                10
-        );
+        electronics = new Electronics(1L, "Mouse", BigDecimal.valueOf(100), 10);
     }
 
     @Test
@@ -32,21 +26,11 @@ public class ElectronicsTest {
 
     @Test
     void shouldThrowExceptionWhenProductDataIsInvalid() {
-
-        assertThrows(
-                InvalidProductException.class,
-                () -> new Electronics(
-                        null,
-                        "",
-                        BigDecimal.valueOf(-100),
-                        -10
-                )
-        );
+        assertThrows(InvalidProductException.class, () -> new Electronics(null, "", BigDecimal.valueOf(-100), -10));
     }
 
     @Test
     void shouldIncreaseQuantity() {
-
         electronics.increaseQuantity(5);
 
         assertEquals(15, electronics.getQuantity());
@@ -54,7 +38,6 @@ public class ElectronicsTest {
 
     @Test
     void shouldDecreaseQuantity() {
-
         electronics.decreaseQuantity(5);
 
         assertEquals(5, electronics.getQuantity());
@@ -62,7 +45,6 @@ public class ElectronicsTest {
 
     @Test
     void shouldReturnAvailabilityStatus() {
-
         assertTrue(electronics.isAvailable());
 
         electronics.decreaseQuantity(10);

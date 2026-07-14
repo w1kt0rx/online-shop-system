@@ -1,6 +1,12 @@
 package order.repository.file;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import cart.model.CartItem;
+import java.io.File;
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Optional;
 import order.model.Order;
 import order.model.OrderStatus;
 import order.repository.impl.file.FileOrderRepository;
@@ -8,13 +14,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import product.model.electronics.Electronics;
-
-import java.io.File;
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 class FileOrderRepositoryTest {
 

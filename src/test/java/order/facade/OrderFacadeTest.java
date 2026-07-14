@@ -1,6 +1,11 @@
 package order.facade;
 
+import static org.assertj.core.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
 import invoice.dto.InvoiceDto;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import order.model.OrderProcessingResult;
 import order.service.AsyncOrderProcessor;
 import order.service.ConcurrentOrderProcessor;
@@ -9,12 +14,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
-
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
 /**
  * OrderFacade should do nothing but delegate batch/async order operations to
@@ -25,6 +24,7 @@ class OrderFacadeTest {
 
     @Mock
     ConcurrentOrderProcessor concurrentOrderProcessor;
+
     @Mock
     AsyncOrderProcessor asyncOrderProcessor;
 
@@ -34,10 +34,9 @@ class OrderFacadeTest {
     @Test
     void shouldDelegateProcessBatchOrdersToConcurrentProcessor() {
         List<Long> ids = List.of(1L, 2L);
-        when(concurrentOrderProcessor.processOrdersConcurrently(ids))
-                .thenReturn(List.of(
-                        OrderProcessingResult.failure(1L, "empty"),
-                        OrderProcessingResult.failure(2L, "empty")));
+        when(concurrentOrderProcessor.processOrdersConcurrently(ids)).thenReturn(
+            List.of(OrderProcessingResult.failure(1L, "empty"), OrderProcessingResult.failure(2L, "empty"))
+        );
 
         List<OrderProcessingResult> result = facade.processBatchOrders(ids);
 
@@ -61,8 +60,7 @@ class OrderFacadeTest {
     @Test
     void shouldDelegateProcessBatchAsyncToAsyncProcessor() {
         List<Long> ids = List.of(1L, 2L);
-        CompletableFuture<List<OrderProcessingResult>> future =
-                CompletableFuture.completedFuture(List.of());
+        CompletableFuture<List<OrderProcessingResult>> future = CompletableFuture.completedFuture(List.of());
         when(asyncOrderProcessor.processBatchAsync(ids)).thenReturn(future);
 
         CompletableFuture<List<OrderProcessingResult>> result = facade.processBatchAsync(ids);

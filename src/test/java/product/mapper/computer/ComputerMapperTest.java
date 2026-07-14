@@ -1,6 +1,9 @@
 package product.mapper.computer;
 
+import static org.assertj.core.api.Assertions.assertThat;
 
+import java.math.BigDecimal;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -9,11 +12,6 @@ import product.dto.computer.ComputerDto;
 import product.model.ProductType;
 import product.model.computer.Computer;
 import product.model.computer.configuration.*;
-
-import java.math.BigDecimal;
-import java.util.stream.Stream;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 class ComputerMapperTest {
 
@@ -69,9 +67,9 @@ class ComputerMapperTest {
 
     private static Stream<Arguments> provideComputers() {
         return Stream.of(
-                Arguments.of(1L, "Dell XPS", new BigDecimal("3000")),
-                Arguments.of(2L, "MacBook Pro", new BigDecimal("7000")),
-                Arguments.of(3L, "Lenovo ThinkPad", new BigDecimal("2500"))
+            Arguments.of(1L, "Dell XPS", new BigDecimal("3000")),
+            Arguments.of(2L, "MacBook Pro", new BigDecimal("7000")),
+            Arguments.of(3L, "Lenovo ThinkPad", new BigDecimal("2500"))
         );
     }
 }

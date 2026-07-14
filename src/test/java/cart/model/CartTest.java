@@ -1,14 +1,13 @@
 package cart.model;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
+import static org.junit.jupiter.api.Assertions.*;
+
+import java.math.BigDecimal;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import product.model.electronics.Electronics;
-
-import java.math.BigDecimal;
-
-import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
-import static org.junit.jupiter.api.Assertions.*;
 
 class CartTest {
 
@@ -66,8 +65,8 @@ class CartTest {
 
     @Test
     void shouldCalculateTotalPriceCorrectly() {
-        cart.addProduct(monitor, 2);   // 2 × 800 = 1600
-        cart.addProduct(keyboard, 3);  // 3 × 150 = 450
+        cart.addProduct(monitor, 2); // 2 × 800 = 1600
+        cart.addProduct(keyboard, 3); // 3 × 150 = 450
 
         assertEquals(new BigDecimal("2050"), cart.getTotalPrice());
     }
@@ -101,24 +100,23 @@ class CartTest {
     @Test
     void shouldThrowWhenAddingZeroQuantity() {
         assertThatExceptionOfType(IllegalArgumentException.class)
-                .isThrownBy(() -> cart.addProduct(monitor, 0))
-                        .extracting(Throwable::getMessage)
-                                .isEqualTo("Quantity must be bigger than zero");
+            .isThrownBy(() -> cart.addProduct(monitor, 0))
+            .extracting(Throwable::getMessage)
+            .isEqualTo("Quantity must be bigger than zero");
     }
 
     @Test
     void shouldThrowWhenAddingNegativeQuantity() {
         assertThatExceptionOfType(IllegalArgumentException.class)
-                .isThrownBy(() -> cart.addProduct(monitor, -1))
-                .extracting(Throwable::getMessage)
-                .isEqualTo("Quantity must be bigger than zero");
+            .isThrownBy(() -> cart.addProduct(monitor, -1))
+            .extracting(Throwable::getMessage)
+            .isEqualTo("Quantity must be bigger than zero");
     }
 
     @Test
     void shouldReturnImmutableListOfProducts() {
         cart.addProduct(monitor, 1);
 
-        assertThrows(UnsupportedOperationException.class,
-                () -> cart.getCartItems().add(new CartItem(keyboard, 1)));
+        assertThrows(UnsupportedOperationException.class, () -> cart.getCartItems().add(new CartItem(keyboard, 1)));
     }
 }

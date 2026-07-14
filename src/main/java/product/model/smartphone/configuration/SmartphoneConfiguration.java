@@ -1,14 +1,14 @@
 package product.model.smartphone.configuration;
 
-import lombok.Getter;
-import product.validator.SmartphoneConfigurationValidator;
-
 import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Set;
+import lombok.Getter;
+import product.validator.SmartphoneConfigurationValidator;
 
 @Getter
 public class SmartphoneConfiguration {
+
     private Color color;
     private BatteryCapacity batteryCapacity;
     private Set<Accessory> accessories;
@@ -53,8 +53,7 @@ public class SmartphoneConfiguration {
     }
 
     public BigDecimal calculateAdditionalPrice() {
-        BigDecimal total = color.getPrice()
-                .add(batteryCapacity.getPrice());
+        BigDecimal total = color.getPrice().add(batteryCapacity.getPrice());
 
         for (Accessory accessory : accessories) {
             total = total.add(accessory.getPrice());

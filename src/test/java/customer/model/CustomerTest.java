@@ -1,14 +1,14 @@
 package customer.model;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+
 import cart.model.Cart;
 import exception.InvalidProductException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 class CustomerTest {
 
@@ -99,78 +99,81 @@ class CustomerTest {
 
     @ParameterizedTest
     @NullAndEmptySource
-    @ValueSource(strings = {"   ", "\t", "\n"})
+    @ValueSource(strings = { "   ", "\t", "\n" })
     void shouldThrowWhenNameIsBlankOrNull(String name) {
-        assertThatExceptionOfType(InvalidProductException.class)
-                .isThrownBy(() -> new Customer(1L, name, VALID_EMAIL, VALID_PASSWORD));
+        assertThatExceptionOfType(InvalidProductException.class).isThrownBy(() ->
+            new Customer(1L, name, VALID_EMAIL, VALID_PASSWORD)
+        );
     }
 
     @Test
     void shouldThrowWhenIdIsNegative() {
-        assertThatExceptionOfType(InvalidProductException.class)
-                .isThrownBy(() -> new Customer(-1L, "Jan", VALID_EMAIL, VALID_PASSWORD));
+        assertThatExceptionOfType(InvalidProductException.class).isThrownBy(() ->
+            new Customer(-1L, "Jan", VALID_EMAIL, VALID_PASSWORD)
+        );
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"not-an-email", "missing-at.com", "@no-local.com", "spaces in@email.com"})
+    @ValueSource(strings = { "not-an-email", "missing-at.com", "@no-local.com", "spaces in@email.com" })
     void shouldThrowWhenEmailFormatIsInvalid(String invalidEmail) {
-        assertThatExceptionOfType(InvalidProductException.class)
-                .isThrownBy(() -> new Customer(1L, "Jan", invalidEmail, VALID_PASSWORD));
+        assertThatExceptionOfType(InvalidProductException.class).isThrownBy(() ->
+            new Customer(1L, "Jan", invalidEmail, VALID_PASSWORD)
+        );
     }
 
     @ParameterizedTest
     @NullAndEmptySource
     void shouldThrowWhenEmailIsBlankOrNull(String email) {
-        assertThatExceptionOfType(InvalidProductException.class)
-                .isThrownBy(() -> new Customer(1L, "Jan", email, VALID_PASSWORD));
+        assertThatExceptionOfType(InvalidProductException.class).isThrownBy(() ->
+            new Customer(1L, "Jan", email, VALID_PASSWORD)
+        );
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"short", "1234567"})
+    @ValueSource(strings = { "short", "1234567" })
     void shouldThrowWhenPasswordIsTooShort(String shortPassword) {
-        assertThatExceptionOfType(InvalidProductException.class)
-                .isThrownBy(() -> new Customer(1L, "Jan", VALID_EMAIL, shortPassword));
+        assertThatExceptionOfType(InvalidProductException.class).isThrownBy(() ->
+            new Customer(1L, "Jan", VALID_EMAIL, shortPassword)
+        );
     }
 
     @ParameterizedTest
     @NullAndEmptySource
     void shouldThrowWhenPasswordIsBlankOrNull(String password) {
-        assertThatExceptionOfType(InvalidProductException.class)
-                .isThrownBy(() -> new Customer(1L, "Jan", VALID_EMAIL, password));
+        assertThatExceptionOfType(InvalidProductException.class).isThrownBy(() ->
+            new Customer(1L, "Jan", VALID_EMAIL, password)
+        );
     }
 
     @ParameterizedTest
     @NullAndEmptySource
-    @ValueSource(strings = {"   "})
+    @ValueSource(strings = { "   " })
     void shouldThrowWhenUpdatingToBlankOrNullName(String name) {
         Customer customer = new Customer(1L, "Jan Kowalski", VALID_EMAIL, VALID_PASSWORD);
 
-        assertThatExceptionOfType(InvalidProductException.class)
-                .isThrownBy(() -> customer.updateName(name));
+        assertThatExceptionOfType(InvalidProductException.class).isThrownBy(() -> customer.updateName(name));
     }
 
     @Test
     void shouldThrowWhenUpdatingToInvalidEmail() {
         Customer customer = new Customer(1L, "Jan Kowalski", VALID_EMAIL, VALID_PASSWORD);
 
-        assertThatExceptionOfType(InvalidProductException.class)
-                .isThrownBy(() -> customer.updateEmail("not-an-email"));
+        assertThatExceptionOfType(InvalidProductException.class).isThrownBy(() -> customer.updateEmail("not-an-email"));
     }
 
     @Test
     void shouldThrowWhenChangingToTooShortPassword() {
         Customer customer = new Customer(1L, "Jan Kowalski", VALID_EMAIL, VALID_PASSWORD);
 
-        assertThatExceptionOfType(InvalidProductException.class)
-                .isThrownBy(() -> customer.changePassword("short"));
+        assertThatExceptionOfType(InvalidProductException.class).isThrownBy(() -> customer.changePassword("short"));
     }
 
     @Test
     void shouldCollectMultipleValidationErrorsOnCreation() {
         assertThatExceptionOfType(InvalidProductException.class)
-                .isThrownBy(() -> new Customer(null, "", "", ""))
-                .withMessageContaining("Customer name cannot be blank")
-                .withMessageContaining("Email cannot be blank")
-                .withMessageContaining("Password cannot be blank");
+            .isThrownBy(() -> new Customer(null, "", "", ""))
+            .withMessageContaining("Customer name cannot be blank")
+            .withMessageContaining("Email cannot be blank")
+            .withMessageContaining("Password cannot be blank");
     }
 }

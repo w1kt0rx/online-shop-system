@@ -2,7 +2,6 @@ package exception.handler;
 
 import common.time.TimeUtils;
 import exception.ShopException;
-
 import java.time.format.DateTimeFormatter;
 
 /**
@@ -16,6 +15,7 @@ import java.time.format.DateTimeFormatter;
  * </p>
  */
 public class GlobalExceptionHandler {
+
     private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     /**
@@ -61,16 +61,11 @@ public class GlobalExceptionHandler {
     }
 
     private void log(ShopException ex) {
-        System.err.printf("[%s] ERROR [%s]: %s%n",
-                TimeUtils.now().format(FMT),
-                ex.getErrorCode(),
-                ex.getMessage());
+        System.err.printf("[%s] ERROR [%s]: %s%n", TimeUtils.now().format(FMT), ex.getErrorCode(), ex.getMessage());
     }
 
     private void logUnexpected(Exception ex) {
-        System.err.printf("[%s] UNEXPECTED ERROR: %s%n",
-                TimeUtils.now().format(FMT),
-                ex.getMessage());
+        System.err.printf("[%s] UNEXPECTED ERROR: %s%n", TimeUtils.now().format(FMT), ex.getMessage());
         ex.printStackTrace(System.err);
     }
 }

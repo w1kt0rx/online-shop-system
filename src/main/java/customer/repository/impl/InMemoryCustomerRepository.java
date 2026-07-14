@@ -1,8 +1,7 @@
 package customer.repository.impl;
 
-import customer.repository.CustomerRepository;
 import customer.model.Customer;
-
+import customer.repository.CustomerRepository;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -10,6 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class InMemoryCustomerRepository implements CustomerRepository {
+
     private final Map<Long, Customer> database = new ConcurrentHashMap<>();
     private final AtomicLong sequenceId = new AtomicLong(1L);
 
@@ -47,8 +47,6 @@ public class InMemoryCustomerRepository implements CustomerRepository {
             return Optional.empty();
         }
         String normalized = email.trim().toLowerCase();
-        return database.values().stream()
-                .filter(c -> c.getEmail().equals(normalized))
-                .findFirst();
+        return database.values().stream().filter(c -> c.getEmail().equals(normalized)).findFirst();
     }
 }

@@ -5,11 +5,6 @@ import cart.service.CartService;
 import discount.service.DiscountService;
 import exception.handler.GlobalExceptionHandler;
 import invoice.dto.InvoiceDto;
-import order.dto.OrderDto;
-import order.facade.OrderFacade;
-import order.model.OrderProcessingResult;
-import order.service.OrderService;
-
 import java.math.BigDecimal;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -17,11 +12,14 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
 import java.util.concurrent.CompletionException;
+import order.dto.OrderDto;
+import order.facade.OrderFacade;
+import order.model.OrderProcessingResult;
+import order.service.OrderService;
 
 public class OrderMenu extends BaseMenu {
 
-    private static final DateTimeFormatter DATE_FMT =
-            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+    private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
     private final OrderService orderService;
     private final OrderFacade orderFacade;
@@ -30,14 +28,14 @@ public class OrderMenu extends BaseMenu {
     private final CartMenu cartMenu;
 
     public OrderMenu(
-            Scanner scanner,
-            Session session,
-            GlobalExceptionHandler exHandler,
-            OrderService orderService,
-            OrderFacade orderFacade,
-            DiscountService discountService,
-            CartService cartService,
-            CartMenu cartMenu
+        Scanner scanner,
+        Session session,
+        GlobalExceptionHandler exHandler,
+        OrderService orderService,
+        OrderFacade orderFacade,
+        DiscountService discountService,
+        CartService cartService,
+        CartMenu cartMenu
     ) {
         super(scanner, session, exHandler);
         this.orderService = orderService;
@@ -105,9 +103,18 @@ public class OrderMenu extends BaseMenu {
         print(LINE);
         print(String.format("  %-28s  %5s  %12s", "Product", "Qty", "Amount"));
         print(LINE);
-        invoice.items().forEach(item -> print(String.format(
-                "  %-28s  %5d  %10.2f PLN",
-                item.productName(), item.quantity(), item.totalPrice().doubleValue())));
+        invoice
+            .items()
+            .forEach(item ->
+                print(
+                    String.format(
+                        "  %-28s  %5d  %10.2f PLN",
+                        item.productName(),
+                        item.quantity(),
+                        item.totalPrice().doubleValue()
+                    )
+                )
+            );
         print(LINE);
         print(String.format("  %-34s  %10.2f PLN", "TOTAL:", invoice.totalAmount().doubleValue()));
         print(DLINE);
@@ -125,13 +132,27 @@ public class OrderMenu extends BaseMenu {
                 print("  No orders found.");
             } else {
                 orders.forEach(o -> {
-                    print(String.format("  Order #%d  |  %s  |  %.2f PLN  |  %s",
-                            o.id(), o.orderStatus(),
+                    print(
+                        String.format(
+                            "  Order #%d  |  %s  |  %.2f PLN  |  %s",
+                            o.id(),
+                            o.orderStatus(),
                             o.totalPrice().doubleValue(),
-                            o.createdAt().format(DATE_FMT)));
-                    o.items().forEach(item -> print(String.format(
-                            "    %-30s  x%d   %.2f PLN",
-                            item.productName(), item.quantity(), item.totalPrice().doubleValue())));
+                            o.createdAt().format(DATE_FMT)
+                        )
+                    );
+                    o
+                        .items()
+                        .forEach(item ->
+                            print(
+                                String.format(
+                                    "    %-30s  x%d   %.2f PLN",
+                                    item.productName(),
+                                    item.quantity(),
+                                    item.totalPrice().doubleValue()
+                                )
+                            )
+                        );
                     print("");
                 });
             }
@@ -172,12 +193,16 @@ public class OrderMenu extends BaseMenu {
         print(LINE);
         for (OrderProcessingResult result : results) {
             if (result.success()) {
-                print(String.format("  Customer #%d: OK — invoice #%d, total %.2f PLN",
-                        result.customerId(), result.invoice().id(),
-                        result.invoice().totalAmount().doubleValue()));
+                print(
+                    String.format(
+                        "  Customer #%d: OK — invoice #%d, total %.2f PLN",
+                        result.customerId(),
+                        result.invoice().id(),
+                        result.invoice().totalAmount().doubleValue()
+                    )
+                );
             } else {
-                print(String.format("  Customer #%d: FAILED — %s",
-                        result.customerId(), result.errorMessage()));
+                print(String.format("  Customer #%d: FAILED — %s", result.customerId(), result.errorMessage()));
             }
         }
         print(LINE);

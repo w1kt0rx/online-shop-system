@@ -2,7 +2,6 @@ package invoice.repository.impl;
 
 import invoice.model.Invoice;
 import invoice.repository.InvoiceRepository;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,6 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class InMemoryInvoiceRepository implements InvoiceRepository {
+
     private final Map<Long, Invoice> database = new ConcurrentHashMap<>();
     private final AtomicLong sequenceId = new AtomicLong(1L);
 

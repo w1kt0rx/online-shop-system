@@ -1,15 +1,15 @@
 package product.validator;
 
 import exception.InvalidProductException;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
-
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class ProductValidator {
+
     public static void validateName(String name) {
         if (name == null || name.isBlank()) {
             throw new InvalidProductException("Name cannot be blank");

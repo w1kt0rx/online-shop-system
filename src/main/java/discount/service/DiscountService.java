@@ -10,11 +10,10 @@ import discount.strategy.DiscountStrategy;
 import discount.validator.DiscountValidator;
 import exception.DiscountNotFoundException;
 import exception.InvalidProductException;
-import lombok.RequiredArgsConstructor;
-
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
+import lombok.RequiredArgsConstructor;
 
 /**
  * Application service for discount management and application.
@@ -24,6 +23,7 @@ import java.util.Optional;
  */
 @RequiredArgsConstructor
 public class DiscountService {
+
     private final DiscountRepository discountRepository;
 
     /**
@@ -37,22 +37,20 @@ public class DiscountService {
     public DiscountDto createDiscount(CreateDiscountRequest request) {
         DiscountValidator.validate(request);
 
-        discountRepository.findByCode(request.code()).ifPresent(
-                existing -> {
-                    throw new InvalidProductException(
-                            "Discount with code '" + request.code() + "' already exists"
-                    );
-                }
-        );
+        discountRepository
+            .findByCode(request.code())
+            .ifPresent(existing -> {
+                throw new InvalidProductException("Discount with code '" + request.code() + "' already exists");
+            });
         Discount discount = new Discount(
-                null,
-                request.code(),
-                request.description(),
-                request.type(),
-                request.value(),
-                request.minOrderValue(),
-                request.validFrom(),
-                request.validTo()
+            null,
+            request.code(),
+            request.description(),
+            request.type(),
+            request.value(),
+            request.minOrderValue(),
+            request.validFrom(),
+            request.validTo()
         );
         return DiscountMapper.toDto(discountRepository.save(discount));
     }
@@ -65,11 +63,10 @@ public class DiscountService {
      * @throws DiscountNotFoundException if no discount with that code exists
      */
     public DiscountDto getByCode(String code) {
-        return discountRepository.findByCode(code)
-                .map(DiscountMapper::toDto)
-                .orElseThrow(() -> new DiscountNotFoundException(
-                        "Discount with code '" + code + "' not found"
-                ));
+        return discountRepository
+            .findByCode(code)
+            .map(DiscountMapper::toDto)
+            .orElseThrow(() -> new DiscountNotFoundException("Discount with code '" + code + "' not found"));
     }
 
     /**
@@ -78,10 +75,7 @@ public class DiscountService {
      * @return list of active discount DTOs; empty list if none
      */
     public List<DiscountDto> getAllActive() {
-        return discountRepository.getAll().stream()
-                .filter(Discount::isValid)
-                .map(DiscountMapper::toDto)
-                .toList();
+        return discountRepository.getAll().stream().filter(Discount::isValid).map(DiscountMapper::toDto).toList();
     }
 
     /**
@@ -90,9 +84,7 @@ public class DiscountService {
      * @return list of all discount DTOs; empty list if none
      */
     public List<DiscountDto> getAll() {
-        return discountRepository.getAll().stream()
-                .map(DiscountMapper::toDto)
-                .toList();
+        return discountRepository.getAll().stream().map(DiscountMapper::toDto).toList();
     }
 
     /**
@@ -102,10 +94,9 @@ public class DiscountService {
      * @throws DiscountNotFoundException if no discount with that id exists
      */
     public void deactivate(Long id) {
-        Discount discount = discountRepository.findById(id)
-                .orElseThrow(() -> new DiscountNotFoundException(
-                        "Discount with id " + id + " not found"
-                ));
+        Discount discount = discountRepository
+            .findById(id)
+            .orElseThrow(() -> new DiscountNotFoundException("Discount with id " + id + " not found"));
         discount.deactivate();
         discountRepository.save(discount);
     }
@@ -122,22 +113,22 @@ public class DiscountService {
      * @throws InvalidProductException   if the order total is below the minimum required value
      */
     public BigDecimal applyDiscount(String code, BigDecimal orderTotal) {
-        Discount discount = discountRepository.findByCode(code)
-                .orElseThrow(() -> new DiscountNotFoundException(
-                        "Discount code '" + code + "' not found"
-                ));
+        Discount discount = discountRepository
+            .findByCode(code)
+            .orElseThrow(() -> new DiscountNotFoundException("Discount code '" + code + "' not found"));
 
         if (!discount.isValid()) {
-            throw new DiscountNotFoundException(
-                    "Discount code '" + code + "' is expired or inactive"
-            );
+            throw new DiscountNotFoundException("Discount code '" + code + "' is expired or inactive");
         }
 
-        if (discount.getMinOrderValue() != null
-                && orderTotal.compareTo(discount.getMinOrderValue()) < 0) {
+        if (discount.getMinOrderValue() != null && orderTotal.compareTo(discount.getMinOrderValue()) < 0) {
             throw new InvalidProductException(
-                    "Order total " + orderTotal + " pln does not meet the minimum "
-                            + discount.getMinOrderValue() + " pln required for this discount");
+                "Order total " +
+                orderTotal +
+                " pln does not meet the minimum " +
+                discount.getMinOrderValue() +
+                " pln required for this discount"
+            );
         }
 
         DiscountStrategy discountStrategy = DiscountFactoryStrategy.create(discount);
@@ -152,9 +143,10 @@ public class DiscountService {
      * @return an Optional containing the description, or empty
      */
     public Optional<String> describeDiscount(String code) {
-        return discountRepository.findByCode(code)
-                .filter(Discount::isValid)
-                .map(discount -> DiscountFactoryStrategy.create(discount).describe());
+        return discountRepository
+            .findByCode(code)
+            .filter(Discount::isValid)
+            .map(discount -> DiscountFactoryStrategy.create(discount).describe());
     }
 
     /**

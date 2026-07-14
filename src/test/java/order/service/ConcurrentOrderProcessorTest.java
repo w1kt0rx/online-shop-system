@@ -1,11 +1,19 @@
 package order.service;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
+
 import cart.dto.CartItemDto;
 import customer.model.Customer;
 import customer.repository.CustomerRepository;
 import discount.service.DiscountService;
 import invoice.dto.InvoiceDto;
 import invoice.service.InvoiceService;
+import java.math.BigDecimal;
+import java.time.ZonedDateTime;
+import java.util.List;
+import java.util.Optional;
 import order.model.OrderProcessingResult;
 import order.repository.OrderRepository;
 import org.junit.jupiter.api.Test;
@@ -14,24 +22,18 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import product.model.electronics.Electronics;
 
-import java.math.BigDecimal;
-import java.time.ZonedDateTime;
-import java.util.List;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
-
 @ExtendWith(MockitoExtension.class)
 class ConcurrentOrderProcessorTest {
 
     @Mock
     OrderRepository orderRepository;
+
     @Mock
     CustomerRepository customerRepository;
+
     @Mock
     DiscountService discountService;
+
     @Mock
     InvoiceService invoiceService;
 
@@ -52,11 +54,16 @@ class ConcurrentOrderProcessorTest {
         when(customerRepository.findById(1L)).thenReturn(Optional.of(c1));
         when(customerRepository.findById(2L)).thenReturn(Optional.of(c2));
         when(orderRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
-        when(invoiceService.createInvoice(any(), anyLong(), anyString(), anyList(), any()))
-                .thenAnswer(inv -> buildInvoiceDto(inv.getArgument(1), inv.getArgument(2), inv.getArgument(4)));
+        when(invoiceService.createInvoice(any(), anyLong(), anyString(), anyList(), any())).thenAnswer(inv ->
+            buildInvoiceDto(inv.getArgument(1), inv.getArgument(2), inv.getArgument(4))
+        );
 
         OrderProcessor processor = new OrderProcessor(
-                orderRepository, customerRepository, discountService, invoiceService);
+            orderRepository,
+            customerRepository,
+            discountService,
+            invoiceService
+        );
         ConcurrentOrderProcessor concurrent = new ConcurrentOrderProcessor(processor, 2);
 
         List<OrderProcessingResult> results = concurrent.processOrdersConcurrently(List.of(1L, 2L));
@@ -71,7 +78,11 @@ class ConcurrentOrderProcessorTest {
         when(customerRepository.findById(3L)).thenReturn(Optional.of(emptyCustomer));
 
         OrderProcessor processor = new OrderProcessor(
-                orderRepository, customerRepository, discountService, invoiceService);
+            orderRepository,
+            customerRepository,
+            discountService,
+            invoiceService
+        );
         ConcurrentOrderProcessor concurrent = new ConcurrentOrderProcessor(processor, 2);
 
         List<OrderProcessingResult> results = concurrent.processOrdersConcurrently(List.of(3L));
@@ -91,11 +102,16 @@ class ConcurrentOrderProcessorTest {
         when(customerRepository.findById(1L)).thenReturn(Optional.of(success));
         when(customerRepository.findById(2L)).thenReturn(Optional.of(failure));
         when(orderRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
-        when(invoiceService.createInvoice(any(), anyLong(), anyString(), anyList(), any()))
-                .thenAnswer(inv -> buildInvoiceDto(inv.getArgument(1), inv.getArgument(2), inv.getArgument(4)));
+        when(invoiceService.createInvoice(any(), anyLong(), anyString(), anyList(), any())).thenAnswer(inv ->
+            buildInvoiceDto(inv.getArgument(1), inv.getArgument(2), inv.getArgument(4))
+        );
 
         OrderProcessor processor = new OrderProcessor(
-                orderRepository, customerRepository, discountService, invoiceService);
+            orderRepository,
+            customerRepository,
+            discountService,
+            invoiceService
+        );
         ConcurrentOrderProcessor concurrent = new ConcurrentOrderProcessor(processor, 2);
 
         List<OrderProcessingResult> results = concurrent.processOrdersConcurrently(List.of(1L, 2L));

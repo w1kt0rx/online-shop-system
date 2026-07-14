@@ -1,10 +1,10 @@
 package cli;
 
 import exception.handler.GlobalExceptionHandler;
-
 import java.util.Scanner;
 
 public abstract class BaseMenu {
+
     protected static final String NL = "\n";
     protected static final String LINE = "─".repeat(55);
     protected static final String DLINE = "═".repeat(55);
@@ -13,11 +13,7 @@ public abstract class BaseMenu {
     protected final Session session;
     protected final GlobalExceptionHandler exHandler;
 
-    protected BaseMenu(
-            Scanner scanner,
-            Session session,
-            GlobalExceptionHandler exHandler
-    ) {
+    protected BaseMenu(Scanner scanner, Session session, GlobalExceptionHandler exHandler) {
         this.scanner = scanner;
         this.session = session;
         this.exHandler = exHandler;
@@ -42,6 +38,4 @@ public abstract class BaseMenu {
             return -1L;
         }
     }
-
-
 }

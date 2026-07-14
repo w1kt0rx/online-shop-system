@@ -8,7 +8,6 @@ import java.math.BigDecimal;
  * or fixed-amount deduction).
  */
 public interface DiscountStrategy {
-
     /**
      * Calculates and returns the price after applying the discount.
      *

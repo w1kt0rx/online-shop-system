@@ -3,10 +3,6 @@ package order.repository.impl.file;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import order.model.Order;
-import order.model.OrderStatus;
-import order.repository.OrderRepository;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -15,6 +11,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
+import order.model.Order;
+import order.model.OrderStatus;
+import order.repository.OrderRepository;
 
 /**
  * File-backed OrderRepository that persists orders as JSON snapshots.
@@ -29,8 +28,8 @@ public class FileOrderRepository implements OrderRepository {
 
     public FileOrderRepository(String filePath) {
         ObjectMapper mapper = new ObjectMapper()
-                .registerModule(new JavaTimeModule())
-                .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+            .registerModule(new JavaTimeModule())
+            .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
         this.fileStore = new OrderSnapshotFileStore(new File(filePath), mapper);
         initializeFromStorage();
@@ -107,25 +106,25 @@ public class FileOrderRepository implements OrderRepository {
 
     private Order restoreOrder(OrderSnapshot snapshot) {
         return Order.restore(
-                snapshot.id(),
-                snapshot.customerId(),
-                snapshot.totalPrice(),
-                snapshot.createdAt(),
-                snapshot.updatedAt(),
-                snapshot.confirmedAt(),
-                OrderStatus.valueOf(snapshot.status())
+            snapshot.id(),
+            snapshot.customerId(),
+            snapshot.totalPrice(),
+            snapshot.createdAt(),
+            snapshot.updatedAt(),
+            snapshot.confirmedAt(),
+            OrderStatus.valueOf(snapshot.status())
         );
     }
 
     private OrderSnapshot toSnapshot(Order order) {
         return new OrderSnapshot(
-                order.getId(),
-                order.getCustomerId(),
-                order.getTotalPrice(),
-                order.getCreatedAt(),
-                order.getUpdatedAt(),
-                order.getConfirmedAt(),
-                order.getStatus().name()
+            order.getId(),
+            order.getCustomerId(),
+            order.getTotalPrice(),
+            order.getCreatedAt(),
+            order.getUpdatedAt(),
+            order.getConfirmedAt(),
+            order.getStatus().name()
         );
     }
 }

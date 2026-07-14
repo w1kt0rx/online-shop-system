@@ -1,10 +1,17 @@
 package invoice.service;
 
+import static org.assertj.core.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
 import cart.dto.CartItemDto;
 import exception.OrderNotFoundException;
 import invoice.dto.InvoiceDto;
 import invoice.model.Invoice;
 import invoice.repository.InvoiceRepository;
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -12,14 +19,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import product.model.ProductType;
-
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class InvoiceServiceTest {
@@ -30,15 +29,14 @@ class InvoiceServiceTest {
     @InjectMocks
     private InvoiceService invoiceService;
 
-    private static final Long ORDER_ID    = 10L;
+    private static final Long ORDER_ID = 10L;
     private static final Long CUSTOMER_ID = 1L;
     private static final String CUSTOMER_NAME = "Jan Kowalski";
     private static final BigDecimal TOTAL = new BigDecimal("1600.00");
 
     private List<CartItemDto> sampleItems() {
         return List.of(
-                new CartItemDto(1L, "Monitor", ProductType.ELECTRONICS,
-                        new BigDecimal("800"), 2, new BigDecimal("1600"))
+            new CartItemDto(1L, "Monitor", ProductType.ELECTRONICS, new BigDecimal("800"), 2, new BigDecimal("1600"))
         );
     }
 
@@ -69,8 +67,7 @@ class InvoiceServiceTest {
             return i;
         });
 
-        InvoiceDto result = invoiceService.createInvoice(
-                ORDER_ID, CUSTOMER_ID, CUSTOMER_NAME, sampleItems(), TOTAL);
+        InvoiceDto result = invoiceService.createInvoice(ORDER_ID, CUSTOMER_ID, CUSTOMER_NAME, sampleItems(), TOTAL);
 
         assertThat(result.id()).isEqualTo(42L);
         assertThat(result.orderId()).isEqualTo(ORDER_ID);
@@ -107,8 +104,7 @@ class InvoiceServiceTest {
             return i;
         });
 
-        InvoiceDto result = invoiceService.createInvoice(
-                ORDER_ID, CUSTOMER_ID, CUSTOMER_NAME, sampleItems(), TOTAL);
+        InvoiceDto result = invoiceService.createInvoice(ORDER_ID, CUSTOMER_ID, CUSTOMER_NAME, sampleItems(), TOTAL);
 
         assertThat(result.issuedAt()).isNotNull();
     }
@@ -129,7 +125,7 @@ class InvoiceServiceTest {
     void getInvoiceByOrderId_selectsCorrectInvoiceAmongMultiple() {
         Invoice inv1 = new Invoice(null, 1L, 10L, "Alice", sampleItems(), new BigDecimal("500"));
         inv1.setId(1L);
-        Invoice inv2 = new Invoice(null, 2L, 20L, "Bob",   sampleItems(), new BigDecimal("800"));
+        Invoice inv2 = new Invoice(null, 2L, 20L, "Bob", sampleItems(), new BigDecimal("800"));
         inv2.setId(2L);
         Invoice inv3 = new Invoice(null, 3L, 30L, "Carol", sampleItems(), new BigDecimal("300"));
         inv3.setId(3L);

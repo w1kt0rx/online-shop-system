@@ -2,12 +2,11 @@ package order.model;
 
 import cart.model.CartItem;
 import common.time.TimeUtils;
-import lombok.*;
-
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.List;
+import lombok.*;
 
 /**
  * Represents a placed order in the system.
@@ -20,8 +19,10 @@ import java.util.List;
 @ToString
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Order {
+
     @Setter
-    private  Long id;
+    private Long id;
+
     private final Long customerId;
     private final List<CartItem> items;
     private BigDecimal totalPrice;
@@ -31,10 +32,8 @@ public class Order {
     private OrderStatus status;
 
     public static Order of(Long id, Long customerId, List<CartItem> items) {
-        BigDecimal price = items.stream()
-                .map(CartItem::calculateTotalPrice)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-        return new Order(id, customerId, items, price, TimeUtils.now(), TimeUtils.now(), null, OrderStatus.PENDING );
+        BigDecimal price = items.stream().map(CartItem::calculateTotalPrice).reduce(BigDecimal.ZERO, BigDecimal::add);
+        return new Order(id, customerId, items, price, TimeUtils.now(), TimeUtils.now(), null, OrderStatus.PENDING);
     }
 
     /**
@@ -55,9 +54,15 @@ public class Order {
      * @param status      the persisted order status
      * @return a reconstructed Order with an empty item list
      */
-    public static Order restore(Long id, Long customerId, BigDecimal totalPrice,
-                                ZonedDateTime createdAt, ZonedDateTime updatedAt,
-                                ZonedDateTime confirmedAt, OrderStatus status) {
+    public static Order restore(
+        Long id,
+        Long customerId,
+        BigDecimal totalPrice,
+        ZonedDateTime createdAt,
+        ZonedDateTime updatedAt,
+        ZonedDateTime confirmedAt,
+        OrderStatus status
+    ) {
         return new Order(id, customerId, List.of(), totalPrice, createdAt, updatedAt, confirmedAt, status);
     }
 
@@ -68,7 +73,6 @@ public class Order {
         this.status = OrderStatus.CONFIRMED;
         this.confirmedAt = TimeUtils.now();
         this.updatedAt = this.confirmedAt;
-
     }
 
     public List<CartItem> getItems() {

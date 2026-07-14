@@ -1,13 +1,12 @@
 package customer.mapper;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import customer.dto.CustomerDto;
 import customer.model.Customer;
+import java.math.BigDecimal;
 import org.junit.jupiter.api.Test;
 import product.model.electronics.Electronics;
-
-import java.math.BigDecimal;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 class CustomerMapperTest {
 

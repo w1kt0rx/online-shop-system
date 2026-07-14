@@ -1,6 +1,8 @@
 package product.validator;
 
 import exception.InvalidConfigurationException;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import product.model.computer.configuration.GraphicsCard;
@@ -8,18 +10,10 @@ import product.model.computer.configuration.Processor;
 import product.model.computer.configuration.Ram;
 import product.model.computer.configuration.StorageType;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class ComputerConfigurationValidator {
 
-    public static void validate(
-            Processor processor,
-            Ram ram,
-            StorageType storageType,
-            GraphicsCard graphicsCard
-    ) {
+    public static void validate(Processor processor, Ram ram, StorageType storageType, GraphicsCard graphicsCard) {
         List<String> errors = new ArrayList<>();
 
         validateRequired(processor, "Processor", errors);

@@ -1,19 +1,17 @@
 package product.model.smartphone.configuration;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import exception.InvalidConfigurationException;
+import java.math.BigDecimal;
+import java.util.Set;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-
-import java.math.BigDecimal;
-import java.util.Set;
-import java.util.stream.Stream;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 class SmartphoneConfigurationTest {
 
@@ -94,20 +92,19 @@ class SmartphoneConfigurationTest {
 
     @Test
     void shouldThrowWhenAddingNullAccessory() {
-        assertThatExceptionOfType(InvalidConfigurationException.class)
-                .isThrownBy(() -> config.addAccessory(null));
+        assertThatExceptionOfType(InvalidConfigurationException.class).isThrownBy(() -> config.addAccessory(null));
     }
 
     @Test
     void shouldThrowWhenUpdatingColorToNull() {
-        assertThatExceptionOfType(InvalidConfigurationException.class)
-                .isThrownBy(() -> config.updateColor(null));
+        assertThatExceptionOfType(InvalidConfigurationException.class).isThrownBy(() -> config.updateColor(null));
     }
 
     @Test
     void shouldThrowWhenUpdatingBatteryToNull() {
-        assertThatExceptionOfType(InvalidConfigurationException.class)
-                .isThrownBy(() -> config.updateBatteryCapacity(null));
+        assertThatExceptionOfType(InvalidConfigurationException.class).isThrownBy(() ->
+            config.updateBatteryCapacity(null)
+        );
     }
 
     private static Stream<Arguments> provideAllColors() {

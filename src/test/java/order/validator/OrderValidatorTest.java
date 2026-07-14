@@ -1,14 +1,13 @@
 package order.validator;
 
-import cart.model.Cart;
-import exception.EmptyCartException;
-import org.junit.jupiter.api.Test;
-import product.model.electronics.Electronics;
-
-import java.math.BigDecimal;
-
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+
+import cart.model.Cart;
+import exception.EmptyCartException;
+import java.math.BigDecimal;
+import org.junit.jupiter.api.Test;
+import product.model.electronics.Electronics;
 
 class OrderValidatorTest {
 
@@ -17,8 +16,7 @@ class OrderValidatorTest {
         Cart cart = new Cart();
         cart.addProduct(new Electronics(1L, "Monitor", new BigDecimal("800"), 5), 1);
 
-        assertThatCode(() -> OrderValidator.validateCart(cart))
-                .doesNotThrowAnyException();
+        assertThatCode(() -> OrderValidator.validateCart(cart)).doesNotThrowAnyException();
     }
 
     @Test
@@ -26,14 +24,13 @@ class OrderValidatorTest {
         Cart cart = new Cart();
 
         assertThatExceptionOfType(EmptyCartException.class)
-                .isThrownBy(() -> OrderValidator.validateCart(cart))
-                .withMessageContaining("Cannot place an order with an empty cart");
+            .isThrownBy(() -> OrderValidator.validateCart(cart))
+            .withMessageContaining("Cannot place an order with an empty cart");
     }
 
     @Test
     void shouldThrowWhenCartIsNull() {
-        assertThatExceptionOfType(EmptyCartException.class)
-                .isThrownBy(() -> OrderValidator.validateCart(null));
+        assertThatExceptionOfType(EmptyCartException.class).isThrownBy(() -> OrderValidator.validateCart(null));
     }
 
     @Test
@@ -42,8 +39,7 @@ class OrderValidatorTest {
         cart.addProduct(new Electronics(1L, "Keyboard", new BigDecimal("200"), 10), 2);
         cart.addProduct(new Electronics(2L, "Mouse", new BigDecimal("100"), 10), 1);
 
-        assertThatCode(() -> OrderValidator.validateCart(cart))
-                .doesNotThrowAnyException();
+        assertThatCode(() -> OrderValidator.validateCart(cart)).doesNotThrowAnyException();
     }
 
     @Test
@@ -52,7 +48,6 @@ class OrderValidatorTest {
         cart.addProduct(new Electronics(1L, "Monitor", new BigDecimal("800"), 5), 1);
         cart.clear();
 
-        assertThatExceptionOfType(EmptyCartException.class)
-                .isThrownBy(() -> OrderValidator.validateCart(cart));
+        assertThatExceptionOfType(EmptyCartException.class).isThrownBy(() -> OrderValidator.validateCart(cart));
     }
 }

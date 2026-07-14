@@ -1,5 +1,6 @@
 package product.service;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import product.dto.computer.ComputerDto;
 import product.dto.computer.CreateComputerRequest;
@@ -10,8 +11,6 @@ import product.dto.electronics.UpdateElectronicsRequest;
 import product.dto.smartphone.CreateSmartphoneRequest;
 import product.dto.smartphone.SmartphoneDto;
 import product.dto.smartphone.UpdateSmartphoneRequest;
-
-import java.util.List;
 
 /**
  * Facade that exposes all product-catalog operations through a single entry point.

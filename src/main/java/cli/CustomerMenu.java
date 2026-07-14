@@ -5,14 +5,18 @@ import customer.dto.CustomerDto;
 import customer.dto.LoginRequest;
 import customer.service.CustomerService;
 import exception.handler.GlobalExceptionHandler;
-
 import java.util.Scanner;
 
 public class CustomerMenu extends BaseMenu {
 
     private final CustomerService customerService;
 
-    public CustomerMenu(Scanner scanner, Session session, GlobalExceptionHandler exHandler, CustomerService customerService) {
+    public CustomerMenu(
+        Scanner scanner,
+        Session session,
+        GlobalExceptionHandler exHandler,
+        CustomerService customerService
+    ) {
         super(scanner, session, exHandler);
         this.customerService = customerService;
     }
@@ -63,8 +67,7 @@ public class CustomerMenu extends BaseMenu {
         String password = scanner.nextLine();
 
         try {
-            CustomerDto customer = customerService.createCustomer(
-                    new CreateCustomerRequest(name, email, password));
+            CustomerDto customer = customerService.createCustomer(new CreateCustomerRequest(name, email, password));
             session.setCurrentCustomerId(customer.id());
             print("Registered! Welcome, " + customer.name() + ".");
         } catch (Exception e) {

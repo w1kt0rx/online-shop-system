@@ -1,16 +1,16 @@
 package product.repository.impl;
 
-import product.model.computer.Computer;
-import product.repository.ComputerRepository;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
+import product.model.computer.Computer;
+import product.repository.ComputerRepository;
 
 public class InMemoryComputerRepository implements ComputerRepository {
+
     private final Map<Long, Computer> database = new ConcurrentHashMap<>();
     private final AtomicLong sequenceId = new AtomicLong(1L);
 

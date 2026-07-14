@@ -1,15 +1,15 @@
 package order.repository.impl;
 
-import order.model.Order;
-import order.repository.OrderRepository;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
+import order.model.Order;
+import order.repository.OrderRepository;
 
 public class InMemoryOrderRepository implements OrderRepository {
+
     private final Map<Long, Order> database = new ConcurrentHashMap<>();
     private final AtomicLong idSequence = new AtomicLong(1L);
 
