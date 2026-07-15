@@ -1,0 +1,57 @@
+[ {
+  "id" : 1,
+  "customerId" : 1,
+  "totalPrice" : 6100,
+  "createdAt" : "2026-06-13T15:58:51.0013168Z",
+  "updatedAt" : "2026-06-13T15:58:51.0013168Z",
+  "confirmedAt" : "2026-06-13T15:58:51.0013168Z",
+  "status" : "CONFIRMED"
+}, {
+  "id" : 2,
+  "customerId" : 1,
+  "totalPrice" : 5550,
+  "createdAt" : "2026-06-13T15:59:31.05315Z",
+  "updatedAt" : "2026-06-13T15:59:31.05315Z",
+  "confirmedAt" : "2026-06-13T15:59:31.05315Z",
+  "status" : "CONFIRMED"
+}, {
+  "id" : 3,
+  "customerId" : 1,
+  "totalPrice" : 5500,
+  "createdAt" : "2026-06-14T18:00:32.3092444Z",
+  "updatedAt" : "2026-06-14T18:00:32.3097441Z",
+  "confirmedAt" : "2026-06-14T18:00:32.3097441Z",
+  "status" : "CONFIRMED"
+}, {
+  "id" : 4,
+  "customerId" : 1,
+  "totalPrice" : 11180,
+  "createdAt" : "2026-06-15T19:35:05.142048Z",
+  "updatedAt" : "2026-06-15T19:35:05.142048Z",
+  "confirmedAt" : "2026-06-15T19:35:05.142048Z",
+  "status" : "CONFIRMED"
+}, {
+  "id" : 5,
+  "customerId" : 1,
+  "totalPrice" : 5500,
+  "createdAt" : "2026-06-15T19:36:55.5673414Z",
+  "updatedAt" : "2026-06-15T19:36:55.5673414Z",
+  "confirmedAt" : "2026-06-15T19:36:55.5673414Z",
+  "status" : "CONFIRMED"
+}, {
+  "id" : 6,
+  "customerId" : 1,
+  "totalPrice" : 5500,
+  "createdAt" : "2026-06-18T09:14:57.2886645Z",
+  "updatedAt" : "2026-06-18T09:14:57.2886645Z",
+  "confirmedAt" : "2026-06-18T09:14:57.2886645Z",
+  "status" : "CONFIRMED"
+}, {
+  "id" : 7,
+  "customerId" : 1,
+  "totalPrice" : 5065,
+  "createdAt" : "2026-06-22T10:43:18.1463761+02:00",
+  "updatedAt" : "2026-06-22T10:43:18.1463761+02:00",
+  "confirmedAt" : "2026-06-22T10:43:18.1463761+02:00",
+  "status" : "CONFIRMED"
+} ]
